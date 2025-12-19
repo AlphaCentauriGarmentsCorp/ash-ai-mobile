@@ -1,0 +1,6 @@
+# Ignore utility files and folders
+utils/**
+hooks/**
+services/**
+components/**
+examples/**
