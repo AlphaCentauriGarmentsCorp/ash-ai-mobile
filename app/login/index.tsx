@@ -2,20 +2,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function Index() {
@@ -26,7 +26,9 @@ export default function Index() {
   const [isChecked, setChecked] = useState(false);
 
   const handleLogin = () => {
-    router.push("/login/otp-verification" as any);
+    // For testing, navigate directly to dashboard
+    // router.push("/login/otp-verification" as any);
+    router.push("/dashboard" as any);
   };
 
   const handleNavigation = (route: string) => {
