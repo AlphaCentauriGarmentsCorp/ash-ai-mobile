@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function Index() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function Index() {
 
           {/* Username Input */}
           <View style={styles.inputRow}>
-            <Ionicons name="person" size={20} color="#999" style={styles.inputIcon} />
+            <Ionicons name="person" size={ms(20)} color="#999" style={styles.inputIcon} />
             <TextInput
               placeholder="Username"
               placeholderTextColor="#999"
@@ -89,7 +90,7 @@ export default function Index() {
 
           {/* Password Input */}
           <View style={styles.inputRow}>
-            <Ionicons name="key" size={20} color="#999" style={styles.inputIcon} />
+            <Ionicons name="key" size={ms(20)} color="#999" style={styles.inputIcon} />
             <TextInput
               placeholder="Password"
               placeholderTextColor="#999"
@@ -101,7 +102,7 @@ export default function Index() {
             <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}>
               <Ionicons 
                 name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                size={20} 
+                size={ms(20)} 
                 color="#999" 
               />
             </Pressable>
@@ -114,7 +115,7 @@ export default function Index() {
               onPress={() => setChecked(!isChecked)}
             >
               <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
-                  {isChecked && <Ionicons name="checkmark" size={12} color="#fff" />}
+                  {isChecked && <Ionicons name="checkmark" size={ms(12)} color="#fff" />}
               </View>
               <Text style={styles.rememberText}>Remember me</Text>
             </Pressable>
@@ -149,52 +150,52 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "space-between", 
-    paddingBottom: 30, 
+    paddingBottom: hp(3.7), 
   },
   logoWrap: {
     alignItems: "center",
     justifyContent: 'center',
     flex: 1, 
-    marginTop: -20, 
+    marginTop: hp(-2.5), 
   },
   logo: {
-    width: 420, 
-    height: 380,
-    marginBottom: -70,
+    width: wp(112), 
+    height: hp(46.8),
+    marginBottom: hp(-8.6),
   },
   appSubtitle: {
     color: "#4a5b6c",
-    fontSize: 32, 
+    fontSize: rfs(32), 
     fontFamily: 'EuphoriaScript',
-    marginTop: -10,
+    marginTop: hp(-1.2),
   },
   formWrap: {
     width: "88%",
-    marginBottom: 20,
+    marginBottom: hp(2.5),
   },
   welcome: {
-    fontSize: 28,
+    fontSize: rfs(28),
     fontFamily: "Poppins_700Bold", 
     color: "#1A2B3C",
-    marginBottom: 8,
+    marginBottom: hp(1),
     textAlign: "left",
   },
   caption: {
     color: "#556677",
-    fontSize: 14,
+    fontSize: rfs(14),
     fontFamily: "Poppins_300Light", 
-    marginBottom: 32, 
-    lineHeight: 20,
+    marginBottom: hp(3.9), 
+    lineHeight: rfs(20),
     textAlign: "left",
   },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10, 
-    marginBottom: 34, 
+    borderRadius: ms(10),
+    paddingHorizontal: wp(3.7),
+    paddingVertical: hp(1.2), 
+    marginBottom: hp(4.2), 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -204,12 +205,12 @@ const styles = StyleSheet.create({
     borderColor: "#8E909B",
   },
   inputIcon: {
-    marginRight: 10,
+    marginRight: wp(2.7),
     opacity: 0.6,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: rfs(16),
     color: "#111",
     fontFamily: "Poppins_400Regular",
   },
@@ -217,22 +218,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
-    marginTop: 4, 
-    paddingHorizontal: 2,
+    marginBottom: hp(3),
+    marginTop: hp(0.5), 
+    paddingHorizontal: wp(0.5),
   },
   rememberRow: { 
     flexDirection: "row", 
     alignItems: "center" 
   },
   checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
+    width: ms(18),
+    height: ms(18),
+    borderRadius: ms(4),
     borderWidth: 1.5,
     borderColor: "#889",
     backgroundColor: "#fff",
-    marginRight: 8,
+    marginRight: wp(2.1),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -242,18 +243,18 @@ const styles = StyleSheet.create({
   },
   rememberText: { 
     color: "#334", 
-    fontSize: 12, 
+    fontSize: rfs(12), 
     fontFamily: "Poppins_400Regular",
   },
   forgot: { 
     color: "#334",
-    fontSize: 12, 
+    fontSize: rfs(12), 
     fontFamily: "Poppins_400Regular",
   },
   loginButton: {
     backgroundColor: "#084C7F",
-    paddingVertical: 12, 
-    borderRadius: 12,
+    paddingVertical: hp(1.5), 
+    borderRadius: ms(12),
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
   },
   loginText: { 
     color: "#fff", 
-    fontSize: 18, 
+    fontSize: rfs(18), 
     fontFamily: "Poppins_700Bold",
   },
 });

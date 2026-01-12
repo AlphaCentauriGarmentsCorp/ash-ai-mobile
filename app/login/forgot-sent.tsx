@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function ForgotSent() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function ForgotSent() {
     >
       <SafeAreaView style={styles.safeArea}>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#084C7F" />
+        <Ionicons name="arrow-back" size={ms(24)} color="#084C7F" />
       </TouchableOpacity>
 
       <View style={styles.centerContainer}>
@@ -66,61 +67,61 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    justifyContent: "space-between" // Pushes content apart
+    justifyContent: "space-between"
   },
   backButton: {
     position: "absolute",
-    top: Platform.OS === "android" ? (StatusBar.currentHeight || 0) + 16 : 16,
-    left: 20,
+    top: Platform.OS === "android" ? (StatusBar.currentHeight || 0) + hp(2) : hp(2),
+    left: wp(5.3),
     zIndex: 10,
-    padding: 8,
+    padding: ms(8),
   },
   
   // Center Section
   centerContainer: { 
-    flex: 1, // Takes up all available space
+    flex: 1,
     alignItems: "center", 
     justifyContent: "center", 
-    paddingHorizontal: 40,
-    paddingBottom: 50 // Nudges the visual center up slightly to match the eye-line
+    paddingHorizontal: wp(10.7),
+    paddingBottom: hp(6.2)
   },
   icon: { 
-    width: 100, 
-    height: 100, 
-    marginBottom: 20,
+    width: wp(26.7), 
+    height: hp(12.3), 
+    marginBottom: hp(2.5),
   },
   emoji: {
-    fontSize: 96,
-    marginBottom: 12,
+    fontSize: rfs(96),
+    marginBottom: hp(1.5),
     textAlign: 'center',
   },
   title: { 
-    fontSize: 26, 
+    fontSize: rfs(26), 
     fontWeight: "900", 
     color: "#0D253F", 
     textAlign: "center", 
-    marginBottom: 10,
-    lineHeight: 32
+    marginBottom: hp(1.2),
+    lineHeight: rfs(32)
   },
   subtitle: { 
     color: "#556677", 
-    fontSize: 15, 
+    fontSize: rfs(15), 
     textAlign: "center", 
-    lineHeight: 22,
-    maxWidth: "80%" // Prevents text from stretching too wide
+    lineHeight: rfs(22),
+    maxWidth: "80%"
   },
 
   // Bottom Section
   bottomContainer: {
-    paddingHorizontal: 24, // Matches the side margins of the input fields in previous screens
-    paddingBottom: 40, // Distance from bottom edge
+    paddingHorizontal: wp(6.4),
+    paddingBottom: hp(4.9),
     width: "100%",
   },
   continueButton: { 
     width: "100%", 
     backgroundColor: "#084C7F", 
-    paddingVertical: 16, 
-    borderRadius: 12, 
+    paddingVertical: hp(2), 
+    borderRadius: ms(12), 
     alignItems: "center",
     shadowColor: "#084C7F",
     shadowOffset: { width: 0, height: 4 },
@@ -131,6 +132,6 @@ const styles = StyleSheet.create({
   continueText: { 
     color: "#fff", 
     fontWeight: "bold", 
-    fontSize: 17 
+    fontSize: rfs(17) 
   },
 });
