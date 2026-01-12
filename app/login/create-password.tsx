@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -13,7 +14,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function CreatePassword() {
           <View style={styles.form}>
             {/* New Password Input */}
             <View style={styles.inputRow}>
-              <Ionicons name="key" size={20} color="#8899A6" style={styles.inputIcon} />
+              <Ionicons name="key" size={ms(20)} color="#8899A6" style={styles.inputIcon} />
               <TextInput
                 placeholder="New password"
                 placeholderTextColor="#8899A6"
@@ -60,7 +61,7 @@ export default function CreatePassword() {
               <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}>
                 <Ionicons 
                   name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
+                  size={ms(20)} 
                   color="#8899A6" 
                 />
               </Pressable>
@@ -68,7 +69,7 @@ export default function CreatePassword() {
 
             {/* Confirm Password Input */}
             <View style={styles.inputRow}>
-              <Ionicons name="key" size={20} color="#8899A6" style={styles.inputIcon} />
+              <Ionicons name="key" size={ms(20)} color="#8899A6" style={styles.inputIcon} />
               <TextInput
                 placeholder="Confirm new password"
                 placeholderTextColor="#8899A6"
@@ -78,7 +79,7 @@ export default function CreatePassword() {
               <Pressable onPress={() => setConfirmVisible(!isConfirmVisible)}>
                 <Ionicons 
                   name={isConfirmVisible ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
+                  size={ms(20)} 
                   color="#8899A6" 
                 />
               </Pressable>
@@ -102,7 +103,7 @@ export default function CreatePassword() {
 const styles = StyleSheet.create({
   safeArea: { 
     flex: 1, 
-    backgroundColor: "transparent", // Ensures the gradient from _layout.tsx shows
+    backgroundColor: "transparent",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0 
   },
   keyboardView: {
@@ -114,21 +115,21 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   header: {
-    marginBottom: 30,
+    marginBottom: hp(3.7),
   },
   title: { 
-    fontSize: 34, 
-    fontFamily: "Poppins_700Bold", // Applied Poppins
+    fontSize: rfs(34), 
+    fontFamily: "Poppins_700Bold",
     color: "#0D253F",
-    lineHeight: 40, 
-    marginBottom: 8,
+    lineHeight: rfs(40), 
+    marginBottom: hp(1),
     textAlign: 'left',
   },
   subtitle: { 
     color: "#556677", 
-    fontSize: 14, 
-    fontFamily: "Poppins_400Regular", // Applied Poppins
-    lineHeight: 20,
+    fontSize: rfs(14), 
+    fontFamily: "Poppins_400Regular",
+    lineHeight: rfs(20),
     textAlign: 'left',
   },
   form: {
@@ -138,10 +139,10 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     alignItems: "center", 
     backgroundColor: "#fff", 
-    borderRadius: 12,
-    paddingHorizontal: 14, 
-    paddingVertical: 14, 
-    marginBottom: 16, 
+    borderRadius: ms(12),
+    paddingHorizontal: wp(3.7), 
+    paddingVertical: hp(1.7), 
+    marginBottom: hp(2), 
     shadowColor: "#000", 
     shadowOffset: { width: 0, height: 2 }, 
     shadowOpacity: 0.1, 
@@ -149,20 +150,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   inputIcon: { 
-    marginRight: 12, 
+    marginRight: wp(3.2), 
   },
   input: { 
     flex: 1, 
-    fontSize: 16, 
+    fontSize: rfs(16), 
     color: "#111",
-    fontFamily: "Poppins_400Regular", // Applied Poppins
+    fontFamily: "Poppins_400Regular",
   },
   submitButton: { 
     backgroundColor: "#084C7F", 
-    paddingVertical: 16, 
-    borderRadius: 12, 
+    paddingVertical: hp(2), 
+    borderRadius: ms(12), 
     alignItems: "center", 
-    marginTop: 10,
+    marginTop: hp(1.2),
     shadowColor: "#000", 
     shadowOffset: { width: 0, height: 4 }, 
     shadowOpacity: 0.2, 
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
   },
   submitText: { 
     color: "#fff", 
-    fontFamily: "Poppins_700Bold", // Applied Poppins
-    fontSize: 16 
+    fontFamily: "Poppins_700Bold",
+    fontSize: rfs(16) 
   },
 });

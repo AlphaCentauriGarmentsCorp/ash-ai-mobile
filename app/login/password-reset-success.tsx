@@ -1,4 +1,5 @@
 import { Poppins_700Bold, useFonts } from "@expo-google-fonts/poppins";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -12,7 +13,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function PasswordResetSuccess() {
   const router = useRouter();
@@ -78,36 +79,36 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 28,
+    paddingHorizontal: wp(7.5),
   },
   bottomContainer: {
-    paddingHorizontal: 28,
-    paddingBottom: 30,
+    paddingHorizontal: wp(7.5),
+    paddingBottom: hp(3.7),
     width: "100%",
   },
   iconImage: { 
-    width: 72, 
-    height: 72, 
-    marginBottom: 24 
+    width: wp(19.2), 
+    height: hp(8.9), 
+    marginBottom: hp(3) 
   },
   title: {
-    fontSize: 24,
+    fontSize: rfs(24),
     fontFamily: "Poppins_700Bold",
     color: "#0D253F",
     textAlign: "center",
-    marginBottom: 12,
+    marginBottom: hp(1.5),
   },
   subtitle: {
     color: "#556677",
-    fontSize: 14,
+    fontSize: rfs(14),
     textAlign: "center",
   },
   continueButton: {
     width: "100%",
     backgroundColor: "#084C7F",
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: hp(2),
+    borderRadius: ms(12),
     alignItems: "center",
   },
-  continueText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  continueText: { color: "#fff", fontWeight: "700", fontSize: rfs(16) },
 });
