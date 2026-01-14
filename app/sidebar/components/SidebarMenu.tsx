@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface MenuItem {
   id: string;
   title: string;
   icon: string;
+  route?: string;
   section?: string;
 }
 
@@ -13,23 +15,28 @@ interface SidebarMenuProps {
 }
 
 export default function SidebarMenu({ onItemPress }: SidebarMenuProps) {
+  const router = useRouter();
+
   const homeItems: MenuItem[] = [
-    { id: 'dashboard', title: 'Dashboard', icon: 'home-outline' },
+    { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
   ];
 
   const dailyOperations: MenuItem[] = [
-    { id: 'orders', title: 'Orders', icon: 'receipt-outline' },
+    { id: 'orders', title: 'Orders', icon: 'receipt-outline', route: '/order' },
     { id: 'design', title: 'Design and Approval', icon: 'color-palette-outline' },
     { id: 'cutting', title: 'Cutting Operations', icon: 'cut-outline' },
     { id: 'printing', title: 'Printing Operations', icon: 'print-outline' },
     { id: 'material', title: 'Material Preparation', icon: 'cube-outline' },
   ];
 
-  const handleItemPress = (itemId: string) => {
-    console.log('Menu item pressed:', itemId);
+  const handleItemPress = (item: MenuItem) => {
+    console.log('Menu item pressed:', item.id);
+    if (item.route) {
+      router.push(item.route as any);
+    }
     onItemPress();
   };
 
@@ -37,7 +44,7 @@ export default function SidebarMenu({ onItemPress }: SidebarMenuProps) {
     <TouchableOpacity
       key={item.id}
       style={styles.menuItem}
-      onPress={() => handleItemPress(item.id)}
+      onPress={() => handleItemPress(item)}
       activeOpacity={0.7}
     >
       <Ionicons name={item.icon as any} size={20} color="#ffffff" />

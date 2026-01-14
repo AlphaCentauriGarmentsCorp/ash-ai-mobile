@@ -4,6 +4,10 @@ import React, { useRef, useState } from 'react';
 import {
     Animated // Import Animated
     ,
+
+
+
+
     Platform,
     SafeAreaView,
     ScrollView,
@@ -15,6 +19,7 @@ import {
     View
 } from 'react-native';
 import { hp, ms, rfs, wp } from "../../utils/responsive";
+import Sidebar from '../sidebar';
 
 // --- Static Mock Data ---
 const orders = Array.from({ length: 12 }).map((_, i) => ({
@@ -30,6 +35,7 @@ const orders = Array.from({ length: 12 }).map((_, i) => ({
 
 export default function OrderPage() {
   const router = useRouter();
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   // --- Scrollbar Logic ---
   const scrollX = useRef(new Animated.Value(0)).current; // Track scroll position
@@ -60,7 +66,7 @@ export default function OrderPage() {
       {/* --- Top Dark Header --- */}
       <SafeAreaView style={styles.topSafeArea}>
         <View style={styles.topHeaderBar}>
-           <TouchableOpacity>
+           <TouchableOpacity onPress={() => setSidebarVisible(true)}>
              <Ionicons name="menu" size={ms(28)} color="#FFF" />
            </TouchableOpacity>
            <View style={{flex:1}} /> 
@@ -74,6 +80,9 @@ export default function OrderPage() {
            </View>
         </View>
       </SafeAreaView>
+
+      {/* Sidebar */}
+      <Sidebar visible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
 
       {/* --- Main Content --- */}
       <View style={styles.contentContainer}>
