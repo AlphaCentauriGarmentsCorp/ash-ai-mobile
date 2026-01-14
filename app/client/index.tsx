@@ -11,7 +11,7 @@ import {
     useFonts
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
     Animated,
@@ -128,6 +128,7 @@ const ClientsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
 
       {/* --- Top Header --- */}
