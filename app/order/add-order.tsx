@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 import DesignMockup from './components/DesignMockup';
@@ -55,7 +55,9 @@ export default function AddOrderPage() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stepperContent}>
            {steps.map((step, index) => (
              <View key={index} style={styles.stepItem}>
-               <Text style={[styles.stepText, currentStep === index && styles.stepTextActive]}>{step.title}</Text>
+               <TouchableOpacity onPress={() => setCurrentStep(index)}>
+                 <Text style={[styles.stepText, currentStep === index && styles.stepTextActive]}>{step.title}</Text>
+               </TouchableOpacity>
                {index < steps.length - 1 && <Ionicons name="chevron-forward" size={ms(12)} color="#CCC" style={{marginHorizontal: wp(2.1)}} />}
              </View>
            ))}
