@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Sidebar from '../sidebar';
+import GlobalSidebar from './GlobalSidebar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -179,7 +179,7 @@ export default function GlobalHeader() {
       </Modal>
 
       {/* Sidebar */}
-      <Sidebar 
+      <GlobalSidebar 
         visible={showSidebar} 
         onClose={() => setShowSidebar(false)} 
       />
