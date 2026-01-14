@@ -1,15 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 interface NewClientScreenProps {
@@ -19,17 +18,18 @@ interface NewClientScreenProps {
 export default function NewClientScreen({ onBack }: NewClientScreenProps) {
 
   return (
-    <SafeAreaView style={styles.container}>
+    <>
       <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
-      
-      {/* --- Custom Header --- */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#FFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Client</Text>
-        <Text style={styles.breadCrumb}>Home / New Client</Text>
-      </View>
+      <SafeAreaView style={styles.safeAreaTop} />
+      <SafeAreaView style={styles.container}>
+        {/* --- Custom Header --- */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={24} color="#FFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Add Client</Text>
+          <Text style={styles.breadCrumb}>Home / New Client</Text>
+        </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
@@ -140,19 +140,23 @@ export default function NewClientScreen({ onBack }: NewClientScreenProps) {
         
         <View style={{height: 40}} />
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaTop: {
+    flex: 0,
+    backgroundColor: '#0D253F',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF',
   },
   header: {
     backgroundColor: '#0D253F',
-    height: 60 + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0),
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,

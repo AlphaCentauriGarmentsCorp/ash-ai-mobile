@@ -2,14 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 import DesignMockup from './components/DesignMockup';
@@ -36,20 +35,20 @@ export default function AddOrderPage() {
   };
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
+    <>
       <StatusBar barStyle="light-content" backgroundColor="#0B1C36" />
-      
-      {/* --- Top Header --- */}
-      <SafeAreaView style={styles.topSafeArea}>
+      <SafeAreaView style={styles.topSafeArea} />
+      <View style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        
+        {/* --- Top Header --- */}
         <View style={styles.headerTop}>
            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
              <Ionicons name="chevron-back" size={ms(24)} color="#FFF" />
            </TouchableOpacity>
-           <Text style={styles.headerTitle}>Adidas</Text>
+           <Text style={styles.headerTitle}>Add Order</Text>
            <Text style={styles.headerBreadcrumb}>Home / Add New Order</Text>
         </View>
-      </SafeAreaView>
 
       {/* --- Stepper --- */}
       <View style={styles.stepperContainer}>
@@ -80,7 +79,7 @@ export default function AddOrderPage() {
       </View>
 
       {/* --- Bottom Footer --- */}
-      <SafeAreaView style={{backgroundColor: '#FFF'}}>
+      <SafeAreaView style={styles.bottomSafeArea}>
         <View style={styles.bottomNav}>
             {/* Logic for buttons changes on last step */}
             {currentStep < 3 ? (
@@ -108,6 +107,7 @@ export default function AddOrderPage() {
         </View>
       </SafeAreaView>
     </View>
+    </>
   );
 }
 
@@ -117,8 +117,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#0B1C36',
   },
   topSafeArea: {
+    flex: 0,
     backgroundColor: '#0B1C36',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  bottomSafeArea: {
+    flex: 0,
+    backgroundColor: '#FFF',
   },
   headerTop: {
     flexDirection: 'row',
@@ -126,6 +130,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4.3),
     paddingBottom: hp(2),
     paddingTop: hp(1.2),
+    backgroundColor: '#0B1C36',
   },
   backBtn: {
     padding: ms(4),

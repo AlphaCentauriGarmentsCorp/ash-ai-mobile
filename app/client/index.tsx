@@ -11,12 +11,11 @@ import {
     useFonts
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
     Animated,
     Modal,
-    Platform,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -26,7 +25,8 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import Sidebar from '../sidebar';
+import GlobalHeader from '../components/GlobalHeader';
+import PageTitle from '../components/PageTitle';
 import NewClientScreen from './components/new-client';
 
 // Types
@@ -45,8 +45,6 @@ const DATA: Client[] = Array(12).fill({
 });
 
 const ClientsScreen = () => {
-  const router = useRouter();
-  
   // 1. Move font loading inside the main component
   const [fontsLoaded] = useFonts({
     Poppins_100Thin,
@@ -62,7 +60,6 @@ const ClientsScreen = () => {
 
   const [searchText, setSearchText] = useState('');
   const [showNewClient, setShowNewClient] = useState(false);
-  const [sidebarVisible, setSidebarVisible] = useState(false);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,32 +128,13 @@ const ClientsScreen = () => {
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
 
-      {/* --- Top Header --- */}
-      <View style={styles.topHeader}>
-        <TouchableOpacity onPress={() => setSidebarVisible(true)}>
-          <Ionicons name="menu" size={28} color="#FFF" />
-        </TouchableOpacity>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="list" size={24} color="#FFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="notifications" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* Global Header */}
+      <GlobalHeader />
 
-      {/* Sidebar */}
-      <Sidebar visible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
+      {/* Page Title */}
+      <PageTitle title="Clients" icon="people-outline" />
 
       <ScrollView style={styles.contentContainer}>
-        {/* Title */}
-        <View style={styles.pageTitleRow}>
-          <View style={styles.circleIcon}>
-            <Ionicons name="people" size={16} color="#0D253F" />
-          </View>
-          <Text style={styles.pageTitle}>Clients</Text>
-        </View>
 
         {/* Buttons */}
         <View style={styles.actionButtonsRow}>
@@ -411,29 +389,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F7FA',
   },
-  topHeader: {
-    height: 60 + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0),
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
-    backgroundColor: '#0D253F',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
+  contentContainer: { 
+    flex: 1, 
+    padding: 15, 
+    backgroundColor: '#FFF' 
   },
-  headerIcons: { flexDirection: 'row' },
-  iconBtn: {
-    marginLeft: 15,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    padding: 5,
-  },
-  contentContainer: { flex: 1, padding: 15, backgroundColor: '#FFF' },
-  pageTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  circleIcon: {
-    width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: '#0D253F',
-    justifyContent: 'center', alignItems: 'center', marginRight: 10,
-  },
-  pageTitle: { fontSize: 18, fontWeight: 'bold', color: '#0D253F' },
   actionButtonsRow: { flexDirection: 'row', marginBottom: 20 },
   btn: {
     flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 20,
