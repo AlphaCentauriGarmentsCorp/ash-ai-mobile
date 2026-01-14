@@ -1,6 +1,7 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import DashboardHeader from './components/DashboardHeader';
+import GlobalHeader from '../components/GlobalHeader';
+import PageTitle from '../components/PageTitle';
 import ExternalOperations from './components/ExternalOperations';
 import Manufacturing from './components/Manufacturing';
 import QuickActions from './components/QuickActions';
@@ -18,7 +19,8 @@ const getResponsivePadding = () => {
 export default function Dashboard() {
   return (
     <SafeAreaView style={styles.container}>
-      <DashboardHeader />
+      <GlobalHeader />
+      <PageTitle title="Dashboard" icon="stats-chart-outline" />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <QuickActions />
         <StatsCards />

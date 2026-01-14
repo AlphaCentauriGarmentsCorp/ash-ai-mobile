@@ -2,24 +2,19 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-    Animated // Import Animated
-    ,
-
-
-
-
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Animated,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { hp, ms, rfs, wp } from "../../utils/responsive";
-import Sidebar from '../sidebar';
+import GlobalHeader from '../components/GlobalHeader';
+import PageTitle from '../components/PageTitle';
 
 // --- Static Mock Data ---
 const orders = Array.from({ length: 12 }).map((_, i) => ({
@@ -59,46 +54,17 @@ export default function OrderPage() {
   });
 
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="light-content" backgroundColor="#0B1C36" />
+      <StatusBar barStyle="light-content" backgroundColor="#0a2540" />
 
-      {/* --- Top Dark Header --- */}
-      <SafeAreaView style={styles.topSafeArea}>
-        <View style={styles.topHeaderBar}>
-           <TouchableOpacity onPress={() => setSidebarVisible(true)}>
-             <Ionicons name="menu" size={ms(28)} color="#FFF" />
-           </TouchableOpacity>
-           <View style={{flex:1}} /> 
-           <View style={styles.headerIcons}>
-              <TouchableOpacity style={styles.headerIconBtn}>
-                 <Ionicons name="list" size={ms(20)} color="#0B1C36" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.headerIconBtnTransparent}>
-                 <Ionicons name="notifications" size={ms(24)} color="#FFF" />
-              </TouchableOpacity>
-           </View>
-        </View>
-      </SafeAreaView>
-
-      {/* Sidebar */}
-      <Sidebar visible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
+      <GlobalHeader />
+      <PageTitle title="Orders" icon="people-outline" breadcrumb="Daily Operations / Orders" />
 
       {/* --- Main Content --- */}
       <View style={styles.contentContainer}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           
-          {/* Title Section */}
-          <View style={styles.headerSection}>
-            <View style={styles.titleRow}>
-              <View style={styles.iconCircle}>
-                  <Ionicons name="people-outline" size={ms(20)} color="#0B1C36" />
-              </View>
-              <Text style={styles.headerTitle}>Clients</Text>
-              <Text style={styles.breadcrumb}>Daily Operations / Orders</Text>
-            </View>
-          </View>
-
           {/* Action Buttons */}
           <View style={styles.actionRow}>
             <TouchableOpacity 
@@ -247,26 +213,14 @@ export default function OrderPage() {
           <View style={{ height: hp(5) }} /> 
         </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: '#0B1C36' },
-  topSafeArea: { backgroundColor: '#0B1C36', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
-  topHeaderBar: { height: hp(6.2), flexDirection: 'row', alignItems: 'center', paddingHorizontal: wp(4.3), backgroundColor: '#0B1C36' },
-  headerIcons: { flexDirection: 'row', alignItems: 'center', gap: wp(3.2) },
-  headerIconBtn: { width: ms(32), height: ms(32), backgroundColor: '#FFF', borderRadius: ms(16), justifyContent: 'center', alignItems: 'center' },
-  headerIconBtnTransparent: { justifyContent: 'center', alignItems: 'center' },
+  mainContainer: { flex: 1, backgroundColor: '#f8f9fa' },
   contentContainer: { flex: 1, backgroundColor: '#FFF' },
   scrollView: { flex: 1, paddingHorizontal: wp(4.3), paddingTop: hp(2) },
-  
-  // Header
-  headerSection: { marginBottom: hp(2.5) },
-  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' },
-  iconCircle: { width: ms(32), height: ms(32), borderRadius: ms(16), borderWidth: 1, borderColor: '#0B1C36', justifyContent: 'center', alignItems: 'center', marginRight: wp(2.1) },
-  headerTitle: { fontSize: rfs(20), fontWeight: 'bold', color: '#0B1C36', marginRight: 'auto' },
-  breadcrumb: { fontSize: rfs(12), color: '#666', marginTop: hp(0.5), width: '100%', textAlign: 'right' },
   
   // Actions
   actionRow: { flexDirection: 'row', marginBottom: hp(2), gap: wp(2.1) },
