@@ -1,5 +1,25 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const getResponsiveSizes = () => {
+  const isSmallDevice = SCREEN_WIDTH < 375;
+  const isMediumDevice = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 768;
+  
+  return {
+    cardPadding: isSmallDevice ? 12 : 16,
+    titleSize: isSmallDevice ? 12 : 14,
+    valueSize: isSmallDevice ? 20 : 24,
+    changeSize: isSmallDevice ? 11 : 12,
+    iconSize: isSmallDevice ? 14 : 16,
+    minHeight: isSmallDevice ? 100 : 120,
+    isSmallDevice,
+    isMediumDevice,
+  };
+};
+
+const sizes = getResponsiveSizes();
 
 interface StatCardProps {
   title: string;
@@ -28,7 +48,7 @@ function StatCard({ title, value, change, changeType, backgroundColor, textColor
       <Text style={[styles.cardValue, { color: textColor }]}>{value}</Text>
       <View style={styles.changeContainer}>
         <View style={styles.changeRow}>
-          <Ionicons name={getIcon()} size={16} color={textColor} />
+          <Ionicons name={getIcon()} size={sizes.iconSize} color={textColor} />
           <Text style={[styles.changeText, { color: textColor }]}>{change}</Text>
         </View>
         <TouchableOpacity>
@@ -84,28 +104,28 @@ export default function StatsCards() {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 8,
+    marginVertical: sizes.isSmallDevice ? 6 : 8,
   },
   row: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
+    gap: sizes.isSmallDevice ? 8 : 12,
+    marginBottom: sizes.isSmallDevice ? 8 : 12,
   },
   card: {
     flex: 1,
-    borderRadius: 12,
-    padding: 16,
-    minHeight: 120,
+    borderRadius: sizes.isSmallDevice ? 10 : 12,
+    padding: sizes.cardPadding,
+    minHeight: sizes.minHeight,
   },
   cardTitle: {
-    fontSize: 14,
+    fontSize: sizes.titleSize,
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: sizes.isSmallDevice ? 6 : 8,
   },
   cardValue: {
-    fontSize: 24,
+    fontSize: sizes.valueSize,
     fontWeight: '700',
-    marginBottom: 12,
+    marginBottom: sizes.isSmallDevice ? 10 : 12,
   },
   changeContainer: {
     flexDirection: 'row',
@@ -117,12 +137,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   changeText: {
-    fontSize: 12,
+    fontSize: sizes.changeSize,
     fontWeight: '500',
     marginLeft: 4,
   },
   viewMore: {
-    fontSize: 12,
+    fontSize: sizes.changeSize,
     textDecorationLine: 'underline',
   },
 });

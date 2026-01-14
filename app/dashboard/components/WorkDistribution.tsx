@@ -1,4 +1,23 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const getResponsiveSizes = () => {
+  const isSmallDevice = SCREEN_WIDTH < 375;
+  const isMediumDevice = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 768;
+  
+  return {
+    containerPadding: isSmallDevice ? 12 : 16,
+    titleSize: isSmallDevice ? 16 : 18,
+    emptyTextSize: isSmallDevice ? 12 : 14,
+    emptyPadding: isSmallDevice ? 40 : 60,
+    borderRadius: isSmallDevice ? 10 : 12,
+    isSmallDevice,
+    isMediumDevice,
+  };
+};
+
+const sizes = getResponsiveSizes();
 
 export default function WorkDistribution() {
   return (
@@ -14,26 +33,29 @@ export default function WorkDistribution() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#4a90e2',
-    padding: 16,
-    marginVertical: 8,
-    marginBottom: 24,
+    borderRadius: sizes.borderRadius,
+    padding: sizes.containerPadding,
+    marginVertical: sizes.isSmallDevice ? 6 : 8,
+    marginBottom: sizes.isSmallDevice ? 20 : 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   title: {
-    fontSize: 18,
+    fontSize: sizes.titleSize,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 16,
+    marginBottom: sizes.isSmallDevice ? 12 : 16,
   },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: sizes.emptyPadding,
   },
   emptyText: {
-    fontSize: 14,
+    fontSize: sizes.emptyTextSize,
     color: '#999',
   },
 });

@@ -4,22 +4,30 @@ import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Responsive calculations
+// Responsive calculations based on screen size
 const getResponsiveDimensions = () => {
-  const containerPadding = 16;
-  const cardSpacing = 8;
+  const isSmallDevice = SCREEN_WIDTH < 375;
+  const isMediumDevice = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 768;
+  const isLargeDevice = SCREEN_WIDTH >= 768;
+  
+  const containerPadding = isSmallDevice ? 12 : 16;
+  const cardSpacing = isSmallDevice ? 6 : 8;
   const availableWidth = SCREEN_WIDTH - (containerPadding * 2);
   
-  // Show 2.2 cards for better UX (shows part of next card)
-  const visibleCards = 2.2;
-  const totalSpacing = cardSpacing * (visibleCards - 1);
-  const cardWidth = (availableWidth - totalSpacing) / visibleCards;
+  // Show exactly 2 cards per slide
+  const cardsPerSlide = 2;
+  const totalSpacing = cardSpacing * (cardsPerSlide - 1);
+  const cardWidth = (availableWidth - totalSpacing) / cardsPerSlide;
   
   return {
     containerPadding,
     cardSpacing,
     cardWidth: Math.floor(cardWidth),
     availableWidth,
+    cardsPerSlide,
+    isSmallDevice,
+    isMediumDevice,
+    isLargeDevice,
   };
 };
 
@@ -47,9 +55,7 @@ export default function QuickActions() {
     setScrollPosition(scrollX);
   };
 
-  const renderActionCard = (item: QuickActionItem, index: number) => {
-    const isLastCard = index === quickActions.length - 1;
-    
+  const renderActionCard = (item: QuickActionItem) => {
     return (
       <TouchableOpacity 
         key={item.id} 
@@ -57,14 +63,14 @@ export default function QuickActions() {
           styles.actionCard, 
           { 
             width: dimensions.cardWidth,
-            marginRight: isLastCard ? dimensions.containerPadding : dimensions.cardSpacing
+            marginRight: dimensions.cardSpacing
           }
         ]}
         onPress={() => console.log('Action pressed:', item.id)}
         activeOpacity={0.7}
       >
         <View style={styles.iconContainer}>
-          <Ionicons name={item.icon as any} size={24} color="white" />
+          <Ionicons name={item.icon as any} size={dimensions.isSmallDevice ? 20 : 22} color="white" />
         </View>
         <Text style={styles.actionTitle}>{item.title}</Text>
       </TouchableOpacity>
@@ -72,31 +78,25 @@ export default function QuickActions() {
   };
 
   const renderProgressIndicator = () => {
-    const totalContentWidth = (dimensions.cardWidth * quickActions.length) + 
-                             (dimensions.cardSpacing * (quickActions.length - 1)) + 
-                             (dimensions.containerPadding * 2);
-    const visibleWidth = SCREEN_WIDTH;
-    const maxScroll = Math.max(0, totalContentWidth - visibleWidth);
+    const totalSlides = 3; // Fixed 3 slides for overlapping navigation
     
-    if (maxScroll <= 0) return null; // Don't show progress if all content is visible
+    if (totalSlides <= 1) return null;
     
-    const progressPercentage = Math.min(1, scrollPosition / maxScroll);
-    const progressWidth = Math.max(20, (visibleWidth / totalContentWidth) * 100);
+    const slideWidth = dimensions.cardWidth + dimensions.cardSpacing;
+    const currentSlide = Math.round(scrollPosition / slideWidth);
     
     return (
       <View style={styles.progressContainer}>
         <View style={styles.progressTrack}>
-          <View 
-            style={[
-              styles.progressFill, 
-              { 
-                width: `${progressWidth}%`,
-                transform: [{ 
-                  translateX: progressPercentage * (100 - progressWidth) * (SCREEN_WIDTH - 32) / 100 
-                }]
-              }
-            ]} 
-          />
+          {Array.from({ length: totalSlides }).map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.progressDot,
+                currentSlide === index && styles.progressDotActive
+              ]}
+            />
+          ))}
         </View>
       </View>
     );
@@ -114,15 +114,13 @@ export default function QuickActions() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingLeft: dimensions.containerPadding }
-        ]}
+        contentContainerStyle={styles.scrollContent}
         decelerationRate="fast"
         snapToInterval={dimensions.cardWidth + dimensions.cardSpacing}
         snapToAlignment="start"
+        pagingEnabled={false}
       >
-        {quickActions.map((item, index) => renderActionCard(item, index))}
+        {quickActions.map((item) => renderActionCard(item))}
       </ScrollView>
       
       {renderProgressIndicator()}
@@ -133,34 +131,36 @@ export default function QuickActions() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e8f4fd',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
+    borderRadius: dimensions.isSmallDevice ? 10 : 12,
+    padding: dimensions.containerPadding,
+    marginVertical: dimensions.isSmallDevice ? 6 : 8,
   },
   title: {
-    fontSize: Math.min(20, SCREEN_WIDTH * 0.05), // Responsive font size
+    fontSize: dimensions.isSmallDevice ? 16 : dimensions.isMediumDevice ? 18 : 20,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: Math.min(16, SCREEN_WIDTH * 0.04), // Responsive font size
+    fontSize: dimensions.isSmallDevice ? 12 : dimensions.isMediumDevice ? 13 : 14,
     color: '#666',
-    marginBottom: 16,
+    marginBottom: dimensions.isSmallDevice ? 10 : 12,
   },
   scrollView: {
-    marginBottom: 16,
+    marginBottom: dimensions.isSmallDevice ? 10 : 12,
+    marginHorizontal: -dimensions.containerPadding,
   },
   scrollContent: {
-    paddingRight: dimensions.containerPadding,
+    paddingHorizontal: dimensions.containerPadding,
+    gap: dimensions.cardSpacing,
   },
   actionCard: {
     backgroundColor: '#1e3a5f',
-    borderRadius: 12,
-    padding: Math.max(16, SCREEN_WIDTH * 0.04), // Responsive padding
+    borderRadius: dimensions.isSmallDevice ? 8 : 10,
+    padding: dimensions.isSmallDevice ? 10 : dimensions.isMediumDevice ? 12 : 14,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: Math.max(100, SCREEN_WIDTH * 0.25), // Responsive height
+    minHeight: dimensions.isSmallDevice ? 75 : dimensions.isMediumDevice ? 85 : 95,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -169,35 +169,38 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: Math.max(20, SCREEN_WIDTH * 0.06), // Responsive border radius
-    padding: Math.max(8, SCREEN_WIDTH * 0.02), // Responsive padding
-    marginBottom: 8,
-    width: Math.max(40, SCREEN_WIDTH * 0.1), // Responsive size
-    height: Math.max(40, SCREEN_WIDTH * 0.1), // Responsive size
+    borderRadius: dimensions.isSmallDevice ? 16 : 18,
+    padding: dimensions.isSmallDevice ? 6 : 8,
+    marginBottom: dimensions.isSmallDevice ? 6 : 8,
+    width: dimensions.isSmallDevice ? 32 : dimensions.isMediumDevice ? 36 : 40,
+    height: dimensions.isSmallDevice ? 32 : dimensions.isMediumDevice ? 36 : 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
   actionTitle: {
     color: 'white',
-    fontSize: Math.min(16, Math.max(14, SCREEN_WIDTH * 0.04)), // Responsive font size
+    fontSize: dimensions.isSmallDevice ? 12 : dimensions.isMediumDevice ? 13 : 14,
     fontWeight: '500',
     textAlign: 'center',
-    lineHeight: Math.min(20, SCREEN_WIDTH * 0.05), // Responsive line height
+    lineHeight: dimensions.isSmallDevice ? 16 : dimensions.isMediumDevice ? 17 : 18,
   },
   progressContainer: {
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: dimensions.containerPadding,
   },
   progressTrack: {
-    width: '100%',
-    height: 6,
-    backgroundColor: 'rgba(30, 58, 95, 0.2)',
-    borderRadius: 3,
-    overflow: 'hidden',
+    flexDirection: 'row',
+    gap: dimensions.isSmallDevice ? 6 : 8,
+    alignItems: 'center',
   },
-  progressFill: {
-    height: '100%',
+  progressDot: {
+    width: dimensions.isSmallDevice ? 6 : 8,
+    height: dimensions.isSmallDevice ? 6 : 8,
+    borderRadius: dimensions.isSmallDevice ? 3 : 4,
+    backgroundColor: 'rgba(30, 58, 95, 0.3)',
+  },
+  progressDotActive: {
     backgroundColor: '#1e3a5f',
-    borderRadius: 3,
+    width: dimensions.isSmallDevice ? 18 : 24,
   },
 });
