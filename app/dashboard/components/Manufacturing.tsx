@@ -1,26 +1,52 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const getResponsiveSizes = () => {
+  const isSmallDevice = SCREEN_WIDTH < 375;
+  const isMediumDevice = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 768;
+  
+  return {
+    containerPadding: isSmallDevice ? 12 : 16,
+    titleSize: isSmallDevice ? 16 : 18,
+    subtitleSize: isSmallDevice ? 12 : 14,
+    itemPadding: isSmallDevice ? 12 : 16,
+    itemTextSize: isSmallDevice ? 14 : 16,
+    iconSize: isSmallDevice ? 18 : 20,
+    borderRadius: isSmallDevice ? 10 : 12,
+    isSmallDevice,
+    isMediumDevice,
+  };
+};
+
+const sizes = getResponsiveSizes();
 
 interface ManufacturingItemProps {
   title: string;
-  isSelected?: boolean;
+  isSelected: boolean;
+  onPress: () => void;
 }
 
-function ManufacturingItem({ title, isSelected = false }: ManufacturingItemProps) {
+function ManufacturingItem({ title, isSelected, onPress }: ManufacturingItemProps) {
   return (
     <TouchableOpacity 
       style={[
-        styles.manufacturingItem, 
+        styles.manufacturingItem,
         isSelected && styles.selectedItem
       ]}
+      onPress={onPress}
     >
       <Text style={styles.itemText}>{title}</Text>
-      <Ionicons name="chevron-forward" size={20} color="white" />
+      <Ionicons name="chevron-forward" size={sizes.iconSize} color="white" />
     </TouchableOpacity>
   );
 }
 
 export default function Manufacturing() {
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
   const items = [
     'Cutting',
     'Packer',
@@ -42,7 +68,8 @@ export default function Manufacturing() {
           <ManufacturingItem
             key={index}
             title={item}
-            isSelected={item === 'Quality Control (QA)'}
+            isSelected={selectedItem === item}
+            onPress={() => setSelectedItem(item)}
           />
         ))}
       </View>
@@ -53,28 +80,28 @@ export default function Manufacturing() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e8f4fd',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
+    borderRadius: sizes.borderRadius,
+    padding: sizes.containerPadding,
+    marginVertical: sizes.isSmallDevice ? 6 : 8,
   },
   title: {
-    fontSize: 18,
+    fontSize: sizes.titleSize,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: sizes.subtitleSize,
     color: '#666',
-    marginBottom: 16,
+    marginBottom: sizes.isSmallDevice ? 12 : 16,
   },
   itemsContainer: {
-    gap: 8,
+    gap: sizes.isSmallDevice ? 6 : 8,
   },
   manufacturingItem: {
     backgroundColor: '#1e3a5f',
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: sizes.isSmallDevice ? 6 : 8,
+    padding: sizes.itemPadding,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -85,7 +112,7 @@ const styles = StyleSheet.create({
   },
   itemText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: sizes.itemTextSize,
     fontWeight: '500',
   },
 });

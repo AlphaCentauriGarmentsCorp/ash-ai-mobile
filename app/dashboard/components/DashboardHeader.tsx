@@ -1,7 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Sidebar from '../../sidebar';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const getResponsiveSizes = () => {
+  const isSmallDevice = SCREEN_WIDTH < 375;
+  const isMediumDevice = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 768;
+  
+  return {
+    headerPadding: isSmallDevice ? 12 : 16,
+    iconSize: isSmallDevice ? 20 : 24,
+    titleFontSize: isSmallDevice ? 14 : 16,
+    modalTitleSize: isSmallDevice ? 18 : 20,
+    notificationTitleSize: isSmallDevice ? 14 : 16,
+    notificationMessageSize: isSmallDevice ? 12 : 14,
+    isSmallDevice,
+    isMediumDevice,
+  };
+};
+
+const sizes = getResponsiveSizes();
 
 export default function DashboardHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -87,23 +107,22 @@ export default function DashboardHeader() {
           style={styles.menuButton}
           onPress={() => setShowSidebar(true)}
         >
-          <Ionicons name="menu" size={24} color="white" />
+          <Ionicons name="menu" size={sizes.iconSize} color="white" />
         </TouchableOpacity>
         
         <View style={styles.titleContainer}>
-          <Ionicons name="happy-outline" size={20} color="#666" />
           <Text style={styles.title}>Dashboard</Text>
         </View>
         
         <View style={styles.rightActions}>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="checkmark-done-outline" size={20} color="white" />
+            <Ionicons name="checkmark-done-outline" size={sizes.iconSize - 4} color="white" />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.iconButton}
             onPress={() => setShowNotifications(true)}
           >
-            <Ionicons name="notifications-outline" size={20} color="white" />
+            <Ionicons name="notifications-outline" size={sizes.iconSize - 4} color="white" />
             <View style={styles.notificationBadge}>
               <Text style={styles.badgeText}>2</Text>
             </View>
@@ -125,7 +144,7 @@ export default function DashboardHeader() {
               onPress={() => setShowNotifications(false)}
               style={styles.closeButton}
             >
-              <Ionicons name="close" size={24} color="#333" />
+              <Ionicons name="close" size={sizes.iconSize} color="#333" />
             </TouchableOpacity>
           </View>
           
@@ -145,7 +164,7 @@ export default function DashboardHeader() {
                   ]}>
                     <Ionicons 
                       name={getNotificationIcon(notification.type)} 
-                      size={20} 
+                      size={sizes.isSmallDevice ? 18 : 20} 
                       color={getNotificationColor(notification.type)} 
                     />
                   </View>
@@ -177,29 +196,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#1e3a5f',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: sizes.headerPadding,
+    paddingVertical: sizes.isSmallDevice ? 10 : 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   menuButton: {
-    padding: 8,
-    borderWidth: 2,
-    borderColor: '#4a90e2',
+    padding: sizes.isSmallDevice ? 6 : 8,
     borderRadius: 4,
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: sizes.isSmallDevice ? 10 : 12,
+    paddingVertical: sizes.isSmallDevice ? 5 : 6,
     borderRadius: 20,
     flex: 1,
-    marginHorizontal: 16,
+    marginHorizontal: sizes.isSmallDevice ? 10 : 16,
   },
   title: {
-    fontSize: 16,
+    fontSize: sizes.titleFontSize,
     fontWeight: '500',
     color: '#333',
     marginLeft: 8,
@@ -209,7 +226,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconButton: {
-    marginLeft: 12,
+    marginLeft: sizes.isSmallDevice ? 8 : 12,
     position: 'relative',
   },
   notificationBadge: {
@@ -218,14 +235,14 @@ const styles = StyleSheet.create({
     right: -4,
     backgroundColor: '#ff4444',
     borderRadius: 8,
-    minWidth: 16,
-    height: 16,
+    minWidth: sizes.isSmallDevice ? 14 : 16,
+    height: sizes.isSmallDevice ? 14 : 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
   badgeText: {
     color: 'white',
-    fontSize: 10,
+    fontSize: sizes.isSmallDevice ? 9 : 10,
     fontWeight: 'bold',
   },
   modalContainer: {
@@ -236,13 +253,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: sizes.headerPadding,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: sizes.modalTitleSize,
     fontWeight: '600',
     color: '#333',
   },
@@ -254,8 +271,8 @@ const styles = StyleSheet.create({
   },
   notificationItem: {
     backgroundColor: 'white',
-    padding: 16,
-    marginHorizontal: 16,
+    padding: sizes.isSmallDevice ? 12 : 16,
+    marginHorizontal: sizes.isSmallDevice ? 12 : 16,
     marginVertical: 4,
     borderRadius: 8,
     flexDirection: 'row',
@@ -277,36 +294,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: sizes.isSmallDevice ? 36 : 40,
+    height: sizes.isSmallDevice ? 36 : 40,
+    borderRadius: sizes.isSmallDevice ? 18 : 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: sizes.isSmallDevice ? 10 : 12,
   },
   notificationContent: {
     flex: 1,
   },
   notificationTitle: {
-    fontSize: 16,
+    fontSize: sizes.notificationTitleSize,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
   },
   notificationMessage: {
-    fontSize: 14,
+    fontSize: sizes.notificationMessageSize,
     color: '#666',
     marginBottom: 4,
-    lineHeight: 18,
+    lineHeight: sizes.isSmallDevice ? 16 : 18,
   },
   notificationTime: {
-    fontSize: 12,
+    fontSize: sizes.isSmallDevice ? 11 : 12,
     color: '#999',
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: sizes.isSmallDevice ? 6 : 8,
+    height: sizes.isSmallDevice ? 6 : 8,
+    borderRadius: sizes.isSmallDevice ? 3 : 4,
     backgroundColor: '#4a90e2',
   },
 });

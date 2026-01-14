@@ -1,5 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const getResponsiveSizes = () => {
+  const isSmallDevice = SCREEN_WIDTH < 375;
+  const isMediumDevice = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 768;
+  
+  return {
+    containerPadding: isSmallDevice ? 12 : 16,
+    titleSize: isSmallDevice ? 16 : 18,
+    subtitleSize: isSmallDevice ? 12 : 14,
+    sectionTitleSize: isSmallDevice ? 14 : 16,
+    priceSize: isSmallDevice ? 14 : 16,
+    descriptionSize: isSmallDevice ? 11 : 12,
+    statusSize: isSmallDevice ? 9 : 10,
+    stockLabelSize: isSmallDevice ? 11 : 12,
+    stockValueSize: isSmallDevice ? 14 : 16,
+    iconSize: isSmallDevice ? 20 : 24,
+    productImageSize: isSmallDevice ? 36 : 40,
+    itemPadding: isSmallDevice ? 10 : 12,
+    borderRadius: isSmallDevice ? 10 : 12,
+    isSmallDevice,
+    isMediumDevice,
+  };
+};
+
+const sizes = getResponsiveSizes();
 
 interface ProductItemProps {
   price: string;
@@ -41,13 +68,13 @@ function ProductItem({ price, description, stock, status, statusColor }: Product
       <View style={styles.productLeft}>
         <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
         <View style={styles.productImage}>
-          <Ionicons name="shirt-outline" size={24} color="#666" />
+          <Ionicons name="shirt-outline" size={sizes.iconSize} color="#666" />
         </View>
         <View style={styles.productInfo}>
           <Text style={styles.productPrice}>{price}</Text>
           <Text style={styles.productDescription}>{description}</Text>
           <View style={styles.statusRow}>
-            <Ionicons name={getStatusIcon()} size={12} color={statusColor} />
+            <Ionicons name={getStatusIcon()} size={sizes.isSmallDevice ? 11 : 12} color={statusColor} />
             <Text style={[styles.statusText, { color: statusColor }]}>
               {getStatusText()}
             </Text>
@@ -82,7 +109,7 @@ export default function TopSellingProducts() {
       <View style={styles.header}>
         <Text style={styles.title}>Top Selling Products</Text>
         <TouchableOpacity>
-          <Text style={styles.viewAll}>View full analysis ›</Text>
+          <Text style={styles.viewAll}>View › </Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.subtitle}>Our best products for last 7 days</Text>
@@ -131,9 +158,9 @@ export default function TopSellingProducts() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#e8f4fd',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
+    borderRadius: sizes.borderRadius,
+    padding: sizes.containerPadding,
+    marginVertical: sizes.isSmallDevice ? 6 : 8,
   },
   header: {
     flexDirection: 'row',
@@ -142,33 +169,33 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    fontSize: 18,
+    fontSize: sizes.titleSize,
     fontWeight: '600',
     color: '#333',
   },
   viewAll: {
-    fontSize: 14,
+    fontSize: sizes.subtitleSize,
     color: '#666',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: sizes.subtitleSize,
     color: '#666',
-    marginBottom: 16,
+    marginBottom: sizes.isSmallDevice ? 12 : 16,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: sizes.isSmallDevice ? 16 : 20,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: sizes.sectionTitleSize,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 12,
+    marginBottom: sizes.isSmallDevice ? 10 : 12,
   },
   productItem: {
     backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
+    borderRadius: sizes.isSmallDevice ? 6 : 8,
+    padding: sizes.itemPadding,
+    marginBottom: sizes.isSmallDevice ? 6 : 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -179,30 +206,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 12,
+    width: sizes.isSmallDevice ? 6 : 8,
+    height: sizes.isSmallDevice ? 6 : 8,
+    borderRadius: sizes.isSmallDevice ? 3 : 4,
+    marginRight: sizes.isSmallDevice ? 10 : 12,
   },
   productImage: {
-    width: 40,
-    height: 40,
+    width: sizes.productImageSize,
+    height: sizes.productImageSize,
     backgroundColor: '#f5f5f5',
-    borderRadius: 8,
+    borderRadius: sizes.isSmallDevice ? 6 : 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: sizes.isSmallDevice ? 10 : 12,
   },
   productInfo: {
     flex: 1,
   },
   productPrice: {
-    fontSize: 16,
+    fontSize: sizes.priceSize,
     fontWeight: '600',
     color: '#333',
   },
   productDescription: {
-    fontSize: 12,
+    fontSize: sizes.descriptionSize,
     color: '#666',
     marginVertical: 2,
   },
@@ -211,38 +238,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusText: {
-    fontSize: 10,
+    fontSize: sizes.statusSize,
     marginLeft: 4,
   },
   productRight: {
     alignItems: 'flex-end',
   },
   stockLabel: {
-    fontSize: 12,
+    fontSize: sizes.stockLabelSize,
     color: '#666',
   },
   stockValue: {
-    fontSize: 16,
+    fontSize: sizes.stockValueSize,
     fontWeight: '600',
     color: '#333',
   },
   sorberesSubtitle: {
-    fontSize: 14,
+    fontSize: sizes.subtitleSize,
     fontWeight: '500',
     color: '#333',
-    marginBottom: 8,
-    marginTop: 12,
+    marginBottom: sizes.isSmallDevice ? 6 : 8,
+    marginTop: sizes.isSmallDevice ? 10 : 12,
   },
   sorberesItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: sizes.isSmallDevice ? 6 : 8,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   sorberesType: {
-    fontSize: 14,
+    fontSize: sizes.subtitleSize,
     color: '#666',
   },
   sorberesOrders: {
