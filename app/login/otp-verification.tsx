@@ -3,15 +3,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Image,
-  Platform,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function Otp() {
@@ -76,7 +74,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   headerRow: {
     flexDirection: "row",
@@ -87,7 +84,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: ms(8),
-    marginLeft: wp(-2.1),
+    marginLeft: -8,
   },
 
   logo: {

@@ -1,6 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+<<<<<<< HEAD
   Platform,
   SafeAreaView,
   ScrollView,
@@ -10,8 +12,16 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+=======
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+>>>>>>> 1bd60fb825dc61fe3af3b2b16ecece642974e547
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ViewClientScreen() {
   const router = useRouter();
@@ -200,8 +210,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F9FF' },
   header: {
     backgroundColor: '#0D253F',
-    height: 60 + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0),
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
+    height: 60,
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, justifyContent: 'space-between',
   },
   headerTitle: { color: '#FFF', fontSize: 18, fontWeight: 'bold', marginLeft: 10, flex: 1 },

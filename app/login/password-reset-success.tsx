@@ -5,14 +5,12 @@ import React, { useState } from "react";
 import {
     ActivityIndicator,
     Image,
-    Platform,
-    SafeAreaView,
-    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function PasswordResetSuccess() {
@@ -73,7 +71,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "transparent",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   contentContainer: {
     flex: 1,
