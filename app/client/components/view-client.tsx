@@ -2,12 +2,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+<<<<<<< HEAD
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+=======
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
+>>>>>>> 1bd60fb825dc61fe3af3b2b16ecece642974e547
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,12 +37,17 @@ export default function ViewClientScreen() {
   const [contact] = useState(params.contact?.toString() || '0999123456');
   const [company] = useState(params.company?.toString() || 'Adidas');
   
-  // Extra fields
+  // Address & Notes
   const [street] = useState('Blk. 1, Lot 2, Mother Ignacia');
   const [city] = useState('Quezon City');
   const [province] = useState('Province');
   const [postal] = useState('2042');
   const [notes] = useState('Do not do unto others what you don\'t want to do to you');
+
+  // --- Additional Brands State (Read-Only) ---
+  const [additionalBrands] = useState([
+    { id: 1, name: 'Brand # 1', logo: 'logo1.png' } 
+  ]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,7 +59,6 @@ export default function ViewClientScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        {/* Dynamic Title based on Company */}
         <Text style={styles.headerTitle}>{company}</Text>
         <Text style={styles.breadCrumb}>Home / View Clients</Text>
       </View>
@@ -50,15 +66,12 @@ export default function ViewClientScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           
-          {/* Client Information Header with Edit Button */}
+          {/* Client Information */}
           <View style={styles.sectionHeaderRow}>
              <Text style={styles.sectionTitle}>Client Information</Text>
              <TouchableOpacity 
                 style={styles.innerEditBtn}
-                onPress={() => {
-                    // Navigate to Edit screen with same params
-                    router.push({ pathname: "/edit-client", params: params });
-                }}
+                onPress={() => router.push({ pathname: "/edit-client", params: params })}
              >
                 <Ionicons name="pencil" size={12} color="#333" style={{marginRight:5}}/>
                 <Text style={styles.innerEditText}>Edit</Text>
@@ -66,7 +79,6 @@ export default function ViewClientScreen() {
           </View>
           <View style={styles.divider} />
           
-          {/* Read-Only Fields */}
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>First Name</Text>
@@ -89,7 +101,7 @@ export default function ViewClientScreen() {
             </View>
           </View>
 
-          {/* Company */}
+          {/* Company Section */}
           <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Clothing/Company</Text>
           <View style={styles.divider} />
           <View style={styles.row}>
@@ -98,7 +110,7 @@ export default function ViewClientScreen() {
              </View>
           </View>
 
-          {/* Logo Section (View Mode) */}
+          {/* Main Logo Row */}
           <View style={styles.logoRow}>
             <Text style={[styles.label, {width: 40, marginTop:0, marginBottom:0}]}>Logo</Text>
             <View style={styles.disabledFileBtn}>
@@ -108,6 +120,35 @@ export default function ViewClientScreen() {
             <TouchableOpacity style={{marginLeft: 10}}>
                 <Ionicons name="eye-outline" size={18} color="#666" />
             </TouchableOpacity>
+          </View>
+
+          {/* --- Additional Brands Section --- */}
+          <View style={styles.additionalBrandsContainer}>
+            <Text style={styles.smallLabel}>Additional brands</Text>
+            
+            {additionalBrands.map((brand) => (
+              <View key={brand.id} style={styles.additionalBrandRow}>
+                {/* Brand Name Input */}
+                <View style={{ flex: 1, marginRight: 10 }}>
+                    <TextInput 
+                      style={styles.input} 
+                      value={brand.name}
+                      editable={false}
+                    />
+                </View>
+
+                {/* File Display */}
+                <View style={styles.fileDisplay}>
+                    <Ionicons name="document-text-outline" size={14} color="#666" style={{marginRight: 5}}/>
+                    <Text style={{fontSize: 12, color:'#333'}}>{brand.logo}</Text>
+                </View>
+
+                {/* View Icon Only */}
+                <TouchableOpacity style={{marginLeft: 10}}>
+                    <Ionicons name="eye-outline" size={18} color="#666" />
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
 
           {/* Address */}
@@ -148,20 +189,17 @@ export default function ViewClientScreen() {
           />
         </View>
 
-        {/* Footer */}
+        {/* --- UPDATED FOOTER: DONE BUTTON REDIRECTS TO INDEX --- */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.clearButtonContainer}>
-             <Text style={styles.clearText}>Clear all fields</Text>
+          <TouchableOpacity 
+             style={styles.doneBtn} 
+             // Uses router.push('/') to go to the main index page
+             onPress={() => router.push('/client')} 
+          >
+             <Text style={styles.doneText}>Done</Text>
           </TouchableOpacity>
-          <View style={styles.actionButtons}>
-             <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()}>
-                <Text style={styles.cancelText}>Cancel</Text>
-             </TouchableOpacity>
-             <TouchableOpacity style={styles.submitBtn}>
-                <Text style={styles.submitText}>Submit</Text>
-             </TouchableOpacity>
-          </View>
         </View>
+        
         <View style={{height: 40}} />
       </ScrollView>
     </SafeAreaView>
@@ -181,7 +219,6 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 15 },
   card: { backgroundColor: '#FFF', borderRadius: 10, padding: 20, borderWidth: 1, borderColor: '#D1D5DB' },
   
-  // Section Header with Edit Button
   sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#0D253F' },
   innerEditBtn: { 
@@ -200,7 +237,6 @@ const styles = StyleSheet.create({
   halfInputContainer: { width: '48%' },
   label: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 5 },
   
-  // Inputs (View Mode)
   input: { 
     borderWidth: 1, 
     borderColor: '#D1D5DB', 
@@ -208,17 +244,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, 
     paddingVertical: 8, 
     fontSize: 13, 
-    backgroundColor: '#FFF', // White bg as per image
+    backgroundColor: '#FFF', 
     color: '#333',
     height: 38,
   },
   
-  // Logo Row
+  // Logo Section
   logoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   disabledFileBtn: { 
       borderWidth: 1, 
       borderColor: '#CCC', 
-      backgroundColor: '#F3F4F6', // Greyed out
+      backgroundColor: '#F3F4F6', 
       paddingVertical: 4, 
       paddingHorizontal: 10, 
       borderRadius: 4, 
@@ -237,15 +273,40 @@ const styles = StyleSheet.create({
       borderBottomRightRadius: 4,
   },
 
+  // Additional Brands Styles
+  additionalBrandsContainer: { marginTop: 5, marginBottom: 10 },
+  smallLabel: { fontSize: 10, color: '#888', marginBottom: 5 },
+  additionalBrandRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  fileDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    width: 100, 
+    height: 38,
+    backgroundColor: '#FFF',
+  },
+
   textArea: { height: 100 },
   
   // Footer
-  footer: { marginTop: 25, marginBottom: 20 },
-  clearButtonContainer: { alignItems: 'flex-end', marginBottom: 20 },
-  clearText: { color: '#4B5563', textDecorationLine: 'underline', fontSize: 12 },
-  actionButtons: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  cancelBtn: { backgroundColor: '#FFF', borderWidth: 1, borderColor:'#D1D5DB', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, marginRight: 15 },
-  cancelText: { color: '#1F2937', fontWeight: '700', fontSize: 14 },
-  submitBtn: { backgroundColor: '#0D253F', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30 },
-  submitText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  footer: { 
+      marginTop: 25, 
+      marginBottom: 20, 
+      alignItems: 'center' 
+  },
+  doneBtn: { 
+      backgroundColor: '#0D253F', 
+      paddingVertical: 12, 
+      paddingHorizontal: 40, 
+      borderRadius: 30 
+  },
+  doneText: { 
+      color: '#FFF', 
+      fontWeight: '700', 
+      fontSize: 14 
+  },
 });
