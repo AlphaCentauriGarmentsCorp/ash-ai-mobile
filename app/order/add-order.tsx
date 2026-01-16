@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -10,6 +9,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 import DesignMockup from './components/DesignMockup';
 import OrderInfo from './components/OrderInfo';

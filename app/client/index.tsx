@@ -1,33 +1,32 @@
 import {
-  Poppins_100Thin,
-  Poppins_200ExtraLight,
-  Poppins_300Light,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-  Poppins_800ExtraBold,
-  Poppins_900Black,
-  useFonts
+    Poppins_100Thin,
+    Poppins_200ExtraLight,
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
+    useFonts
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-  Animated,
-  Modal,
-  Platform
-  ScrollView, // Removed SafeAreaView from here
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Animated,
+    Modal,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
-// 1. Import the hook for safe area insets
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import GlobalHeader from '../components/GlobalHeader';
 import PageTitle from '../components/PageTitle';
 import NewClientScreen from './components/new-client';
 
@@ -123,24 +122,13 @@ const ClientsScreen = () => {
   if (showNewClient) return <NewClientScreen onBack={() => setShowNewClient(false)} />;
 
   return (
-    // 3. Use standard View instead of SafeAreaView (we handle padding manually)
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
 
-      {/* 4. Explicit Header with Dynamic Padding */}
-      <View style={[styles.topHeader, { paddingTop: insets.top + 10 }]}>
-        <TouchableOpacity>
-          <Ionicons name="menu" size={28} color="#FFF" />
-        </TouchableOpacity>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="list" size={24} color="#FFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="notifications" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
+      {/* Global Header with padding for safe area */}
+      <View style={{ paddingTop: insets.top }}>
+        <GlobalHeader />
       </View>
 
       {/* Page Title */}
@@ -268,7 +256,7 @@ const ClientsScreen = () => {
           )}
         </View>
         
-        <View style={{height: 40}} />
+        <View style={{height: insets.bottom + 40}} />
       </ScrollView>
 
       {/* --- ACTIONS MODAL --- */}
@@ -332,24 +320,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F7FA',
   },
-  
-  // 5. Updated Header Styles (No fixed height/paddingTop)
-   topHeader: {
-    height: 60 + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0),
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
-    backgroundColor: '#0D253F',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-  },
-  headerIcons: { flexDirection: 'row' },
-  iconBtn: {
-    marginLeft: 15,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    padding: 5,
-  },
 
   contentContainer: { flex: 1, padding: 15, backgroundColor: '#FFF' },
   actionButtonsRow: { flexDirection: 'row', marginBottom: 20 },
@@ -381,6 +351,7 @@ const styles = StyleSheet.create({
   paginationWrapper: { alignItems: 'center', marginTop: 20, marginBottom: 10, gap: 15 },
   entriesContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   showText: { fontSize: 13, color: '#9CA3AF', fontWeight: '400' },
+  dropdownWrapperPagination: { position: 'relative' },
   dropdownBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#D1D5DB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 6, minWidth: 60, backgroundColor: '#FFF' },
   dropdownMenuAbove: { position: 'absolute', bottom: '100%', left: 0, marginBottom: 5, backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#E0E0E0', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5, overflow: 'hidden', minWidth: 80, zIndex: 2000 },
   dropdownItemBtn: { paddingVertical: 10, paddingHorizontal: 12, backgroundColor: '#0B1C36', borderTopWidth: 1, borderTopColor: '#1e3a5f' },

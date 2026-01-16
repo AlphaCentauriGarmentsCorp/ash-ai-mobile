@@ -6,14 +6,13 @@ import {
     Image,
     KeyboardAvoidingView,
     Platform,
-    SafeAreaView,
-    StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function Forgot() {
@@ -86,7 +85,6 @@ const styles = StyleSheet.create({
   safeArea: { 
     flex: 1,
     backgroundColor: "transparent",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0 
   },
   headerRow: { 
     flexDirection: "row", 
@@ -98,7 +96,7 @@ const styles = StyleSheet.create({
   },
   backButton: { 
     padding: ms(8),
-    marginLeft: wp(-2.1) 
+    marginLeft: -8,
   },
   logo: {
     width: wp(22.9), 

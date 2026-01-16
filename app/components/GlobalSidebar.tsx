@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface GlobalSidebarProps {
   visible: boolean;
@@ -20,6 +20,7 @@ const SIDEBAR_WIDTH = 280;
 
 export default function GlobalSidebar({ visible, onClose }: GlobalSidebarProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -133,10 +134,12 @@ export default function GlobalSidebar({ visible, onClose }: GlobalSidebarProps) 
             styles.sidebarContainer,
             {
               transform: [{ translateX: slideAnim }],
+              paddingTop: insets.top,
+              paddingBottom: insets.bottom,
             }
           ]}
         >
-          <SafeAreaView style={styles.safeArea}>
+          <View style={styles.contentWrapper}>
             {/* Sidebar Header */}
             <View style={styles.header}>
               <View style={styles.userCard}>
@@ -172,7 +175,7 @@ export default function GlobalSidebar({ visible, onClose }: GlobalSidebarProps) 
                 {dailyOperations.map(renderMenuItem)}
               </View>
             </ScrollView>
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
   },
-  safeArea: {
+  contentWrapper: {
     flex: 1,
   },
   header: {
