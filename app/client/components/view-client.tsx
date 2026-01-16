@@ -27,16 +27,16 @@ export default function ViewClientScreen() {
   const [contact] = useState(params.contact?.toString() || '0999123456');
   const [company] = useState(params.company?.toString() || 'Adidas');
   
-  // Extra fields
+  // Address & Notes
   const [street] = useState('Blk. 1, Lot 2, Mother Ignacia');
   const [city] = useState('Quezon City');
   const [province] = useState('Province');
   const [postal] = useState('2042');
   const [notes] = useState('Do not do unto others what you don\'t want to do to you');
 
-  // --- Additional Brands State (Mock Data for View) ---
+  // --- Additional Brands State (Read-Only) ---
   const [additionalBrands] = useState([
-    { id: 1, name: 'Brand # 1', logo: 'logo.png' } 
+    { id: 1, name: 'Brand # 1', logo: 'logo1.png' } 
   ]);
 
   return (
@@ -49,7 +49,6 @@ export default function ViewClientScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        {/* Dynamic Title based on Company */}
         <Text style={styles.headerTitle}>{company}</Text>
         <Text style={styles.breadCrumb}>Home / View Clients</Text>
       </View>
@@ -57,14 +56,12 @@ export default function ViewClientScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           
-          {/* Client Information Header with Edit Button */}
+          {/* Client Information */}
           <View style={styles.sectionHeaderRow}>
              <Text style={styles.sectionTitle}>Client Information</Text>
              <TouchableOpacity 
                 style={styles.innerEditBtn}
-                onPress={() => {
-                    router.push({ pathname: "/edit-client", params: params });
-                }}
+                onPress={() => router.push({ pathname: "/edit-client", params: params })}
              >
                 <Ionicons name="pencil" size={12} color="#333" style={{marginRight:5}}/>
                 <Text style={styles.innerEditText}>Edit</Text>
@@ -72,7 +69,6 @@ export default function ViewClientScreen() {
           </View>
           <View style={styles.divider} />
           
-          {/* Read-Only Fields */}
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>First Name</Text>
@@ -95,7 +91,7 @@ export default function ViewClientScreen() {
             </View>
           </View>
 
-          {/* Company */}
+          {/* Company Section */}
           <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Clothing/Company</Text>
           <View style={styles.divider} />
           <View style={styles.row}>
@@ -104,7 +100,7 @@ export default function ViewClientScreen() {
              </View>
           </View>
 
-          {/* Logo Section (View Mode) */}
+          {/* Main Logo Row */}
           <View style={styles.logoRow}>
             <Text style={[styles.label, {width: 40, marginTop:0, marginBottom:0}]}>Logo</Text>
             <View style={styles.disabledFileBtn}>
@@ -116,9 +112,9 @@ export default function ViewClientScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* --- NEW: Additional Brands (Read Only) --- */}
+          {/* --- Additional Brands Section --- */}
           <View style={styles.additionalBrandsContainer}>
-            <Text style={[styles.label, {fontSize: 10, color:'#888', marginBottom: 5}]}>Additional brands</Text>
+            <Text style={styles.smallLabel}>Additional brands</Text>
             
             {additionalBrands.map((brand) => (
               <View key={brand.id} style={styles.additionalBrandRow}>
@@ -134,10 +130,10 @@ export default function ViewClientScreen() {
                 {/* File Display */}
                 <View style={styles.fileDisplay}>
                     <Ionicons name="document-text-outline" size={14} color="#666" style={{marginRight: 5}}/>
-                    <Text style={{fontSize: 12, color:'#333'}}>{brand.logo || 'logo.png'}</Text>
+                    <Text style={{fontSize: 12, color:'#333'}}>{brand.logo}</Text>
                 </View>
 
-                {/* View Action Only */}
+                {/* View Icon Only */}
                 <TouchableOpacity style={{marginLeft: 10}}>
                     <Ionicons name="eye-outline" size={18} color="#666" />
                 </TouchableOpacity>
@@ -183,15 +179,17 @@ export default function ViewClientScreen() {
           />
         </View>
 
-        {/* --- UPDATED FOOTER: DONE BUTTON ONLY --- */}
+        {/* --- UPDATED FOOTER: DONE BUTTON REDIRECTS TO INDEX --- */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.doneBtn} 
-              // Uses router.push('/') to go to the main index page
-             onPress={() => router.push('/client')}>
+          <TouchableOpacity 
+             style={styles.doneBtn} 
+             // Uses router.push('/') to go to the main index page
+             onPress={() => router.push('/client')} 
+          >
              <Text style={styles.doneText}>Done</Text>
           </TouchableOpacity>
         </View>
-
+        
         <View style={{height: 40}} />
       </ScrollView>
     </SafeAreaView>
@@ -242,6 +240,7 @@ const styles = StyleSheet.create({
     height: 38,
   },
   
+  // Logo Section
   logoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   disabledFileBtn: { 
       borderWidth: 1, 
@@ -265,16 +264,10 @@ const styles = StyleSheet.create({
       borderBottomRightRadius: 4,
   },
 
-  // --- Styles for Additional Brands ---
-  additionalBrandsContainer: {
-    marginTop: 5,
-    marginBottom: 10,
-  },
-  additionalBrandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
+  // Additional Brands Styles
+  additionalBrandsContainer: { marginTop: 5, marginBottom: 10 },
+  smallLabel: { fontSize: 10, color: '#888', marginBottom: 5 },
+  additionalBrandRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   fileDisplay: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -290,7 +283,7 @@ const styles = StyleSheet.create({
 
   textArea: { height: 100 },
   
- // Updated Footer for "Done" button
+  // Footer
   footer: { 
       marginTop: 25, 
       marginBottom: 20, 
