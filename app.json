@@ -8,8 +8,14 @@
     "scheme": "ashai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#0a2540",
+      "translucent": false
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "statusBarStyle": "light"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,9 +38,9 @@
           "image": "./assets/images/ash-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#0a2540",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#0a2540"
           }
         }
       ],

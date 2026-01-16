@@ -12,6 +12,8 @@ import {
 } from "@expo-google-fonts/poppins";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack } from "expo-router";
+import { StatusBar } from "react-native";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function RootLayout() {
   useFonts({
@@ -27,22 +29,21 @@ export default function RootLayout() {
   });
 
   return (
-    <LinearGradient
-      colors={["#95BAD98C", "#31A0FF"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={{ flex: 1 }}
-    >
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "transparent" },
-        }}
+    <SafeAreaProvider>
+      <StatusBar barStyle="light-content" backgroundColor="#0a2540" translucent={false} />
+      <LinearGradient
+        colors={["#95BAD98C", "#31A0FF"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={{ flex: 1 }}
       >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="dashboard" />
-      </Stack>
-    </LinearGradient>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+      </LinearGradient>
+    </SafeAreaProvider>
   );
 }

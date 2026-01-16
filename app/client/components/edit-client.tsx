@@ -1,17 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Platform,
-    SafeAreaView,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditClientScreen() {
   const router = useRouter();
@@ -287,8 +285,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#0D253F',
-    height: 60 + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0),
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,

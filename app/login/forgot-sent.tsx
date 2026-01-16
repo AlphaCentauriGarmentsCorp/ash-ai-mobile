@@ -3,15 +3,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
-  Platform,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function ForgotSent() {
@@ -66,12 +64,11 @@ const styles = StyleSheet.create({
   safeArea: { 
     flex: 1,
     backgroundColor: "transparent",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     justifyContent: "space-between"
   },
   backButton: {
     position: "absolute",
-    top: Platform.OS === "android" ? (StatusBar.currentHeight || 0) + hp(2) : hp(2),
+    top: hp(2),
     left: wp(5.3),
     zIndex: 10,
     padding: ms(8),

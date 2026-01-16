@@ -4,19 +4,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { hp, ms, rfs, wp } from "../../utils/responsive";
 
 export default function Index() {
@@ -145,8 +144,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "transparent", 
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    backgroundColor: "transparent",
   },
   keyboardView: {
     flex: 1,

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GlobalSidebar from './GlobalSidebar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -23,6 +24,7 @@ const sizes = getResponsiveSizes();
 export default function GlobalHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const notifications = [
     {
@@ -134,7 +136,7 @@ export default function GlobalHeader() {
         presentationStyle="pageSheet"
         onRequestClose={() => setShowNotifications(false)}
       >
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { paddingTop: insets.top }]}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Notifications</Text>
             <TouchableOpacity 
@@ -174,6 +176,7 @@ export default function GlobalHeader() {
                 {notification.unread && <View style={styles.unreadDot} />}
               </TouchableOpacity>
             ))}
+            <View style={{ height: insets.bottom + 20 }} />
           </ScrollView>
         </View>
       </Modal>
