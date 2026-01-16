@@ -1,203 +1,304 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { hp, ms, rfs, wp } from "../../../utils/responsive";
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../constants';
 
-interface OrderInfoProps {
-  // Add props as needed for state management
-}
-
-export default function OrderInfo({}: OrderInfoProps) {
-  const FormLabel = ({ text }: { text: string }) => <Text style={styles.label}>{text}</Text>;
-
-  const CustomInput = ({ placeholder, value, icon, alignIconRight }: any) => (
-    <View style={styles.inputWrapper}>
-      {!alignIconRight && icon && <View style={styles.inputIconLeft}>{icon}</View>}
-      <TextInput style={styles.textInput} placeholder={placeholder} placeholderTextColor="#999" value={value} />
-      {alignIconRight && icon && <View style={styles.inputIconRight}>{icon}</View>}
-    </View>
-  );
-
-  const DropdownMock = ({ placeholder }: { placeholder: string }) => (
-    <TouchableOpacity style={styles.dropdown}>
-      <Text style={styles.dropdownText}>{placeholder}</Text>
-      <Ionicons name="chevron-down" size={ms(16)} color="#666" />
-    </TouchableOpacity>
-  );
-
-  const SectionHeader = ({ title }: { title: string }) => (
-    <View style={styles.sectionHeaderContainer}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <View style={styles.sectionDivider} />
-    </View>
-  );
-
+export default function OrderInfo() {
   return (
     <View style={styles.card}>
-      <SectionHeader title="Order Information" />
-      <View style={styles.row}>
-        <View style={styles.col}><FormLabel text="Client" /><DropdownMock placeholder="Select Client" /></View>
-        <View style={styles.col}>
-          <FormLabel text="Requested Deadline" />
-          <CustomInput placeholder="Choose Date" alignIconRight icon={<Ionicons name="calendar-outline" size={ms(16)} color="#333" />} />
-        </View>
-      </View>
-      <FormLabel text="Clothing/Company" />
-      <View style={styles.disabledInput}><Text style={styles.disabledText}>Company or brand will automatically show here</Text></View>
-      <View style={styles.row}>
-        <View style={styles.col}><FormLabel text="Brand" /><DropdownMock placeholder="Select Brand" /></View>
-        <View style={styles.col}><FormLabel text="Priority" /><DropdownMock placeholder="Select Priority" /></View>
-      </View>
+      {/* Section: Order Information */}
+<Text style={styles.sectionTitle}>Order Information</Text>
+<View style={styles.divider} />
 
-      <View style={{marginTop: 10}}><SectionHeader title="Product Details" /></View>
-      <View style={styles.row}>
-        <View style={styles.col}><FormLabel text="Apparel Type" /><DropdownMock placeholder="Select Apparel Type" /></View>
-        <View style={styles.col}><FormLabel text="Pattern Type" /><DropdownMock placeholder="Select Pattern Type" /></View>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.col}><FormLabel text="Fabric Type" /><DropdownMock placeholder="Select Fabric Type" /></View>
-        <View style={styles.col}><FormLabel text="Service Type" /><DropdownMock placeholder="Select Service Type" /></View>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.col}><FormLabel text="Print Method" /><DropdownMock placeholder="Select Print Method" /></View>
-        <View style={styles.col}><FormLabel text="Size Label" /><DropdownMock placeholder="Select Size Label" /></View>
-      </View>
-      <FormLabel text="Fabric Color" /><CustomInput placeholder="Enter Fabric Color" />
-      <TouchableOpacity style={styles.checkboxRow}>
-        <View style={styles.checkbox} />
-        <Text style={styles.checkboxLabel}>keep the same color for everybody</Text>
-      </TouchableOpacity>
-      <FormLabel text="Ribbing Color" /><CustomInput placeholder="Enter Ribbing Color" />
-      <FormLabel text="Needle Color" /><CustomInput placeholder="Enter Needle Color" />
-      <FormLabel text="Options" />
-      <View style={styles.optionsGrid}>
-        {[1,2,3,4,5,6,7,8].map((_, i) => (
-          <TouchableOpacity key={i} style={styles.optionItem}>
-             <View style={styles.checkbox} />
-             <Text style={styles.optionText}>with Collar</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+<View style={styles.row}>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Client</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Client" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label} numberOfLines={1}>Requested Deadline</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Choose Date" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>📅</Text>
+    </View>
+  </View>
+</View>
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Clothing/Company</Text>
+  <TextInput 
+    style={[styles.input, styles.disabledInput]} 
+    placeholder="Company or brand will automatically show here" 
+    editable={false}
+  />
+</View>
+
+<View style={styles.row}>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Brand</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Brand" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Priority</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Priority" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+</View>
+
+{/* Section: Product Details */}
+<Text style={[styles.sectionTitle, { marginTop: 20 }]}>Product Details</Text>
+<View style={styles.divider} />
+
+<View style={styles.row}>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Apparel Type</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Apparel Type" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Pattern Type</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Pattern Type" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+</View>
+
+<View style={styles.row}>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Fabric Type</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Fabric Type" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Service Type</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Service Type" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+</View>
+
+<View style={styles.row}>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Print Method</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Print Method" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+  <View style={styles.halfInputContainer}>
+    <Text style={styles.label}>Size Label</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Size Label" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
+  </View>
+</View>
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Fabric Color</Text>
+  <TextInput 
+    style={styles.input} 
+    placeholder="Enter Fabric Color" 
+  />
+  <View style={styles.checkboxRow}>
+    <View style={styles.checkbox} />
+    <Text style={styles.checkboxLabel}>keep the same color for everybody</Text>
+  </View>
+</View>
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Ribbing Color</Text>
+  <TextInput 
+    style={styles.input} 
+    placeholder="Enter Ribbing Color" 
+  />
+</View>
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Needle Color</Text>
+  <TextInput 
+    style={styles.input} 
+    placeholder="Enter Needle Color" 
+  />
+</View>
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Options</Text>
+  <View style={styles.optionsGrid}>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+    <View style={styles.checkboxRow}>
+      <View style={styles.checkbox} />
+      <Text style={styles.checkboxLabel}>with Collar</Text>
+    </View>
+  </View>
+</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#EAF4FC',
-    borderRadius: ms(12),
-    padding: wp(4.3),
-    marginBottom: hp(1.2),
-  },
-  label: {
-    fontSize: rfs(12),
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: hp(0.7),
-    marginTop: hp(1.5),
-  },
-  sectionHeaderContainer: {
-    marginBottom: hp(1.5),
-    marginTop: hp(0.5),
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
   },
   sectionTitle: {
-    fontSize: rfs(16),
-    fontWeight: 'bold',
-    color: '#0B1C36',
-    marginBottom: hp(0.5),
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.text,
+    marginBottom: 10,
   },
-  sectionDivider: {
+  divider: {
     height: 1,
-    backgroundColor: '#CBD5E0',
-    width: '100%',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#D1D9E6',
-    borderRadius: ms(6),
-    paddingHorizontal: wp(2.7),
-    height: hp(4.9),
-  },
-  textInput: {
-    flex: 1,
-    fontSize: rfs(12),
-    color: '#333',
-    height: '100%',
-  },
-  inputIconRight: {
-    marginLeft: wp(2.1),
-  },
-  inputIconLeft: {
-    marginRight: wp(2.1),
-  },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#D1D9E6',
-    borderRadius: ms(6),
-    paddingHorizontal: wp(2.7),
-    height: hp(4.9),
-  },
-  dropdownText: {
-    fontSize: rfs(12),
-    color: '#666',
-  },
-  disabledInput: {
-    backgroundColor: '#DDEAF6',
-    borderColor: '#C0D0E0',
-    borderWidth: 1,
-    borderRadius: ms(6),
-    paddingHorizontal: wp(2.7),
-    height: hp(4.9),
-    justifyContent: 'center',
-  },
-  disabledText: {
-    fontSize: rfs(12),
-    color: '#555',
+    backgroundColor: '#e0e0e0',
+    marginBottom: 15,
   },
   row: {
     flexDirection: 'row',
-    gap: wp(3.2),
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    alignItems: 'flex-start',
   },
-  col: {
+  halfInputContainer: {
     flex: 1,
+    marginHorizontal: 5,
+  },
+  fullInputContainer: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.text,
+    marginBottom: 5,
+    minHeight: 20,
+  },
+  dropdownContainer: {
+    position: 'relative',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    paddingRight: 35,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  dropdownIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+    fontSize: 12,
+    color: '#666',
+  },
+  disabledInput: {
+    backgroundColor: '#f5f5f5',
+    color: '#999',
   },
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: hp(1),
+    marginTop: 8,
   },
   checkbox: {
-    width: ms(16),
-    height: ms(16),
+    width: 18,
+    height: 18,
     borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: ms(3),
-    marginRight: wp(2.1),
-    backgroundColor: '#FFF',
+    borderColor: '#ccc',
+    marginRight: 8,
+    borderRadius: 3,
   },
   checkboxLabel: {
-    fontSize: rfs(10),
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
     color: '#666',
   },
   optionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-  },
-  optionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '25%',
-    marginBottom: hp(1),
-  },
-  optionText: {
-    fontSize: rfs(10),
-    color: '#333',
+    justifyContent: 'space-between',
   },
 });
