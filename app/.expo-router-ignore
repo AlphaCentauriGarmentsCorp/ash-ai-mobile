@@ -4,3 +4,12 @@ hooks/**
 services/**
 components/**
 examples/**
+**/components/**
+**/components/index.ts
+order/components/**
+client/components/**
+components/PageHeader.tsx
+components/Button.tsx
+components/GlobalHeader.tsx
+components/GlobalSidebar.tsx
+components/PageTitle.tsx

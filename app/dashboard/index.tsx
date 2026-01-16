@@ -1,7 +1,10 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { usePoppinsFonts } from '../../hooks';
 import GlobalHeader from '../components/GlobalHeader';
 import PageTitle from '../components/PageTitle';
+import { COLORS, PADDING } from '../constants';
 import ExternalOperations from './components/ExternalOperations';
 import Manufacturing from './components/Manufacturing';
 import QuickActions from './components/QuickActions';
@@ -13,10 +16,14 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const getResponsivePadding = () => {
   const isSmallDevice = SCREEN_WIDTH < 375;
-  return isSmallDevice ? 12 : 16;
+  return isSmallDevice ? PADDING.container.sm : PADDING.container.base;
 };
 
 export default function Dashboard() {
+  const fontsLoaded = usePoppinsFonts();
+  
+  if (!fontsLoaded) return null;
+
   return (
     <SafeAreaView style={styles.container}>
       <GlobalHeader />
@@ -36,7 +43,7 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: COLORS.surface,
   },
   scrollView: {
     flex: 1,

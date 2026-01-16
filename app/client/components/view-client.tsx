@@ -2,24 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-<<<<<<< HEAD
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-=======
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
->>>>>>> 1bd60fb825dc61fe3af3b2b16ecece642974e547
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

@@ -1,46 +1,24 @@
-import {
-    Poppins_100Thin,
-    Poppins_200ExtraLight,
-    Poppins_300Light,
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-    Poppins_800ExtraBold,
-    Poppins_900Black,
-    useFonts
-} from "@expo-google-fonts/poppins";
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-<<<<<<< HEAD
   Animated,
   Modal,
-  Platform,
-  ScrollView, // Removed SafeAreaView from here
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View
-=======
-    Animated,
-    Modal,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
->>>>>>> 1bd60fb825dc61fe3af3b2b16ecece642974e547
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { usePoppinsFonts } from '../../hooks';
+import Button from '../components/Button';
 import GlobalHeader from '../components/GlobalHeader';
 import PageTitle from '../components/PageTitle';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../constants';
 import NewClientScreen from './components/new-client';
 
 // Types
@@ -49,6 +27,7 @@ interface Client {
   name: string;
   contact: string;
   email: string;
+  [key: string]: string; // Index signature for router params
 }
 
 const DATA: Client[] = Array(12).fill({
@@ -64,17 +43,7 @@ const ClientsScreen = () => {
   // 2. Get the safe area insets (top, bottom, etc.)
   const insets = useSafeAreaInsets(); 
 
-  const [fontsLoaded] = useFonts({
-    Poppins_100Thin,
-    Poppins_200ExtraLight,
-    Poppins_300Light,
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-    Poppins_800ExtraBold,
-    Poppins_900Black,
-  });
+  const fontsLoaded = usePoppinsFonts();
 
   const [searchText, setSearchText] = useState('');
   const [showNewClient, setShowNewClient] = useState(false);
@@ -132,7 +101,7 @@ const ClientsScreen = () => {
   };
 
   if (!fontsLoaded) return null; 
-  if (showNewClient) return <NewClientScreen onBack={() => setShowNewClient(false)} />;
+  if (showNewClient) return <NewClientScreen />;
 
   return (
     <View style={styles.container}>
@@ -150,17 +119,21 @@ const ClientsScreen = () => {
       <ScrollView style={styles.contentContainer}>
         {/* Buttons */}
         <View style={styles.actionButtonsRow}>
-          <TouchableOpacity 
-            style={[styles.btn, styles.btnPrimary]}
+          <Button
+            title="New client"
             onPress={() => setShowNewClient(true)}
-          >
-            <Ionicons name="add-circle-outline" size={18} color="#FFF" style={{marginRight: 5}}/>
-            <Text style={styles.btnTextPrimary}>New client</Text>
-          </TouchableOpacity>
+            variant="primary"
+            size="base"
+            icon="add-circle-outline"
+            iconPosition="left"
+          />
           
-          <TouchableOpacity style={[styles.btn, styles.btnOutline]}>
-            <Text style={styles.btnTextOutline}>Remove Clients</Text>
-          </TouchableOpacity>
+          <Button
+            title="Remove Clients"
+            onPress={() => console.log('Remove clients')}
+            variant="outline"
+            size="base"
+          />
         </View>
 
         {/* Search */}
@@ -331,70 +304,336 @@ const ClientsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: COLORS.surface,
   },
 
-  contentContainer: { flex: 1, padding: 15, backgroundColor: '#FFF' },
-  actionButtonsRow: { flexDirection: 'row', marginBottom: 20 },
-  btn: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20, alignItems: 'center', marginRight: 15 },
-  btnPrimary: { backgroundColor: '#1E3A5F' },
-  btnOutline: { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#FFC0CB' },
-  btnTextPrimary: { color: '#FFF', fontWeight: '600' },
-  btnTextOutline: { color: '#E05D5D', fontWeight: '600' },
-  searchContainer: { flexDirection: 'row', marginBottom: 20 },
-  searchInput: { flex: 1, borderWidth: 1, borderColor: '#CCC', borderTopLeftRadius: 5, borderBottomLeftRadius: 5, paddingHorizontal: 15, paddingVertical: 8, backgroundColor: '#FFF' },
-  searchIconContainer: { width: 40, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderLeftWidth: 0, borderColor: '#CCC', borderTopRightRadius: 5, borderBottomRightRadius: 5 },
-  listControlRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  listTitle: { fontSize: 16, fontWeight: 'bold', color: '#0D253F' },
-  filterContainer: { flexDirection: 'row', alignItems: 'center' },
-  filterText: { marginHorizontal: 5, color: '#666' },
-  dropdownBtn: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#CCC', borderRadius: 20, paddingVertical: 5, paddingHorizontal: 12 },
-  dropdownText: { fontSize: 13, color: '#374151', fontWeight: '500' },
-  actionBtn: { borderWidth: 1, borderColor: '#CCC', borderRadius: 4, padding: 2 },
-  tableWrapper: { borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 8, overflow: 'hidden', marginBottom: 20 },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#E6F0F8', paddingVertical: 12, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: '#D1D9E0' },
-  columnHeader: { fontSize: 12, fontWeight: 'bold', color: '#4A5568' },
-  tableRow: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', alignItems: 'center' },
-  rowEven: { backgroundColor: '#FFF' },
-  rowOdd: { backgroundColor: '#F9FAFB' },
-  cellText: { fontSize: 12, color: '#333' },
-  customScrollContainer: { paddingHorizontal: 10, paddingTop: 10 },
-  scrollTrack: { height: 6, backgroundColor: '#E0E0E0', borderRadius: 4, width: '100%', overflow: 'hidden' },
-  scrollThumb: { height: '100%', width: 120, backgroundColor: '#0B1C36', borderRadius: 4 },
-  paginationWrapper: { alignItems: 'center', marginTop: 20, marginBottom: 10, gap: 15 },
-  entriesContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  showText: { fontSize: 13, color: '#9CA3AF', fontWeight: '400' },
+  contentContainer: { 
+    flex: 1, 
+    padding: SPACING.base, 
+    backgroundColor: COLORS.white 
+  },
+  actionButtonsRow: { 
+    flexDirection: 'row', 
+    marginBottom: SPACING.lg,
+    gap: SPACING.base,
+  },
+  searchContainer: { 
+    flexDirection: 'row', 
+    marginBottom: SPACING.lg 
+  },
+  searchInput: { 
+    flex: 1, 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderTopLeftRadius: SIZES.radius.sm, 
+    borderBottomLeftRadius: SIZES.radius.sm, 
+    paddingHorizontal: SPACING.base, 
+    paddingVertical: SPACING.sm, 
+    backgroundColor: COLORS.white,
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: FONT_SIZES.sm,
+  },
+  searchIconContainer: { 
+    width: 40, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    borderWidth: SIZES.border.thin, 
+    borderLeftWidth: 0, 
+    borderColor: COLORS.border, 
+    borderTopRightRadius: SIZES.radius.sm, 
+    borderBottomRightRadius: SIZES.radius.sm 
+  },
+  listControlRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: SPACING.sm + 2 
+  },
+  listTitle: { 
+    fontSize: FONT_SIZES.base, 
+    fontFamily: FONT_FAMILY.bold, 
+    color: '#0D253F' 
+  },
+  filterContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  filterText: { 
+    marginHorizontal: SPACING.xs + 1, 
+    color: COLORS.textSecondary,
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: FONT_SIZES.sm,
+  },
+  dropdownBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.full, 
+    paddingVertical: SPACING.xs + 1, 
+    paddingHorizontal: SPACING.sm + 4 
+  },
+  dropdownText: { 
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.text, 
+    fontFamily: FONT_FAMILY.medium 
+  },
+  actionBtn: { 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.xs, 
+    padding: SPACING.xs / 2 
+  },
+  tableWrapper: { 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.base, 
+    overflow: 'hidden', 
+    marginBottom: SPACING.lg 
+  },
+  tableHeader: { 
+    flexDirection: 'row', 
+    backgroundColor: '#E6F0F8', 
+    paddingVertical: SPACING.sm + 4, 
+    paddingHorizontal: SPACING.sm + 2, 
+    borderBottomWidth: SIZES.border.thin, 
+    borderBottomColor: COLORS.divider 
+  },
+  columnHeader: { 
+    fontSize: FONT_SIZES.xs, 
+    fontFamily: FONT_FAMILY.bold, 
+    color: COLORS.textSecondary 
+  },
+  tableRow: { 
+    flexDirection: 'row', 
+    paddingVertical: SPACING.sm + 4, 
+    paddingHorizontal: SPACING.sm + 2, 
+    borderBottomWidth: SIZES.border.thin, 
+    borderBottomColor: COLORS.borderLight, 
+    alignItems: 'center' 
+  },
+  rowEven: { backgroundColor: COLORS.white },
+  rowOdd: { backgroundColor: COLORS.surface },
+  cellText: { 
+    fontSize: FONT_SIZES.xs, 
+    color: COLORS.text,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  customScrollContainer: { 
+    paddingHorizontal: SPACING.sm + 2, 
+    paddingTop: SPACING.sm + 2 
+  },
+  scrollTrack: { 
+    height: 6, 
+    backgroundColor: COLORS.border, 
+    borderRadius: SIZES.radius.xs, 
+    width: '100%', 
+    overflow: 'hidden' 
+  },
+  scrollThumb: { 
+    height: '100%', 
+    width: 120, 
+    backgroundColor: '#0B1C36', 
+    borderRadius: SIZES.radius.xs 
+  },
+  paginationWrapper: { 
+    alignItems: 'center', 
+    marginTop: SPACING.lg, 
+    marginBottom: SPACING.sm + 2, 
+    gap: SPACING.base 
+  },
+  entriesContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: SPACING.sm 
+  },
+  showText: { 
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.textSecondary, 
+    fontFamily: FONT_FAMILY.regular 
+  },
   dropdownWrapperPagination: { position: 'relative' },
-  dropdownBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#D1D5DB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 6, minWidth: 60, backgroundColor: '#FFF' },
-  dropdownMenuAbove: { position: 'absolute', bottom: '100%', left: 0, marginBottom: 5, backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#E0E0E0', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5, overflow: 'hidden', minWidth: 80, zIndex: 2000 },
-  dropdownItemBtn: { paddingVertical: 10, paddingHorizontal: 12, backgroundColor: '#0B1C36', borderTopWidth: 1, borderTopColor: '#1e3a5f' },
-  dropdownItemText: { fontSize: 13, color: '#FFF', fontWeight: '400' },
-  pageControls: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  navArrow: { width: 32, height: 32, justifyContent: 'center', alignItems: 'center', borderRadius: 4 },
-  pageNum: { minWidth: 36, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: 6, paddingHorizontal: 8 },
+  dropdownBox: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    paddingHorizontal: SPACING.sm + 4, 
+    paddingVertical: SPACING.xs + 2, 
+    borderRadius: SIZES.radius.sm, 
+    gap: SPACING.xs + 2, 
+    minWidth: 60, 
+    backgroundColor: COLORS.white 
+  },
+  dropdownMenuAbove: { 
+    position: 'absolute', 
+    bottom: '100%', 
+    left: 0, 
+    marginBottom: SPACING.xs + 1, 
+    backgroundColor: COLORS.white, 
+    borderRadius: SIZES.radius.base, 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    ...SIZES.shadow.md,
+    overflow: 'hidden', 
+    minWidth: 80, 
+    zIndex: 2000 
+  },
+  dropdownItemBtn: { 
+    paddingVertical: SPACING.sm + 2, 
+    paddingHorizontal: SPACING.sm + 4, 
+    backgroundColor: '#0B1C36', 
+    borderTopWidth: SIZES.border.thin, 
+    borderTopColor: '#1e3a5f' 
+  },
+  dropdownItemText: { 
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.white, 
+    fontFamily: FONT_FAMILY.regular 
+  },
+  pageControls: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: SPACING.sm 
+  },
+  navArrow: { 
+    width: SIZES.icon.lg, 
+    height: SIZES.icon.lg, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    borderRadius: SIZES.radius.xs 
+  },
+  pageNum: { 
+    minWidth: 36, 
+    height: 36, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    borderRadius: SIZES.radius.sm, 
+    paddingHorizontal: SPACING.sm 
+  },
   activePage: { backgroundColor: '#0B1C36' },
-  activePageText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
-  pageText: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { width: 180, backgroundColor: '#FFF', borderRadius: 12, overflow: 'hidden', elevation: 5, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 3.84, shadowOffset: { width: 0, height: 2 } },
-  modalHeader: { backgroundColor: '#0D253F', paddingVertical: 10, alignItems: 'center' },
-  modalTitle: { color: '#FFF', fontSize: 18, fontFamily: "Poppins_300Light" },
-  modalBody: { padding: 35 },
-  modalBtnDefault: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E5E7EB', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, marginBottom: 8 },
-  modalBtnDanger: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF4D4D', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6 },
-  modalIcon: { marginRight: 8 },
-  modalBtnTextDefault: { color: '#333', fontWeight: '600', fontSize: 13 },
-  modalBtnTextDanger: { color: '#FFF', fontWeight: '600', fontSize: 13 },
-  removeModalContent: { width: 320, backgroundColor: '#FFF', borderRadius: 12, overflow: 'hidden', elevation: 10, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 3.84, shadowOffset: { width: 0, height: 2 } },
-  removeModalHeader: { backgroundColor: '#0D253F', paddingVertical: 20, alignItems: 'center' },
-  removeModalTitle: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
-  removeModalBody: { padding: 25, alignItems: 'center' },
-  removeModalText: { textAlign: 'center', fontSize: 15, color: '#333', marginBottom: 25, lineHeight: 22 },
-  removeModalButtons: { flexDirection: 'row', justifyContent: 'center', gap: 15 },
-  btnCancelRemove: { backgroundColor: '#B0B0B0', paddingVertical: 10, paddingHorizontal: 25, borderRadius: 8 },
-  btnCancelRemoveText: { color: '#000', fontWeight: '600' },
-  btnConfirmRemove: { backgroundColor: '#FF5A5F', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8 },
-  btnConfirmRemoveText: { color: '#FFF', fontWeight: '600' },
+  activePageText: { 
+    color: COLORS.white, 
+    fontSize: FONT_SIZES.sm, 
+    fontFamily: FONT_FAMILY.semiBold 
+  },
+  pageText: { 
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.textSecondary, 
+    fontFamily: FONT_FAMILY.medium 
+  },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: COLORS.overlay, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  modalContent: { 
+    width: 180, 
+    backgroundColor: COLORS.white, 
+    borderRadius: SIZES.radius.md, 
+    overflow: 'hidden', 
+    ...SIZES.shadow.md,
+  },
+  modalHeader: { 
+    backgroundColor: '#0D253F', 
+    paddingVertical: SPACING.sm + 2, 
+    alignItems: 'center' 
+  },
+  modalTitle: { 
+    color: COLORS.white, 
+    fontSize: FONT_SIZES.lg, 
+    fontFamily: FONT_FAMILY.light 
+  },
+  modalBody: { 
+    padding: SPACING['2xl'] - 5 
+  },
+  modalBtnDefault: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.gray[200], 
+    paddingVertical: SPACING.sm, 
+    paddingHorizontal: SPACING.sm + 4, 
+    borderRadius: SIZES.radius.sm, 
+    marginBottom: SPACING.sm 
+  },
+  modalBtnDanger: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.error, 
+    paddingVertical: SPACING.sm, 
+    paddingHorizontal: SPACING.sm + 4, 
+    borderRadius: SIZES.radius.sm 
+  },
+  modalIcon: { 
+    marginRight: SPACING.sm 
+  },
+  modalBtnTextDefault: { 
+    color: COLORS.text, 
+    fontFamily: FONT_FAMILY.semiBold, 
+    fontSize: FONT_SIZES.sm 
+  },
+  modalBtnTextDanger: { 
+    color: COLORS.white, 
+    fontFamily: FONT_FAMILY.semiBold, 
+    fontSize: FONT_SIZES.sm 
+  },
+  removeModalContent: { 
+    width: 320, 
+    backgroundColor: COLORS.white, 
+    borderRadius: SIZES.radius.md, 
+    overflow: 'hidden', 
+    ...SIZES.shadow.lg,
+  },
+  removeModalHeader: { 
+    backgroundColor: '#0D253F', 
+    paddingVertical: SPACING.lg, 
+    alignItems: 'center' 
+  },
+  removeModalTitle: { 
+    color: COLORS.white, 
+    fontSize: FONT_SIZES.xl, 
+    fontFamily: FONT_FAMILY.bold 
+  },
+  removeModalBody: { 
+    padding: SPACING.xl - 7, 
+    alignItems: 'center' 
+  },
+  removeModalText: { 
+    textAlign: 'center', 
+    fontSize: FONT_SIZES.base, 
+    color: COLORS.text, 
+    marginBottom: SPACING.xl - 7, 
+    lineHeight: 22,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  removeModalButtons: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    gap: SPACING.base 
+  },
+  btnCancelRemove: { 
+    backgroundColor: COLORS.gray[400], 
+    paddingVertical: SPACING.sm + 2, 
+    paddingHorizontal: SPACING.xl - 7, 
+    borderRadius: SIZES.radius.base 
+  },
+  btnCancelRemoveText: { 
+    color: COLORS.black, 
+    fontFamily: FONT_FAMILY.semiBold,
+    fontSize: FONT_SIZES.sm,
+  },
+  btnConfirmRemove: { 
+    backgroundColor: COLORS.error, 
+    paddingVertical: SPACING.sm + 2, 
+    paddingHorizontal: SPACING.lg, 
+    borderRadius: SIZES.radius.base 
+  },
+  btnConfirmRemoveText: { 
+    color: COLORS.white, 
+    fontFamily: FONT_FAMILY.semiBold,
+    fontSize: FONT_SIZES.sm,
+  },
 });
 
 export default ClientsScreen;

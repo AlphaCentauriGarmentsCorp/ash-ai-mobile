@@ -1,20 +1,24 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-  Animated,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Animated,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { usePoppinsFonts } from '../../hooks';
 import { hp, ms, rfs, wp } from "../../utils/responsive";
+import Button from '../components/Button';
 import GlobalHeader from '../components/GlobalHeader';
 import PageTitle from '../components/PageTitle';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../constants';
 
 // --- Static Mock Data ---
 const allOrders = Array.from({ length: 30 }).map((_, i) => {
@@ -39,7 +43,7 @@ const allOrders = Array.from({ length: 30 }).map((_, i) => {
 
 export default function OrderPage() {
   const router = useRouter();
-  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const fontsLoaded = usePoppinsFonts();
   
   // Dropdown states
   const [showOrdersDropdown, setShowOrdersDropdown] = useState(false);
@@ -165,6 +169,8 @@ export default function OrderPage() {
     extrapolate: 'clamp',
   });
 
+  if (!fontsLoaded) return null;
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -179,26 +185,36 @@ export default function OrderPage() {
           
           {/* Action Buttons */}
           <View style={styles.actionRow}>
-            <TouchableOpacity 
-              style={styles.primaryButton}
+            <Button
+              title="New Order"
               onPress={() => router.push('/order/add-order')}
-            >
-              <Ionicons name="add" size={ms(18)} color="#FFF" />
-              <Text style={styles.primaryButtonText}>New Order</Text>
-            </TouchableOpacity>
+              variant="primary"
+              size="base"
+              icon="add"
+              iconPosition="left"
+            />
 
-            <TouchableOpacity 
-              style={styles.secondaryButton}
+            <Button
+              title="Refresh"
               onPress={handleRefresh}
-            >
-              <Ionicons name="refresh" size={ms(16)} color="#0B1C36" />
-              <Text style={styles.secondaryButtonText}>Refresh</Text>
-            </TouchableOpacity>
+              variant="outline"
+              size="base"
+              icon="refresh"
+              iconPosition="left"
+              style={styles.secondaryButton}
+              textStyle={styles.secondaryButtonText}
+            />
 
-            <TouchableOpacity style={styles.secondaryButton}>
-              <MaterialIcons name="history" size={ms(16)} color="#0B1C36" />
-              <Text style={styles.secondaryButtonText}>Order History</Text>
-            </TouchableOpacity>
+            <Button
+              title="Order History"
+              onPress={() => console.log('Order history')}
+              variant="outline"
+              size="base"
+              icon="time-outline"
+              iconPosition="left"
+              style={styles.secondaryButton}
+              textStyle={styles.secondaryButtonText}
+            />
           </View>
 
           {/* Search Bar */}
@@ -550,32 +566,51 @@ export default function OrderPage() {
 }
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: '#f8f9fa' },
-  contentContainer: { flex: 1, backgroundColor: '#FFF' },
-  scrollView: { flex: 1, paddingHorizontal: wp(4.3), paddingTop: hp(2) },
+  mainContainer: { 
+    flex: 1, 
+    backgroundColor: COLORS.surface 
+  },
+  contentContainer: { 
+    flex: 1, 
+    backgroundColor: COLORS.white 
+  },
+  scrollView: { 
+    flex: 1, 
+    paddingHorizontal: wp(4.3), 
+    paddingTop: hp(2) 
+  },
   
   // Actions
-  actionRow: { flexDirection: 'row', marginBottom: hp(2), gap: wp(2.1) },
-  primaryButton: { flexDirection: 'row', backgroundColor: '#0B1C36', paddingVertical: hp(1.2), paddingHorizontal: wp(4.3), borderRadius: ms(20), alignItems: 'center' },
-  primaryButtonText: { color: '#FFF', fontWeight: '600', fontSize: rfs(12), marginLeft: wp(1.1) },
-  secondaryButton: { flexDirection: 'row', borderWidth: 1, borderColor: '#0B1C36', paddingVertical: hp(1.2), paddingHorizontal: wp(3.2), borderRadius: ms(20), alignItems: 'center' },
-  secondaryButtonText: { color: '#0B1C36', fontWeight: '600', fontSize: rfs(12), marginLeft: wp(1.1) },
+  actionRow: { 
+    flexDirection: 'row', 
+    marginBottom: hp(2), 
+    gap: wp(2.1),
+    flexWrap: 'wrap',
+  },
+  secondaryButton: { 
+    borderColor: '#0B1C36',
+    backgroundColor: COLORS.white,
+  },
+  secondaryButtonText: { 
+    color: '#0B1C36',
+  },
   
   // Search
   searchContainer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#E0E0E0', 
-    borderRadius: ms(8), 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.base, 
     paddingHorizontal: wp(3.2), 
     height: hp(5.4), 
     marginBottom: hp(2) 
   },
   searchInput: { 
     flex: 1, 
-    fontSize: rfs(14), 
-    color: '#333' 
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.text,
+    fontFamily: FONT_FAMILY.regular,
   },
   searchIcon: { 
     marginLeft: wp(2.1) 
@@ -596,29 +631,31 @@ const styles = StyleSheet.create({
     alignItems: 'center' 
   },
   legendLabel: { 
-    fontSize: rfs(12), 
-    color: '#666', 
-    marginRight: wp(2.1) 
+    fontSize: FONT_SIZES.xs, 
+    color: COLORS.textSecondary, 
+    marginRight: wp(2.1),
+    fontFamily: FONT_FAMILY.regular,
   },
   badge: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#E0E0E0', 
-    borderRadius: ms(16), 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.lg, 
     paddingHorizontal: wp(2.1), 
     paddingVertical: hp(0.5), 
     marginRight: wp(1.6) 
   },
   badgeText: { 
     fontSize: rfs(10), 
-    color: '#333', 
-    marginRight: wp(1.1) 
+    color: COLORS.text, 
+    marginRight: wp(1.1),
+    fontFamily: FONT_FAMILY.regular,
   },
   dot: { 
     width: ms(8), 
     height: ms(8), 
-    borderRadius: ms(4) 
+    borderRadius: SIZES.radius.xs 
   },
   filterDropdowns: { 
     flexDirection: 'row', 
@@ -628,24 +665,25 @@ const styles = StyleSheet.create({
   filterBtn: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#E0E0E0', 
-    borderRadius: ms(6), 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.sm, 
     paddingHorizontal: wp(2.1), 
     paddingVertical: hp(0.6),
-    backgroundColor: '#FFF'
+    backgroundColor: COLORS.white
   },
   filterBtnText: { 
     fontSize: rfs(10), 
-    color: '#333', 
-    marginHorizontal: wp(1.1) 
+    color: COLORS.text, 
+    marginHorizontal: wp(1.1),
+    fontFamily: FONT_FAMILY.regular,
   },
 
   // Table
   tableContainer: { 
-    borderWidth: 1, 
-    borderColor: '#E0E0E0', 
-    borderRadius: ms(8), 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
+    borderRadius: SIZES.radius.base, 
     overflow: 'hidden', 
     paddingBottom: hp(1) 
   },
@@ -654,36 +692,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F0F8', 
     paddingVertical: hp(1.5), 
     paddingHorizontal: wp(2.1), 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#D1D9E0' 
+    borderBottomWidth: SIZES.border.thin, 
+    borderBottomColor: COLORS.divider 
   },
   columnHeader: { 
-    fontSize: rfs(12), 
-    fontWeight: 'bold', 
-    color: '#4A5568' 
+    fontSize: FONT_SIZES.xs, 
+    fontFamily: FONT_FAMILY.bold, 
+    color: COLORS.textSecondary 
   },
   tableRow: { 
     flexDirection: 'row', 
     paddingVertical: hp(1.5), 
     paddingHorizontal: wp(2.1), 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#F0F0F0', 
+    borderBottomWidth: SIZES.border.thin, 
+    borderBottomColor: COLORS.borderLight, 
     alignItems: 'center' 
   },
   rowEven: { 
-    backgroundColor: '#FFF' 
+    backgroundColor: COLORS.white 
   },
   rowOdd: { 
-    backgroundColor: '#F9FAFB' 
+    backgroundColor: COLORS.surface 
   },
   cellText: { 
-    fontSize: rfs(12), 
-    color: '#333' 
+    fontSize: FONT_SIZES.xs, 
+    color: COLORS.text,
+    fontFamily: FONT_FAMILY.regular,
   },
   statusDot: { 
     width: ms(8), 
     height: ms(8), 
-    borderRadius: ms(4), 
+    borderRadius: SIZES.radius.xs, 
     marginRight: wp(2.1) 
   },
   
@@ -694,8 +733,8 @@ const styles = StyleSheet.create({
   },
   scrollTrack: { 
     height: hp(0.6), 
-    backgroundColor: '#E0E0E0', 
-    borderRadius: ms(4), 
+    backgroundColor: COLORS.border, 
+    borderRadius: SIZES.radius.xs, 
     width: '100%', 
     overflow: 'hidden' 
   },
@@ -703,7 +742,7 @@ const styles = StyleSheet.create({
     height: '100%', 
     width: wp(30), 
     backgroundColor: '#0B1C36', 
-    borderRadius: ms(4) 
+    borderRadius: SIZES.radius.xs 
   },
 
   // Pagination
@@ -719,25 +758,25 @@ const styles = StyleSheet.create({
     gap: wp(2)
   },
   showText: { 
-    fontSize: rfs(13), 
-    color: '#9CA3AF',
-    fontWeight: '400'
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.textSecondary,
+    fontFamily: FONT_FAMILY.regular,
   },
   dropdownBox: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#D1D5DB', 
+    borderWidth: SIZES.border.thin, 
+    borderColor: COLORS.border, 
     paddingHorizontal: wp(3), 
     paddingVertical: hp(0.6), 
-    borderRadius: ms(6),
+    borderRadius: SIZES.radius.sm,
     gap: wp(1.5),
     minWidth: wp(16)
   },
   dropdownText: { 
-    fontSize: rfs(13), 
-    color: '#374151',
-    fontWeight: '500'
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.text,
+    fontFamily: FONT_FAMILY.medium,
   },
   pageControls: { 
     flexDirection: 'row', 
@@ -745,46 +784,42 @@ const styles = StyleSheet.create({
     gap: wp(2)
   },
   navArrow: { 
-    width: ms(32), 
-    height: ms(32), 
+    width: SIZES.icon.lg, 
+    height: SIZES.icon.lg, 
     justifyContent: 'center', 
     alignItems: 'center',
-    borderRadius: ms(4)
+    borderRadius: SIZES.radius.xs
   },
   pageNum: { 
     minWidth: ms(36), 
     height: ms(36), 
     justifyContent: 'center', 
     alignItems: 'center', 
-    borderRadius: ms(6),
+    borderRadius: SIZES.radius.sm,
     paddingHorizontal: wp(2)
   },
   activePage: { 
     backgroundColor: '#0B1C36'
   },
   activePageText: { 
-    color: '#FFF', 
-    fontSize: rfs(13), 
-    fontWeight: '600'
+    color: COLORS.white, 
+    fontSize: FONT_SIZES.sm, 
+    fontFamily: FONT_FAMILY.semiBold,
   },
   pageText: { 
-    fontSize: rfs(13), 
-    color: '#6B7280',
-    fontWeight: '500'
+    fontSize: FONT_SIZES.sm, 
+    color: COLORS.textSecondary,
+    fontFamily: FONT_FAMILY.medium,
   },
   
   // Dropdown Menus
   dropdownMenuContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: ms(8),
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius.base,
+    borderWidth: SIZES.border.thin,
+    borderColor: COLORS.border,
     marginBottom: hp(1.5),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...SIZES.shadow.base,
     overflow: 'hidden'
   },
   dropdownHeaderBtn: {
@@ -793,21 +828,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F4F8'
   },
   dropdownHeaderText: {
-    fontSize: rfs(13),
-    color: '#374151',
-    fontWeight: '500'
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.text,
+    fontFamily: FONT_FAMILY.medium,
   },
   dropdownItemBtn: {
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(3),
     backgroundColor: '#0B1C36',
-    borderTopWidth: 1,
+    borderTopWidth: SIZES.border.thin,
     borderTopColor: '#1e3a5f'
   },
   dropdownItemText: {
-    fontSize: rfs(13),
-    color: '#FFF',
-    fontWeight: '400'
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.white,
+    fontFamily: FONT_FAMILY.regular,
   },
   dropdownWrapper: {
     position: 'relative',
@@ -818,15 +853,11 @@ const styles = StyleSheet.create({
     top: '100%',
     left: 0,
     marginTop: hp(0.5),
-    backgroundColor: '#FFF',
-    borderRadius: ms(8),
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius.base,
+    borderWidth: SIZES.border.thin,
+    borderColor: COLORS.border,
+    ...SIZES.shadow.md,
     overflow: 'hidden',
     minWidth: wp(35),
     zIndex: 2000
@@ -836,15 +867,11 @@ const styles = StyleSheet.create({
     bottom: '100%',
     left: 0,
     marginBottom: hp(0.5),
-    backgroundColor: '#FFF',
-    borderRadius: ms(8),
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius.base,
+    borderWidth: SIZES.border.thin,
+    borderColor: COLORS.border,
+    ...SIZES.shadow.md,
     overflow: 'hidden',
     minWidth: wp(20),
     zIndex: 2000
@@ -858,7 +885,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(3),
     backgroundColor: '#0B1C36',
-    borderTopWidth: 1,
+    borderTopWidth: SIZES.border.thin,
     borderTopColor: '#1e3a5f'
   }
 });

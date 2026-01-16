@@ -1,190 +1,217 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { hp, ms, rfs, wp } from "../../../utils/responsive";
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../constants';
 
-interface PrintAreaProps {
-  // Add props as needed for state management
-}
-
-export default function PrintArea({}: PrintAreaProps) {
-  const FormLabel = ({ text }: { text: string }) => <Text style={styles.label}>{text}</Text>;
-
-  const CustomInput = ({ placeholder, value }: any) => (
-    <View style={styles.inputWrapper}>
-      <TextInput style={styles.textInput} placeholder={placeholder} placeholderTextColor="#999" value={value} />
-    </View>
-  );
-
-  const DropdownMock = ({ placeholder }: { placeholder: string }) => (
-    <TouchableOpacity style={styles.dropdown}>
-      <Text style={styles.dropdownText}>{placeholder}</Text>
-      <Ionicons name="chevron-down" size={ms(16)} color="#666" />
-    </TouchableOpacity>
-  );
-
-  const SectionHeader = ({ title }: { title: string }) => (
-    <View style={styles.sectionHeaderContainer}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <View style={styles.sectionDivider} />
-    </View>
-  );
-
-  const CounterInput = ({ label, value }: { label: string, value: number }) => (
-    <View style={styles.counterContainer}>
-      <Text style={styles.counterLabel}>{label}</Text>
-      <View style={styles.counterWrapper}>
-        <TouchableOpacity style={styles.counterBtn}><Text style={styles.counterBtnText}>-</Text></TouchableOpacity>
-        <TextInput style={styles.counterInput} value={value.toString()} editable={false} />
-        <TouchableOpacity style={styles.counterBtn}><Text style={styles.counterBtnText}>+</Text></TouchableOpacity>
-      </View>
-    </View>
-  );
-
+export default function PrintArea() {
   return (
     <View style={styles.card}>
-       <SectionHeader title="Print Area" />
-       <FormLabel text="Select Print Area" />
-       <DropdownMock placeholder="Select Print Area" />
-       
-       <View style={{marginTop: 12}}>
-         <CustomInput placeholder="Enter print area color" />
-       </View>
+      {/* Section: Print Area */}
+<Text style={styles.sectionTitle}>Print Area</Text>
+<View style={styles.divider} />
 
-       <View style={styles.grayBox}>
-          <View style={styles.row}>
-             <View style={styles.col}><CounterInput label="Height" value={0} /></View>
-             <View style={styles.col}><CounterInput label="Width" value={0} /></View>
-          </View>
-          <View style={styles.row}>
-             <View style={styles.col}><CounterInput label="X-offset" value={0} /></View>
-             <View style={styles.col}><CounterInput label="Y-offset" value={0} /></View>
-          </View>
-       </View>
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Select Print Area</Text>
+  <View style={styles.dropdownContainer}>
+    <TextInput 
+      style={styles.input} 
+      placeholder="Select Print Area" 
+      editable={false}
+    />
+    <Text style={styles.dropdownIcon}>▼</Text>
+  </View>
+</View>
 
-       <TouchableOpacity style={styles.darkButton}>
-          <Text style={styles.darkButtonText}>+ Add print location</Text>
-       </TouchableOpacity>
+<View style={styles.fullInputContainer}>
+  <TextInput 
+    style={styles.input} 
+    placeholder="Enter print area color" 
+  />
+</View>
+
+{/* Height and Width Controls */}
+<View style={styles.dimensionsCard}>
+  <View style={styles.row}>
+    <View style={styles.halfInputContainer}>
+      <Text style={styles.label}>Height</Text>
+      <View style={styles.counterRow}>
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>-</Text>
+        </TouchableOpacity>
+        <TextInput 
+          style={styles.counterInput} 
+          value="0"
+          keyboardType="numeric"
+        />
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+    <View style={styles.halfInputContainer}>
+      <Text style={styles.label}>Width</Text>
+      <View style={styles.counterRow}>
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>-</Text>
+        </TouchableOpacity>
+        <TextInput 
+          style={styles.counterInput} 
+          value="0"
+          keyboardType="numeric"
+        />
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+
+  {/* X-offset and Y-offset Controls */}
+  <View style={styles.row}>
+    <View style={styles.halfInputContainer}>
+      <Text style={styles.label}>X-offset</Text>
+      <View style={styles.counterRow}>
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>-</Text>
+        </TouchableOpacity>
+        <TextInput 
+          style={styles.counterInput} 
+          value="0"
+          keyboardType="numeric"
+        />
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+    <View style={styles.halfInputContainer}>
+      <Text style={styles.label}>Y-offset</Text>
+      <View style={styles.counterRow}>
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>-</Text>
+        </TouchableOpacity>
+        <TextInput 
+          style={styles.counterInput} 
+          value="0"
+          keyboardType="numeric"
+        />
+        <TouchableOpacity style={styles.counterBtn}>
+          <Text style={styles.counterBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</View>
+
+{/* Add Print Location Button */}
+<TouchableOpacity style={styles.addPrintLocationBtn}>
+  <Text style={styles.addPrintLocationText}>+ Add print location</Text>
+</TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#EAF4FC',
-    borderRadius: ms(12),
-    padding: wp(4.3),
-    marginBottom: hp(1.2),
-  },
-  label: {
-    fontSize: rfs(12),
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: hp(0.7),
-    marginTop: hp(1.5),
-  },
-  sectionHeaderContainer: {
-    marginBottom: hp(1.5),
-    marginTop: hp(0.5),
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
   },
   sectionTitle: {
-    fontSize: rfs(16),
-    fontWeight: 'bold',
-    color: '#0B1C36',
-    marginBottom: hp(0.5),
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.text,
+    marginBottom: 10,
   },
-  sectionDivider: {
+  divider: {
     height: 1,
-    backgroundColor: '#CBD5E0',
-    width: '100%',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#D1D9E6',
-    borderRadius: ms(6),
-    paddingHorizontal: wp(2.7),
-    height: hp(4.9),
-  },
-  textInput: {
-    flex: 1,
-    fontSize: rfs(12),
-    color: '#333',
-    height: '100%',
-  },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#D1D9E6',
-    borderRadius: ms(6),
-    paddingHorizontal: wp(2.7),
-    height: hp(4.9),
-  },
-  dropdownText: {
-    fontSize: rfs(12),
-    color: '#666',
+    backgroundColor: '#e0e0e0',
+    marginBottom: 15,
   },
   row: {
     flexDirection: 'row',
-    gap: wp(3.2),
+    justifyContent: 'space-between',
+    marginBottom: 15,
   },
-  col: {
+  halfInputContainer: {
     flex: 1,
+    marginHorizontal: 5,
   },
-  grayBox: {
-    backgroundColor: '#DDEAF6',
-    padding: wp(3.2),
-    borderRadius: ms(8),
-    marginTop: hp(1.5),
+  fullInputContainer: {
+    marginBottom: 15,
   },
-  counterContainer: {
-    marginBottom: hp(1),
+  label: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.text,
+    marginBottom: 5,
   },
-  counterLabel: {
-    fontSize: rfs(11),
-    fontWeight: '600',
-    marginBottom: hp(0.5),
-    color: '#333',
+  dropdownContainer: {
+    position: 'relative',
   },
-  counterWrapper: {
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    paddingRight: 35,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  dropdownIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+    fontSize: 12,
+    color: '#666',
+  },
+  dimensionsCard: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  counterRow: {
     flexDirection: 'row',
-    height: hp(4.4),
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   counterBtn: {
-    backgroundColor: '#0B1C36',
-    width: wp(8),
+    backgroundColor: '#1F2937',
+    width: 30,
+    height: 30,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: ms(4),
   },
   counterBtnText: {
-    color: '#FFF',
-    fontSize: rfs(16),
-    fontWeight: 'bold',
+    color: '#fff',
+    fontSize: 20,
+    fontFamily: FONT_FAMILY.bold,
   },
   counterInput: {
     flex: 1,
-    backgroundColor: '#FFF',
+    marginHorizontal: 8,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    padding: 10,
     textAlign: 'center',
-    fontSize: rfs(12),
-    marginHorizontal: wp(1.1),
-    borderRadius: ms(4),
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.medium,
   },
-  darkButton: {
-    backgroundColor: '#2C3E50',
-    paddingVertical: hp(1.5),
-    borderRadius: ms(20),
+  addPrintLocationBtn: {
+    backgroundColor: '#2d3e50',
+    paddingVertical: 15,
+    borderRadius: 25,
     alignItems: 'center',
-    marginTop: hp(2),
+    marginTop: 20,
   },
-  darkButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: rfs(12),
+  addPrintLocationText: {
+    color: '#fff',
+    fontSize: FONT_SIZES.base,
+    fontFamily: FONT_FAMILY.semiBold,
   },
 });
