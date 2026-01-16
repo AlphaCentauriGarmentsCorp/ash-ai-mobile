@@ -27,6 +27,7 @@ interface Client {
   name: string;
   contact: string;
   email: string;
+  [key: string]: string; // Index signature for router params
 }
 
 const DATA: Client[] = Array(12).fill({
@@ -100,7 +101,7 @@ const ClientsScreen = () => {
   };
 
   if (!fontsLoaded) return null; 
-  if (showNewClient) return <NewClientScreen onBack={() => setShowNewClient(false)} />;
+  if (showNewClient) return <NewClientScreen />;
 
   return (
     <View style={styles.container}>
