@@ -16,7 +16,7 @@ import React, { useRef, useState } from 'react';
 import {
   Animated,
   Modal,
-  Platform
+  Platform,
   ScrollView, // Removed SafeAreaView from here
   StatusBar,
   StyleSheet,
