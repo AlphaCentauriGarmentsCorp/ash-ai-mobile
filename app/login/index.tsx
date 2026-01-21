@@ -11,18 +11,17 @@ import {
     Pressable,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import FormInput from "../../src/components/common/FormInput";
 import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function Index() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isChecked, setChecked] = useState(false);
 
   const handleLogin = () => {
@@ -72,36 +71,27 @@ export default function Index() {
             Manage your tasks and production workflow with ease.
           </Text>
 
-          <View style={styles.inputRow}>
-            <Ionicons name="person" size={ms(20)} color="#999" style={styles.inputIcon} />
-            <TextInput
-              placeholder="Username"
-              placeholderTextColor="#999"
-              style={styles.input}
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-            />
-          </View>
+          <FormInput
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Username"
+            leftIcon="person"
+            autoCapitalize="none"
+            iconSize={ms(20)}
+            containerStyle={styles.inputRow}
+            inputStyle={styles.input}
+          />
 
-          <View style={styles.inputRow}>
-            <Ionicons name="key" size={ms(20)} color="#999" style={styles.inputIcon} />
-            <TextInput
-              placeholder="Password"
-              placeholderTextColor="#999"
-              secureTextEntry={!isPasswordVisible}
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}>
-              <Ionicons 
-                name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                size={ms(20)} 
-                color="#999" 
-              />
-            </Pressable>
-          </View>
+          <FormInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            leftIcon="key"
+            isPassword={true}
+            iconSize={ms(20)}
+            containerStyle={styles.inputRow}
+            inputStyle={styles.input}
+          />
 
           <View style={styles.rowBetween}>
             <Pressable 
@@ -181,30 +171,10 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: ms(10),
-    paddingHorizontal: wp(3.7),
-    paddingVertical: hp(1.2), 
-    marginBottom: hp(4.2), 
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 2,
-    borderColor: "#8E909B",
-  },
-  inputIcon: {
-    marginRight: wp(2.7),
-    opacity: 0.6,
+    marginBottom: hp(4.2),
   },
   input: {
-    flex: 1,
     fontSize: rfs(16),
-    color: "#111",
-    fontFamily: "Poppins_400Regular",
   },
   rowBetween: {
     flexDirection: "row",

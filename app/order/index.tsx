@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -6,8 +5,6 @@ import {
     StatusBar,
     StyleSheet,
     Text,
-    TextInput,
-    TouchableOpacity,
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,12 +14,15 @@ import type { Column } from '../../src/components/common/DataTable';
 import DataTable from '../../src/components/common/DataTable';
 import type { DropdownOption } from '../../src/components/common/Dropdown';
 import Dropdown from '../../src/components/common/Dropdown';
+import type { Legend } from '../../src/components/common/FilterBar';
+import FilterBar from '../../src/components/common/FilterBar';
 import GlobalHeader from '../../src/components/common/GlobalHeader';
 import PageTitle from '../../src/components/common/PageTitle';
 import Pagination from '../../src/components/common/Pagination';
+import SearchBar from '../../src/components/common/SearchBar';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../src/constants';
 import { usePoppinsFonts } from '../../src/hooks';
-import { hp, ms, rfs, wp } from "../../src/utils/responsive";
+import { hp, ms, wp } from "../../src/utils/responsive";
 
 const allOrders = Array.from({ length: 30 }).map((_, i) => {
   const types = ['Repeat', 'New', 'Rush', 'Custom'];
@@ -138,6 +138,11 @@ export default function OrderPage() {
     { key: 'status', header: 'Status', width: wp(27) },
   ];
 
+  const legends: Legend[] = [
+    { label: 'Reefer', color: '#F58220' },
+    { label: 'Sorbetes', color: '#000' },
+  ];
+
   if (!fontsLoaded) return null;
 
   return (
@@ -184,54 +189,36 @@ export default function OrderPage() {
             />
           </View>
 
-          <View style={styles.searchContainer}>
-            <TextInput 
-              style={styles.searchInput} 
-              placeholder="Search by client name, brand..." 
-              placeholderTextColor="#999"
+          <SearchBar
+            value=""
+            onChangeText={() => {}}
+            placeholder="Search by client name, brand..."
+            style={styles.searchContainer}
+          />
+
+          <FilterBar legends={legends}>
+            <Dropdown
+              options={orderOptions}
+              selectedValue={selectedOrder}
+              onSelect={setSelectedOrder}
+              showIcon={true}
+              buttonStyle={styles.filterBtn}
             />
-            <TouchableOpacity style={styles.searchIcon}>
-              <Ionicons name="search" size={ms(20)} color="#999" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.filterRow}>
-            <View style={styles.legendContainer}>
-              <Text style={styles.legendLabel}>Legends:</Text>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>Reefer</Text>
-                <View style={[styles.dot, { backgroundColor: '#F58220' }]} />
-              </View>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>Sorbetes</Text>
-                <View style={[styles.dot, { backgroundColor: '#000' }]} />
-              </View>
-            </View>
             
-            <View style={styles.filterDropdowns}>
-              <Dropdown
-                options={orderOptions}
-                selectedValue={selectedOrder}
-                onSelect={setSelectedOrder}
-                showIcon={true}
-                buttonStyle={styles.filterBtn}
-              />
-              
-              <Dropdown
-                options={taskOptions}
-                selectedValue={selectedTask}
-                onSelect={setSelectedTask}
-                buttonStyle={styles.filterBtn}
-              />
+            <Dropdown
+              options={taskOptions}
+              selectedValue={selectedTask}
+              onSelect={setSelectedTask}
+              buttonStyle={styles.filterBtn}
+            />
 
-              <Dropdown
-                options={priorityOptions}
-                selectedValue={selectedPriority}
-                onSelect={setSelectedPriority}
-                buttonStyle={styles.filterBtn}
-              />
-            </View>
-          </View>
+            <Dropdown
+              options={priorityOptions}
+              selectedValue={selectedPriority}
+              onSelect={setSelectedPriority}
+              buttonStyle={styles.filterBtn}
+            />
+          </FilterBar>
 
           <DataTable
             columns={columns}
@@ -285,68 +272,7 @@ const styles = StyleSheet.create({
     color: '#0B1C36',
   },
   searchContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.base, 
-    paddingHorizontal: wp(3.2), 
-    height: hp(5.4), 
     marginBottom: hp(2) 
-  },
-  searchInput: { 
-    flex: 1, 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.text,
-    fontFamily: FONT_FAMILY.regular,
-  },
-  searchIcon: { 
-    marginLeft: wp(2.1) 
-  },
-  filterRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'space-between', 
-    marginBottom: hp(1.5), 
-    flexWrap: 'wrap', 
-    gap: wp(2.1),
-    zIndex: 100
-  },
-  legendContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center' 
-  },
-  legendLabel: { 
-    fontSize: FONT_SIZES.xs, 
-    color: COLORS.textSecondary, 
-    marginRight: wp(2.1),
-    fontFamily: FONT_FAMILY.regular,
-  },
-  badge: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.lg, 
-    paddingHorizontal: wp(2.1), 
-    paddingVertical: hp(0.5), 
-    marginRight: wp(1.6) 
-  },
-  badgeText: { 
-    fontSize: rfs(10), 
-    color: COLORS.text, 
-    marginRight: wp(1.1),
-    fontFamily: FONT_FAMILY.regular,
-  },
-  dot: { 
-    width: ms(8), 
-    height: ms(8), 
-    borderRadius: SIZES.radius.xs 
-  },
-  filterDropdowns: { 
-    flexDirection: 'row', 
-    gap: wp(2),
-    zIndex: 100
   },
   filterBtn: { 
     flexDirection: 'row', 
