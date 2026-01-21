@@ -1,16 +1,16 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { usePoppinsFonts } from '../../hooks';
-import GlobalHeader from '../components/GlobalHeader';
-import PageTitle from '../components/PageTitle';
-import { COLORS, PADDING } from '../constants';
-import ExternalOperations from './components/ExternalOperations';
-import Manufacturing from './components/Manufacturing';
-import QuickActions from './components/QuickActions';
-import StatsCards from './components/StatsCards';
-import TopSellingProducts from './components/TopSellingProducts';
-import WorkDistribution from './components/WorkDistribution';
+import GlobalHeader from '../src/components/common/GlobalHeader';
+import PageTitle from '../src/components/common/PageTitle';
+import ExternalOperations from '../src/components/specific/Dashboard/ExternalOperations';
+import Manufacturing from '../src/components/specific/Dashboard/Manufacturing';
+import QuickActions from '../src/components/specific/Dashboard/QuickActions';
+import StatsCards from '../src/components/specific/Dashboard/StatsCards';
+import TopSellingProducts from '../src/components/specific/Dashboard/TopSellingProducts';
+import WorkDistribution from '../src/components/specific/Dashboard/WorkDistribution';
+import { COLORS, PADDING } from '../src/constants';
+import { usePoppinsFonts } from '../src/hooks';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

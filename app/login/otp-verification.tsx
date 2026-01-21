@@ -10,7 +10,7 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { hp, ms, rfs, wp } from "../../utils/responsive";
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function Otp() {
   const router = useRouter();
@@ -23,25 +23,22 @@ export default function Otp() {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        {/* Header Row */}
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={ms(24)} color="#084C7F" />
           </TouchableOpacity>
           
           <Image 
-            source={require("../../assets/images/ash-logo-small.png")} 
+            source={require("../../src/assets/images/ash-logo-small.png")} 
             style={styles.logo} 
             resizeMode="contain"
           />
         </View>
         
-        {/* Content Container: Constrained width (80%) to center everything */}
         <View style={styles.formContainer}>
           <Text style={styles.title}>OTP sent{"\n"}to email</Text>
           <Text style={styles.subtitle}>Enter the OTP sent to your email.</Text>
 
-          {/* OTP Lines */}
           <View style={styles.otpRow}>
             {[1, 2, 3, 4, 5, 6].map((_, index) => (
               <View key={index} style={styles.otpLine} />
@@ -57,7 +54,6 @@ export default function Otp() {
           </TouchableOpacity>
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.smallText}>
              © This 2FA process secures your account and company.
@@ -86,7 +82,6 @@ const styles = StyleSheet.create({
     padding: ms(8),
     marginLeft: -8,
   },
-
   logo: {
     width: wp(22.9),
     height: hp(10.6),

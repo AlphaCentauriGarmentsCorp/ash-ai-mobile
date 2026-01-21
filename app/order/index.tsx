@@ -13,14 +13,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { usePoppinsFonts } from '../../hooks';
-import { hp, ms, rfs, wp } from "../../utils/responsive";
-import Button from '../components/Button';
-import GlobalHeader from '../components/GlobalHeader';
-import PageTitle from '../components/PageTitle';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../constants';
+import Button from '../../src/components/common/Button';
+import GlobalHeader from '../../src/components/common/GlobalHeader';
+import PageTitle from '../../src/components/common/PageTitle';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../src/constants';
+import { usePoppinsFonts } from '../../src/hooks';
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
-// --- Static Mock Data ---
 const allOrders = Array.from({ length: 30 }).map((_, i) => {
   const types = ['Repeat', 'New', 'Rush', 'Custom'];
   const priorities = ['High', 'Medium', 'Low'];
@@ -45,7 +44,6 @@ export default function OrderPage() {
   const router = useRouter();
   const fontsLoaded = usePoppinsFonts();
   
-  // Dropdown states
   const [showOrdersDropdown, setShowOrdersDropdown] = useState(false);
   const [showTasksDropdown, setShowTasksDropdown] = useState(false);
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
@@ -55,11 +53,9 @@ export default function OrderPage() {
   const [selectedTask, setSelectedTask] = useState('All tasks');
   const [selectedPriority, setSelectedPriority] = useState('Priority');
   
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   
-  // Close all dropdowns
   const closeAllDropdowns = () => {
     setShowOrdersDropdown(false);
     setShowTasksDropdown(false);
@@ -67,7 +63,6 @@ export default function OrderPage() {
     setShowEntriesDropdown(false);
   };
   
-  // Toggle dropdown handlers
   const toggleOrdersDropdown = () => {
     setShowOrdersDropdown(!showOrdersDropdown);
     setShowTasksDropdown(false);
@@ -90,9 +85,7 @@ export default function OrderPage() {
     setShowEntriesDropdown(!showEntriesDropdown);
   };
   
-  // Filter orders based on selections
   const filteredOrders = allOrders.filter(order => {
-    // Filter by order type (Sorbetes/Reefer based on color)
     if (selectedOrder !== 'All Orders') {
       const isSorbetes = order.color === '#000';
       const isReefer = order.color === '#F58220';
@@ -100,12 +93,10 @@ export default function OrderPage() {
       if (selectedOrder === 'Reefer' && !isReefer) return false;
     }
     
-    // Filter by task/status
     if (selectedTask !== 'All tasks') {
       if (order.status !== selectedTask) return false;
     }
     
-    // Filter by priority
     if (selectedPriority !== 'Priority' && selectedPriority !== 'All priority') {
       if (order.priority !== selectedPriority) return false;
     }
@@ -113,7 +104,6 @@ export default function OrderPage() {
     return true;
   });
   
-  // Calculate pagination
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstEntry, indexOfLastEntry);
@@ -121,7 +111,7 @@ export default function OrderPage() {
   
   const handleEntriesChange = (value: number) => {
     setEntriesPerPage(value);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
     setShowEntriesDropdown(false);
   };
   
@@ -132,37 +122,25 @@ export default function OrderPage() {
   };
   
   const handleRefresh = () => {
-    // Reset all filters to default
     setSelectedOrder('All Orders');
     setSelectedTask('All tasks');
     setSelectedPriority('Priority');
-    
-    // Reset pagination
     setCurrentPage(1);
     setEntriesPerPage(10);
-    
-    // Close all dropdowns
     setShowOrdersDropdown(false);
     setShowTasksDropdown(false);
     setShowPriorityDropdown(false);
     setShowEntriesDropdown(false);
   };
 
-  // --- Scrollbar Logic ---
-  const scrollX = useRef(new Animated.Value(0)).current; // Track scroll position
-  const [contentWidth, setContentWidth] = useState(1);   // Total width of table
-  const [visibleWidth, setVisibleWidth] = useState(0);   // Visible screen width
-
-  // Calculate Thumb Position
-  // We want the thumb to move from 0 to (trackWidth - thumbWidth)
-  // based on how much we've scrolled (scrollX) relative to the total scrollable area.
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const [contentWidth, setContentWidth] = useState(1);
+  const [visibleWidth, setVisibleWidth] = useState(0);
   
-  // Define dimensions for calculation
-  const trackWidth = wp(91.4); // Approx width of the track (container padding)
-  const thumbWidth = wp(30);   // Fixed width of the blue thumb
-  const scrollableWidth = contentWidth - visibleWidth; // How much we can actually scroll
+  const trackWidth = wp(91.4);
+  const thumbWidth = wp(30);
+  const scrollableWidth = contentWidth - visibleWidth;
   
-  // Interpolate scrollX to translateX
   const thumbTranslateX = scrollX.interpolate({
     inputRange: [0, scrollableWidth > 0 ? scrollableWidth : 1],
     outputRange: [0, trackWidth - thumbWidth],
@@ -179,15 +157,13 @@ export default function OrderPage() {
       <GlobalHeader />
       <PageTitle title="Orders" icon="people-outline" breadcrumb="Daily Operations / Orders" />
 
-      {/* --- Main Content --- */}
       <View style={styles.contentContainer}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           
-          {/* Action Buttons */}
           <View style={styles.actionRow}>
             <Button
               title="New Order"
-              onPress={() => router.push('/order/add-order')}
+              onPress={() => router.push('/order/add')}
               variant="primary"
               size="base"
               icon="add"
@@ -217,7 +193,6 @@ export default function OrderPage() {
             />
           </View>
 
-          {/* Search Bar */}
           <View style={styles.searchContainer}>
             <TextInput 
               style={styles.searchInput} 
@@ -229,7 +204,6 @@ export default function OrderPage() {
             </TouchableOpacity>
           </View>
 
-          {/* Filters & Legends */}
           <View style={styles.filterRow}>
             <View style={styles.legendContainer}>
               <Text style={styles.legendLabel}>Legends:</Text>
@@ -243,9 +217,7 @@ export default function OrderPage() {
               </View>
             </View>
             
-            {/* Filter Dropdowns */}
             <View style={styles.filterDropdowns}>
-              {/* 1. All Orders */}
               <TouchableOpacity 
                 style={styles.filterBtn}
                 onPress={toggleOrdersDropdown}
@@ -255,7 +227,6 @@ export default function OrderPage() {
                 <Ionicons name="chevron-down" size={ms(12)} color="#333" />
               </TouchableOpacity>
               
-              {/* 2. All Tasks */}
               <TouchableOpacity 
                 style={styles.filterBtn}
                 onPress={toggleTasksDropdown}
@@ -264,7 +235,6 @@ export default function OrderPage() {
                 <Ionicons name="chevron-down" size={ms(12)} color="#333" />
               </TouchableOpacity>
 
-              {/* 3. Priority */}
               <TouchableOpacity 
                 style={styles.filterBtn}
                 onPress={togglePriorityDropdown}
@@ -275,7 +245,6 @@ export default function OrderPage() {
             </View>
           </View>
           
-          {/* Dropdown Menus - Rendered separately below filters */}
           {showOrdersDropdown && (
             <View style={styles.dropdownMenuContainer}>
               <TouchableOpacity 
@@ -399,21 +368,19 @@ export default function OrderPage() {
             </View>
           )}
 
-          {/* Data Table with Animated Scrollbar */}
           <View style={styles.tableContainer}>
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                { useNativeDriver: false } // layout animation needs false usually for scroll sync
+                { useNativeDriver: false }
               )}
-              scrollEventThrottle={16} // smooth updates
-              onContentSizeChange={(w, h) => setContentWidth(w)}
+              scrollEventThrottle={16}
+              onContentSizeChange={(w) => setContentWidth(w)}
               onLayout={(e) => setVisibleWidth(e.nativeEvent.layout.width)}
             >
               <View>
-                {/* Header */}
                 <View style={styles.tableHeader}>
                   <Text style={[styles.columnHeader, { width: wp(35) }]}>P.O #</Text>
                   <Text style={[styles.columnHeader, { width: wp(19) }]}>Type</Text>
@@ -423,7 +390,6 @@ export default function OrderPage() {
                   <Text style={[styles.columnHeader, { width: wp(27) }]}>Status</Text>
                 </View>
 
-                {/* Rows */}
                 {currentOrders.map((item, index) => (
                   <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
                     <View style={{ width: wp(35), flexDirection: 'row', alignItems: 'center' }}>
@@ -440,22 +406,19 @@ export default function OrderPage() {
               </View>
             </ScrollView>
             
-            {/* Animated Scrollbar Track */}
             <View style={styles.customScrollContainer}>
                 <View style={styles.scrollTrack}>
                     <Animated.View 
                       style={[
                         styles.scrollThumb, 
-                        { transform: [{ translateX: thumbTranslateX }] } // Bind animation
+                        { transform: [{ translateX: thumbTranslateX }] }
                       ]} 
                     />
                 </View>
             </View>
           </View>
 
-          {/* Pagination Fixed Alignment */}
           <View style={styles.paginationWrapper}>
-            {/* Top: Show all entries */}
             <View style={styles.entriesContainer}>
                 <Text style={styles.showText}>Show</Text>
                 <View style={styles.dropdownWrapper}>
@@ -510,7 +473,6 @@ export default function OrderPage() {
                 <Text style={styles.showText}>entries</Text>
             </View>
             
-            {/* Bottom: Pagination Controls - Hide when showing all entries */}
             {entriesPerPage !== 9999 && (
               <View style={styles.pageControls}>
                 <TouchableOpacity 
@@ -565,6 +527,7 @@ export default function OrderPage() {
   );
 }
 
+
 const styles = StyleSheet.create({
   mainContainer: { 
     flex: 1, 
@@ -579,8 +542,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4.3), 
     paddingTop: hp(2) 
   },
-  
-  // Actions
   actionRow: { 
     flexDirection: 'row', 
     marginBottom: hp(2), 
@@ -594,8 +555,6 @@ const styles = StyleSheet.create({
   secondaryButtonText: { 
     color: '#0B1C36',
   },
-  
-  // Search
   searchContainer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
@@ -615,8 +574,6 @@ const styles = StyleSheet.create({
   searchIcon: { 
     marginLeft: wp(2.1) 
   },
-  
-  // Filters
   filterRow: { 
     flexDirection: 'row', 
     alignItems: 'center', 
@@ -678,8 +635,6 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(1.1),
     fontFamily: FONT_FAMILY.regular,
   },
-
-  // Table
   tableContainer: { 
     borderWidth: SIZES.border.thin, 
     borderColor: COLORS.border, 
@@ -725,8 +680,6 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.radius.xs, 
     marginRight: wp(2.1) 
   },
-  
-  // Scrollbar
   customScrollContainer: { 
     paddingHorizontal: wp(2.1), 
     paddingTop: hp(1) 
@@ -744,8 +697,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0B1C36', 
     borderRadius: SIZES.radius.xs 
   },
-
-  // Pagination
   paginationWrapper: { 
     alignItems: 'center', 
     marginTop: hp(2.5),
@@ -811,8 +762,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontFamily: FONT_FAMILY.medium,
   },
-  
-  // Dropdown Menus
   dropdownMenuContainer: {
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius.base,

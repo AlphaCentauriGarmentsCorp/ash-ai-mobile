@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import GlobalSidebar from '../../components/GlobalSidebar';
+import GlobalSidebar from '../../common/GlobalSidebar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

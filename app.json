@@ -4,7 +4,7 @@
     "slug": "Ash-Ai",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/ash-logo.png",
+    "icon": "./src/assets/images/ash-logo.png",
     "scheme": "ashai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/ash-logo.png"
+        "foregroundImage": "./src/assets/images/ash-logo.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -28,14 +28,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/ash-logo.png"
+      "favicon": "./src/assets/images/ash-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/ash-logo.png",
+          "image": "./src/assets/images/ash-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#0a2540",

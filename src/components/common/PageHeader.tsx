@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '../constants';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../constants';
 
 interface PageHeaderProps {
   title: string;

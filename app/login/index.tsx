@@ -16,7 +16,7 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { hp, ms, rfs, wp } from "../../utils/responsive";
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function Index() {
   const router = useRouter();
@@ -26,8 +26,6 @@ export default function Index() {
   const [isChecked, setChecked] = useState(false);
 
   const handleLogin = () => {
-    // For testing, navigate directly to dashboard
-    // router.push("/login/otp-verification" as any);
     router.push("/dashboard" as any);
   };
 
@@ -36,7 +34,7 @@ export default function Index() {
   };
   
   const [fontsLoaded] = useFonts({
-    'EuphoriaScript': require('../../assets/fonts/EuphoriaScript-Regular.ttf'),
+    'EuphoriaScript': require('../../src/assets/fonts/EuphoriaScript-Regular.ttf'),
   });
 
   if (!fontsLoaded) {
@@ -59,24 +57,21 @@ export default function Index() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardView}
         >
-        {/* Logo Section */}
         <View style={styles.logoWrap}>
           <Image
-            source={require("../../assets/images/ash-logo.png")} 
+            source={require("../../src/assets/images/ash-logo.png")} 
             style={styles.logo}
             resizeMode="contain"
           />
           <Text style={styles.appSubtitle}>Companion App</Text>
         </View>
 
-        {/* Form Section */}
         <View style={styles.formWrap}>
           <Text style={styles.welcome}>Welcome!</Text>
           <Text style={styles.caption}>
             Manage your tasks and production workflow with ease.
           </Text>
 
-          {/* Username Input */}
           <View style={styles.inputRow}>
             <Ionicons name="person" size={ms(20)} color="#999" style={styles.inputIcon} />
             <TextInput
@@ -89,7 +84,6 @@ export default function Index() {
             />
           </View>
 
-          {/* Password Input */}
           <View style={styles.inputRow}>
             <Ionicons name="key" size={ms(20)} color="#999" style={styles.inputIcon} />
             <TextInput
@@ -109,7 +103,6 @@ export default function Index() {
             </Pressable>
           </View>
 
-          {/* Remember Me & Forgot Password */}
           <View style={styles.rowBetween}>
             <Pressable 
               style={styles.rememberRow} 
@@ -126,7 +119,6 @@ export default function Index() {
             </TouchableOpacity>
           </View>
 
-          {/* Login Button */}
           <TouchableOpacity
             style={styles.loginButton}
             activeOpacity={0.8}
