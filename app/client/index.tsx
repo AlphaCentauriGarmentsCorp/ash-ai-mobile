@@ -1,9 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-    Animated,
-    Modal,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -15,8 +13,15 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Button from '../../src/components/common/Button';
+import ConfirmModal from '../../src/components/common/ConfirmModal';
+import type { Column } from '../../src/components/common/DataTable';
+import DataTable from '../../src/components/common/DataTable';
+import type { DropdownOption } from '../../src/components/common/Dropdown';
+import Dropdown from '../../src/components/common/Dropdown';
 import GlobalHeader from '../../src/components/common/GlobalHeader';
+import Modal from '../../src/components/common/Modal';
 import PageTitle from '../../src/components/common/PageTitle';
+import Pagination from '../../src/components/common/Pagination';
 import NewClientScreen from '../../src/components/specific/Client/new-client';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../../src/constants';
 import { usePoppinsFonts } from '../../src/hooks';
@@ -46,21 +51,7 @@ export default function ClientsScreen() {
   const [showNewClient, setShowNewClient] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
-  
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const [contentWidth, setContentWidth] = useState(1);
-  const [visibleWidth, setVisibleWidth] = useState(0);
-  
-  const trackWidth = 350; 
-  const thumbWidth = 120; 
-  const scrollableWidth = contentWidth - visibleWidth;
-  
-  const thumbTranslateX = scrollX.interpolate({
-    inputRange: [0, scrollableWidth > 0 ? scrollableWidth : 1],
-    outputRange: [0, trackWidth - thumbWidth],
-    extrapolate: 'clamp',
-  });
+  const [selectedFilter, setSelectedFilter] = useState('all');
   
   const [modalVisible, setModalVisible] = useState(false);
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
@@ -74,7 +65,6 @@ export default function ClientsScreen() {
   const handleEntriesChange = (value: number) => {
     setEntriesPerPage(value);
     setCurrentPage(1);
-    setShowEntriesDropdown(false);
   };
   
   const handlePageChange = (page: number) => {
@@ -82,15 +72,34 @@ export default function ClientsScreen() {
       setCurrentPage(page);
     }
   };
-  
-  const toggleEntriesDropdown = () => {
-    setShowEntriesDropdown(!showEntriesDropdown);
-  };
 
   const handleEditPress = (index: number) => {
     setSelectedClient(index);
     setModalVisible(true);
   };
+
+  const filterOptions: DropdownOption[] = [
+    { label: 'All Clients', value: 'all' },
+    { label: 'Active', value: 'active' },
+    { label: 'Inactive', value: 'inactive' },
+  ];
+
+  const columns: Column[] = [
+    { key: 'company', header: 'Clothing/Company', width: 120 },
+    { key: 'name', header: 'Name', width: 120 },
+    { key: 'contact', header: 'Contact No.', width: 130 },
+    { key: 'email', header: 'Email', width: 180 },
+    {
+      key: 'action',
+      header: 'Action',
+      width: 60,
+      render: (_value: any, _item: any, index: number) => (
+        <TouchableOpacity style={styles.actionBtn} onPress={() => handleEditPress(index)}>
+          <Ionicons name="pencil" size={16} color="#1E3A5F" />
+        </TouchableOpacity>
+      ),
+    },
+  ];
 
   if (!fontsLoaded) return null; 
   if (showNewClient) return <NewClientScreen />;
@@ -142,143 +151,68 @@ export default function ClientsScreen() {
           <View style={styles.filterContainer}>
             <Ionicons name="filter" size={14} color="#666" />
             <Text style={styles.filterText}>Filter:</Text>
-            <TouchableOpacity style={styles.dropdownBtn}>
-              <Text style={styles.dropdownText}>All Clients</Text>
-              <Ionicons name="chevron-down" size={14} color="#666" />
-            </TouchableOpacity>
+            <Dropdown
+              options={filterOptions}
+              selectedValue={selectedFilter}
+              onSelect={setSelectedFilter}
+              placeholder="All Clients"
+            />
           </View>
         </View>
 
-        <View style={styles.tableWrapper}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: false }
-            )}
-            scrollEventThrottle={16}
-            onContentSizeChange={(w, h) => setContentWidth(w)}
-            onLayout={(e) => setVisibleWidth(e.nativeEvent.layout.width)}
-          >
-            <View>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.columnHeader, { width: 120 }]}>Clothing/Company</Text>
-                <Text style={[styles.columnHeader, { width: 120 }]}>Name</Text>
-                <Text style={[styles.columnHeader, { width: 130 }]}>Contact No.</Text>
-                <Text style={[styles.columnHeader, { width: 180 }]}>Email</Text>
-                <Text style={[styles.columnHeader, { width: 60 }]}>Action</Text>
-              </View>
+        <DataTable columns={columns} data={currentClients} />
 
-              {currentClients.map((item, index) => (
-                <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
-                  <Text style={[styles.cellText, { width: 120 }]}>{item.company}</Text>
-                  <Text style={[styles.cellText, { width: 120 }]}>{item.name}</Text>
-                  <Text style={[styles.cellText, { width: 130 }]}>{item.contact}</Text>
-                  <Text style={[styles.cellText, { width: 180 }]} numberOfLines={1}>{item.email}</Text>
-                  <View style={{ width: 60, alignItems: 'center' }}>
-                    <TouchableOpacity style={styles.actionBtn} onPress={() => handleEditPress(index)}>
-                      <Ionicons name="pencil" size={16} color="#1E3A5F" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </ScrollView>
-          
-          <View style={styles.customScrollContainer}>
-            <View style={styles.scrollTrack}>
-              <Animated.View 
-                style={[
-                  styles.scrollThumb, 
-                  { transform: [{ translateX: thumbTranslateX }] }
-                ]} 
-              />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.paginationWrapper}>
-          <View style={styles.entriesContainer}>
-            <Text style={styles.showText}>Show</Text>
-            <View style={styles.dropdownWrapperPagination}>
-              <TouchableOpacity style={styles.dropdownBox} onPress={toggleEntriesDropdown}>
-                <Text style={styles.dropdownText}>{entriesPerPage === 9999 ? 'All' : entriesPerPage}</Text>
-                <Ionicons name="chevron-down" size={12} color="#999" />
-              </TouchableOpacity>
-              {showEntriesDropdown && (
-                <View style={styles.dropdownMenuAbove}>
-                   <TouchableOpacity style={styles.dropdownItemBtn} onPress={() => handleEntriesChange(5)}><Text style={styles.dropdownItemText}>5</Text></TouchableOpacity>
-                   <TouchableOpacity style={styles.dropdownItemBtn} onPress={() => handleEntriesChange(10)}><Text style={styles.dropdownItemText}>10</Text></TouchableOpacity>
-                   <TouchableOpacity style={styles.dropdownItemBtn} onPress={() => handleEntriesChange(15)}><Text style={styles.dropdownItemText}>15</Text></TouchableOpacity>
-                   <TouchableOpacity style={styles.dropdownItemBtn} onPress={() => handleEntriesChange(9999)}><Text style={styles.dropdownItemText}>All</Text></TouchableOpacity>
-                </View>
-              )}
-            </View>
-            <Text style={styles.showText}>entries</Text>
-          </View>
-          
-          {entriesPerPage !== 9999 && (
-            <View style={styles.pageControls}>
-               <TouchableOpacity style={styles.navArrow} onPress={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}><Ionicons name="chevron-back" size={18} color={currentPage === 1 ? "#ccc" : "#999"} /></TouchableOpacity>
-               <TouchableOpacity style={[styles.pageNum, styles.activePage]}><Text style={styles.activePageText}>{currentPage}</Text></TouchableOpacity>
-               <TouchableOpacity style={styles.navArrow} onPress={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}><Ionicons name="chevron-forward" size={18} color={currentPage === totalPages ? "#ccc" : "#999"} /></TouchableOpacity>
-            </View>
-          )}
-        </View>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          entriesPerPage={entriesPerPage}
+          onPageChange={handlePageChange}
+          onEntriesChange={handleEntriesChange}
+        />
         
         <View style={{height: insets.bottom + 40}} />
       </ScrollView>
 
-      <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}><Text style={styles.modalTitle}>Actions</Text></View>
-            <View style={styles.modalBody}>
-              <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
-                setModalVisible(false);
-                if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
-              }}>
-                <Ionicons name="pencil" size={20} color="#0D253F" style={styles.modalIcon} />
-                <Text style={styles.modalBtnTextDefault}>Edit</Text>
-              </TouchableOpacity>
+      <Modal visible={modalVisible} onClose={() => setModalVisible(false)} title="Actions">
+        <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
+          setModalVisible(false);
+          if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
+        }}>
+          <Ionicons name="pencil" size={20} color="#0D253F" style={styles.modalIcon} />
+          <Text style={styles.modalBtnTextDefault}>Edit</Text>
+        </TouchableOpacity>
 
-              <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
-                if (selectedClient !== null) {
-                    setModalVisible(false);
-                    router.push({ pathname: "/client/view", params: DATA[selectedClient] });
-                }
-              }}>
-                <Ionicons name="eye" size={20} color="#0D253F" style={styles.modalIcon} />
-                <Text style={styles.modalBtnTextDefault}>View</Text>
-              </TouchableOpacity>
+        <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
+          if (selectedClient !== null) {
+            setModalVisible(false);
+            router.push({ pathname: "/client/view", params: DATA[selectedClient] });
+          }
+        }}>
+          <Ionicons name="eye" size={20} color="#0D253F" style={styles.modalIcon} />
+          <Text style={styles.modalBtnTextDefault}>View</Text>
+        </TouchableOpacity>
 
-              <TouchableOpacity style={styles.modalBtnDanger} onPress={() => {
-                  setModalVisible(false);
-                  setRemoveModalVisible(true);
-              }}>
-                <Ionicons name="trash" size={20} color="#FFF" style={styles.modalIcon} />
-                <Text style={styles.modalBtnTextDanger}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+        <TouchableOpacity style={styles.modalBtnDanger} onPress={() => {
+          setModalVisible(false);
+          setRemoveModalVisible(true);
+        }}>
+          <Ionicons name="trash" size={20} color="#FFF" style={styles.modalIcon} />
+          <Text style={styles.modalBtnTextDanger}>Remove</Text>
         </TouchableOpacity>
       </Modal>
 
-      <Modal animationType="fade" transparent={true} visible={removeModalVisible} onRequestClose={() => setRemoveModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-            <View style={styles.removeModalContent}>
-                <View style={styles.removeModalHeader}><Text style={styles.removeModalTitle}>Remove Client?</Text></View>
-                <View style={styles.removeModalBody}>
-                    <Text style={styles.removeModalText}>Are you sure you want to remove <Text style={{fontWeight:'bold', color: '#000'}}>{selectedClient !== null ? DATA[selectedClient].name : 'this client'}</Text>? This action cannot be undone.</Text>
-                    <View style={styles.removeModalButtons}>
-                        <TouchableOpacity style={styles.btnCancelRemove} onPress={() => setRemoveModalVisible(false)}><Text style={styles.btnCancelRemoveText}>Cancel</Text></TouchableOpacity>
-                        <TouchableOpacity style={styles.btnConfirmRemove} onPress={() => { console.log("Deleted"); setRemoveModalVisible(false); }}><Text style={styles.btnConfirmRemoveText}>Remove Client</Text></TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-        </View>
-      </Modal>
+      <ConfirmModal
+        visible={removeModalVisible}
+        onClose={() => setRemoveModalVisible(false)}
+        onConfirm={() => {
+          console.log("Deleted");
+          setRemoveModalVisible(false);
+        }}
+        title="Remove Client?"
+        message={`Are you sure you want to remove ${selectedClient !== null ? DATA[selectedClient].name : 'this client'}? This action cannot be undone.`}
+        confirmText="Remove Client"
+        highlightText={selectedClient !== null ? DATA[selectedClient].name : ''}
+      />
 
     </View>
   );
@@ -346,189 +280,11 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: FONT_SIZES.sm,
   },
-  dropdownBtn: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.full, 
-    paddingVertical: SPACING.xs + 1, 
-    paddingHorizontal: SPACING.sm + 4 
-  },
-  dropdownText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.text, 
-    fontFamily: FONT_FAMILY.medium 
-  },
   actionBtn: { 
     borderWidth: SIZES.border.thin, 
     borderColor: COLORS.border, 
     borderRadius: SIZES.radius.xs, 
     padding: SPACING.xs / 2 
-  },
-  tableWrapper: { 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.base, 
-    overflow: 'hidden', 
-    marginBottom: SPACING.lg 
-  },
-  tableHeader: { 
-    flexDirection: 'row', 
-    backgroundColor: '#E6F0F8', 
-    paddingVertical: SPACING.sm + 4, 
-    paddingHorizontal: SPACING.sm + 2, 
-    borderBottomWidth: SIZES.border.thin, 
-    borderBottomColor: COLORS.divider 
-  },
-  columnHeader: { 
-    fontSize: FONT_SIZES.xs, 
-    fontFamily: FONT_FAMILY.bold, 
-    color: COLORS.textSecondary 
-  },
-  tableRow: { 
-    flexDirection: 'row', 
-    paddingVertical: SPACING.sm + 4, 
-    paddingHorizontal: SPACING.sm + 2, 
-    borderBottomWidth: SIZES.border.thin, 
-    borderBottomColor: COLORS.borderLight, 
-    alignItems: 'center' 
-  },
-  rowEven: { backgroundColor: COLORS.white },
-  rowOdd: { backgroundColor: COLORS.surface },
-  cellText: { 
-    fontSize: FONT_SIZES.xs, 
-    color: COLORS.text,
-    fontFamily: FONT_FAMILY.regular,
-  },
-  customScrollContainer: { 
-    paddingHorizontal: SPACING.sm + 2, 
-    paddingTop: SPACING.sm + 2 
-  },
-  scrollTrack: { 
-    height: 6, 
-    backgroundColor: COLORS.border, 
-    borderRadius: SIZES.radius.xs, 
-    width: '100%', 
-    overflow: 'hidden' 
-  },
-  scrollThumb: { 
-    height: '100%', 
-    width: 120, 
-    backgroundColor: '#0B1C36', 
-    borderRadius: SIZES.radius.xs 
-  },
-  paginationWrapper: { 
-    alignItems: 'center', 
-    marginTop: SPACING.lg, 
-    marginBottom: SPACING.sm + 2, 
-    gap: SPACING.base 
-  },
-  entriesContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: SPACING.sm 
-  },
-  showText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.textSecondary, 
-    fontFamily: FONT_FAMILY.regular 
-  },
-  dropdownWrapperPagination: { position: 'relative' },
-  dropdownBox: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    paddingHorizontal: SPACING.sm + 4, 
-    paddingVertical: SPACING.xs + 2, 
-    borderRadius: SIZES.radius.sm, 
-    gap: SPACING.xs + 2, 
-    minWidth: 60, 
-    backgroundColor: COLORS.white 
-  },
-  dropdownMenuAbove: { 
-    position: 'absolute', 
-    bottom: '100%', 
-    left: 0, 
-    marginBottom: SPACING.xs + 1, 
-    backgroundColor: COLORS.white, 
-    borderRadius: SIZES.radius.base, 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    ...SIZES.shadow.md,
-    overflow: 'hidden', 
-    minWidth: 80, 
-    zIndex: 2000 
-  },
-  dropdownItemBtn: { 
-    paddingVertical: SPACING.sm + 2, 
-    paddingHorizontal: SPACING.sm + 4, 
-    backgroundColor: '#0B1C36', 
-    borderTopWidth: SIZES.border.thin, 
-    borderTopColor: '#1e3a5f' 
-  },
-  dropdownItemText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.white, 
-    fontFamily: FONT_FAMILY.regular 
-  },
-  pageControls: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: SPACING.sm 
-  },
-  navArrow: { 
-    width: SIZES.icon.lg, 
-    height: SIZES.icon.lg, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    borderRadius: SIZES.radius.xs 
-  },
-  pageNum: { 
-    minWidth: 36, 
-    height: 36, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    borderRadius: SIZES.radius.sm, 
-    paddingHorizontal: SPACING.sm 
-  },
-  activePage: { backgroundColor: '#0B1C36' },
-  activePageText: { 
-    color: COLORS.white, 
-    fontSize: FONT_SIZES.sm, 
-    fontFamily: FONT_FAMILY.semiBold 
-  },
-  pageText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.textSecondary, 
-    fontFamily: FONT_FAMILY.medium 
-  },
-  modalOverlay: { 
-    flex: 1, 
-    backgroundColor: COLORS.overlay, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  modalContent: { 
-    width: 180, 
-    backgroundColor: COLORS.white, 
-    borderRadius: SIZES.radius.md, 
-    overflow: 'hidden', 
-    ...SIZES.shadow.md,
-  },
-  modalHeader: { 
-    backgroundColor: '#0D253F', 
-    paddingVertical: SPACING.sm + 2, 
-    alignItems: 'center' 
-  },
-  modalTitle: { 
-    color: COLORS.white, 
-    fontSize: FONT_SIZES.lg, 
-    fontFamily: FONT_FAMILY.light 
-  },
-  modalBody: { 
-    padding: SPACING['2xl'] - 5 
   },
   modalBtnDefault: { 
     flexDirection: 'row', 
@@ -559,61 +315,5 @@ const styles = StyleSheet.create({
     color: COLORS.white, 
     fontFamily: FONT_FAMILY.semiBold, 
     fontSize: FONT_SIZES.sm 
-  },
-  removeModalContent: { 
-    width: 320, 
-    backgroundColor: COLORS.white, 
-    borderRadius: SIZES.radius.md, 
-    overflow: 'hidden', 
-    ...SIZES.shadow.lg,
-  },
-  removeModalHeader: { 
-    backgroundColor: '#0D253F', 
-    paddingVertical: SPACING.lg, 
-    alignItems: 'center' 
-  },
-  removeModalTitle: { 
-    color: COLORS.white, 
-    fontSize: FONT_SIZES.xl, 
-    fontFamily: FONT_FAMILY.bold 
-  },
-  removeModalBody: { 
-    padding: SPACING.xl - 7, 
-    alignItems: 'center' 
-  },
-  removeModalText: { 
-    textAlign: 'center', 
-    fontSize: FONT_SIZES.base, 
-    color: COLORS.text, 
-    marginBottom: SPACING.xl - 7, 
-    lineHeight: 22,
-    fontFamily: FONT_FAMILY.regular,
-  },
-  removeModalButtons: { 
-    flexDirection: 'row', 
-    justifyContent: 'center', 
-    gap: SPACING.base 
-  },
-  btnCancelRemove: { 
-    backgroundColor: COLORS.gray[400], 
-    paddingVertical: SPACING.sm + 2, 
-    paddingHorizontal: SPACING.xl - 7, 
-    borderRadius: SIZES.radius.base 
-  },
-  btnCancelRemoveText: { 
-    color: COLORS.black, 
-    fontFamily: FONT_FAMILY.semiBold,
-    fontSize: FONT_SIZES.sm,
-  },
-  btnConfirmRemove: { 
-    backgroundColor: COLORS.error, 
-    paddingVertical: SPACING.sm + 2, 
-    paddingHorizontal: SPACING.lg, 
-    borderRadius: SIZES.radius.base 
-  },
-  btnConfirmRemoveText: { 
-    color: COLORS.white, 
-    fontFamily: FONT_FAMILY.semiBold,
-    fontSize: FONT_SIZES.sm,
   },
 });

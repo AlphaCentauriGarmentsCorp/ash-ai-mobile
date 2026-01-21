@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-    Animated,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -14,8 +13,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Button from '../../src/components/common/Button';
+import type { Column } from '../../src/components/common/DataTable';
+import DataTable from '../../src/components/common/DataTable';
+import type { DropdownOption } from '../../src/components/common/Dropdown';
+import Dropdown from '../../src/components/common/Dropdown';
 import GlobalHeader from '../../src/components/common/GlobalHeader';
 import PageTitle from '../../src/components/common/PageTitle';
+import Pagination from '../../src/components/common/Pagination';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../src/constants';
 import { usePoppinsFonts } from '../../src/hooks';
 import { hp, ms, rfs, wp } from "../../src/utils/responsive";
@@ -44,60 +48,26 @@ export default function OrderPage() {
   const router = useRouter();
   const fontsLoaded = usePoppinsFonts();
   
-  const [showOrdersDropdown, setShowOrdersDropdown] = useState(false);
-  const [showTasksDropdown, setShowTasksDropdown] = useState(false);
-  const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
-  const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
-  
-  const [selectedOrder, setSelectedOrder] = useState('All Orders');
-  const [selectedTask, setSelectedTask] = useState('All tasks');
-  const [selectedPriority, setSelectedPriority] = useState('Priority');
+  const [selectedOrder, setSelectedOrder] = useState('all');
+  const [selectedTask, setSelectedTask] = useState('all');
+  const [selectedPriority, setSelectedPriority] = useState('all');
   
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   
-  const closeAllDropdowns = () => {
-    setShowOrdersDropdown(false);
-    setShowTasksDropdown(false);
-    setShowPriorityDropdown(false);
-    setShowEntriesDropdown(false);
-  };
-  
-  const toggleOrdersDropdown = () => {
-    setShowOrdersDropdown(!showOrdersDropdown);
-    setShowTasksDropdown(false);
-    setShowPriorityDropdown(false);
-  };
-  
-  const toggleTasksDropdown = () => {
-    setShowTasksDropdown(!showTasksDropdown);
-    setShowOrdersDropdown(false);
-    setShowPriorityDropdown(false);
-  };
-  
-  const togglePriorityDropdown = () => {
-    setShowPriorityDropdown(!showPriorityDropdown);
-    setShowOrdersDropdown(false);
-    setShowTasksDropdown(false);
-  };
-  
-  const toggleEntriesDropdown = () => {
-    setShowEntriesDropdown(!showEntriesDropdown);
-  };
-  
   const filteredOrders = allOrders.filter(order => {
-    if (selectedOrder !== 'All Orders') {
+    if (selectedOrder !== 'all') {
       const isSorbetes = order.color === '#000';
       const isReefer = order.color === '#F58220';
-      if (selectedOrder === 'Sorbetes' && !isSorbetes) return false;
-      if (selectedOrder === 'Reefer' && !isReefer) return false;
+      if (selectedOrder === 'sorbetes' && !isSorbetes) return false;
+      if (selectedOrder === 'reefer' && !isReefer) return false;
     }
     
-    if (selectedTask !== 'All tasks') {
+    if (selectedTask !== 'all') {
       if (order.status !== selectedTask) return false;
     }
     
-    if (selectedPriority !== 'Priority' && selectedPriority !== 'All priority') {
+    if (selectedPriority !== 'all') {
       if (order.priority !== selectedPriority) return false;
     }
     
@@ -112,7 +82,6 @@ export default function OrderPage() {
   const handleEntriesChange = (value: number) => {
     setEntriesPerPage(value);
     setCurrentPage(1);
-    setShowEntriesDropdown(false);
   };
   
   const handlePageChange = (page: number) => {
@@ -122,30 +91,52 @@ export default function OrderPage() {
   };
   
   const handleRefresh = () => {
-    setSelectedOrder('All Orders');
-    setSelectedTask('All tasks');
-    setSelectedPriority('Priority');
+    setSelectedOrder('all');
+    setSelectedTask('all');
+    setSelectedPriority('all');
     setCurrentPage(1);
     setEntriesPerPage(10);
-    setShowOrdersDropdown(false);
-    setShowTasksDropdown(false);
-    setShowPriorityDropdown(false);
-    setShowEntriesDropdown(false);
   };
 
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const [contentWidth, setContentWidth] = useState(1);
-  const [visibleWidth, setVisibleWidth] = useState(0);
-  
-  const trackWidth = wp(91.4);
-  const thumbWidth = wp(30);
-  const scrollableWidth = contentWidth - visibleWidth;
-  
-  const thumbTranslateX = scrollX.interpolate({
-    inputRange: [0, scrollableWidth > 0 ? scrollableWidth : 1],
-    outputRange: [0, trackWidth - thumbWidth],
-    extrapolate: 'clamp',
-  });
+  const orderOptions: DropdownOption[] = [
+    { label: 'All Orders', value: 'all' },
+    { label: 'Sorbetes', value: 'sorbetes' },
+    { label: 'Reefer', value: 'reefer' },
+  ];
+
+  const taskOptions: DropdownOption[] = [
+    { label: 'All tasks', value: 'all' },
+    { label: 'Pending Approval', value: 'Pending Approval' },
+    { label: 'In Production', value: 'In Production' },
+    { label: 'Confirmed', value: 'Confirmed' },
+    { label: 'Draft', value: 'Draft' },
+  ];
+
+  const priorityOptions: DropdownOption[] = [
+    { label: 'Priority', value: 'all' },
+    { label: 'High', value: 'High' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Low', value: 'Low' },
+  ];
+
+  const columns: Column[] = [
+    {
+      key: 'poNumber',
+      header: 'P.O #',
+      width: wp(35),
+      render: (value: any, item: any) => (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={[styles.statusDot, { backgroundColor: item.color }]} />
+          <Text style={styles.cellText}>{value}</Text>
+        </View>
+      ),
+    },
+    { key: 'type', header: 'Type', width: wp(19) },
+    { key: 'priority', header: 'Priority', width: wp(19) },
+    { key: 'clothing', header: 'Clothing', width: wp(24) },
+    { key: 'designName', header: 'Design Name', width: wp(30) },
+    { key: 'status', header: 'Status', width: wp(27) },
+  ];
 
   if (!fontsLoaded) return null;
 
@@ -218,307 +209,45 @@ export default function OrderPage() {
             </View>
             
             <View style={styles.filterDropdowns}>
-              <TouchableOpacity 
-                style={styles.filterBtn}
-                onPress={toggleOrdersDropdown}
-              >
-                <Ionicons name="filter" size={ms(12)} color="#333" />
-                <Text style={styles.filterBtnText}>{selectedOrder}</Text>
-                <Ionicons name="chevron-down" size={ms(12)} color="#333" />
-              </TouchableOpacity>
+              <Dropdown
+                options={orderOptions}
+                selectedValue={selectedOrder}
+                onSelect={setSelectedOrder}
+                showIcon={true}
+                buttonStyle={styles.filterBtn}
+              />
               
-              <TouchableOpacity 
-                style={styles.filterBtn}
-                onPress={toggleTasksDropdown}
-              >
-                <Text style={styles.filterBtnText}>{selectedTask}</Text>
-                <Ionicons name="chevron-down" size={ms(12)} color="#333" />
-              </TouchableOpacity>
+              <Dropdown
+                options={taskOptions}
+                selectedValue={selectedTask}
+                onSelect={setSelectedTask}
+                buttonStyle={styles.filterBtn}
+              />
 
-              <TouchableOpacity 
-                style={styles.filterBtn}
-                onPress={togglePriorityDropdown}
-              >
-                <Text style={styles.filterBtnText}>{selectedPriority}</Text>
-                <Ionicons name="chevron-down" size={ms(12)} color="#333" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          
-          {showOrdersDropdown && (
-            <View style={styles.dropdownMenuContainer}>
-              <TouchableOpacity 
-                style={styles.dropdownHeaderBtn}
-                onPress={() => {
-                  setSelectedOrder('All Orders');
-                  setShowOrdersDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownHeaderText}>All Orders</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedOrder('Sorbetes');
-                  setShowOrdersDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Sorbetes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedOrder('Reefer');
-                  setShowOrdersDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Reefer</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          
-          {showTasksDropdown && (
-            <View style={styles.dropdownMenuContainer}>
-              <TouchableOpacity 
-                style={styles.dropdownHeaderBtn}
-                onPress={() => {
-                  setSelectedTask('All tasks');
-                  setShowTasksDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownHeaderText}>All tasks</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedTask('Pending Approval');
-                  setShowTasksDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Pending Approval</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedTask('In production');
-                  setShowTasksDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>In production</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedTask('Confirmed');
-                  setShowTasksDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Confirmed</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedTask('Draft');
-                  setShowTasksDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Draft</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          
-          {showPriorityDropdown && (
-            <View style={styles.dropdownMenuContainer}>
-              <TouchableOpacity 
-                style={styles.dropdownHeaderBtn}
-                onPress={() => {
-                  setSelectedPriority('All priority');
-                  setShowPriorityDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownHeaderText}>All priority</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedPriority('High');
-                  setShowPriorityDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>High</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedPriority('Medium');
-                  setShowPriorityDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Medium</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.dropdownItemBtn}
-                onPress={() => {
-                  setSelectedPriority('Low');
-                  setShowPriorityDropdown(false);
-                }}
-              >
-                <Text style={styles.dropdownItemText}>Low</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          <View style={styles.tableContainer}>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                { useNativeDriver: false }
-              )}
-              scrollEventThrottle={16}
-              onContentSizeChange={(w) => setContentWidth(w)}
-              onLayout={(e) => setVisibleWidth(e.nativeEvent.layout.width)}
-            >
-              <View>
-                <View style={styles.tableHeader}>
-                  <Text style={[styles.columnHeader, { width: wp(35) }]}>P.O #</Text>
-                  <Text style={[styles.columnHeader, { width: wp(19) }]}>Type</Text>
-                  <Text style={[styles.columnHeader, { width: wp(19) }]}>Priority</Text>
-                  <Text style={[styles.columnHeader, { width: wp(24) }]}>Clothing</Text>
-                  <Text style={[styles.columnHeader, { width: wp(30) }]}>Design Name</Text>
-                  <Text style={[styles.columnHeader, { width: wp(27) }]}>Status</Text>
-                </View>
-
-                {currentOrders.map((item, index) => (
-                  <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
-                    <View style={{ width: wp(35), flexDirection: 'row', alignItems: 'center' }}>
-                      <View style={[styles.statusDot, { backgroundColor: item.color }]} />
-                      <Text style={styles.cellText}>{item.poNumber}</Text>
-                    </View>
-                    <Text style={[styles.cellText, { width: wp(19) }]}>{item.type}</Text>
-                    <Text style={[styles.cellText, { width: wp(19) }]}>{item.priority}</Text>
-                    <Text style={[styles.cellText, { width: wp(24) }]}>{item.clothing}</Text>
-                    <Text style={[styles.cellText, { width: wp(30) }]}>{item.designName}</Text>
-                    <Text style={[styles.cellText, { width: wp(27) }]}>{item.status}</Text>
-                  </View>
-                ))}
-              </View>
-            </ScrollView>
-            
-            <View style={styles.customScrollContainer}>
-                <View style={styles.scrollTrack}>
-                    <Animated.View 
-                      style={[
-                        styles.scrollThumb, 
-                        { transform: [{ translateX: thumbTranslateX }] }
-                      ]} 
-                    />
-                </View>
+              <Dropdown
+                options={priorityOptions}
+                selectedValue={selectedPriority}
+                onSelect={setSelectedPriority}
+                buttonStyle={styles.filterBtn}
+              />
             </View>
           </View>
 
-          <View style={styles.paginationWrapper}>
-            <View style={styles.entriesContainer}>
-                <Text style={styles.showText}>Show</Text>
-                <View style={styles.dropdownWrapper}>
-                  <TouchableOpacity 
-                    style={styles.dropdownBox}
-                    onPress={toggleEntriesDropdown}
-                  >
-                      <Text style={styles.dropdownText}>{entriesPerPage === 9999 ? 'All' : entriesPerPage}</Text>
-                      <Ionicons name="chevron-down" size={ms(12)} color="#999" />
-                  </TouchableOpacity>
-                  {showEntriesDropdown && (
-                    <View style={styles.dropdownMenuAbove}>
-                      <TouchableOpacity 
-                        style={styles.dropdownItemBtn}
-                        onPress={() => handleEntriesChange(5)}
-                      >
-                        <Text style={styles.dropdownItemText}>5</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.dropdownItemBtn}
-                        onPress={() => handleEntriesChange(10)}
-                      >
-                        <Text style={styles.dropdownItemText}>10</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.dropdownItemBtn}
-                        onPress={() => handleEntriesChange(15)}
-                      >
-                        <Text style={styles.dropdownItemText}>15</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.dropdownItemBtn}
-                        onPress={() => handleEntriesChange(20)}
-                      >
-                        <Text style={styles.dropdownItemText}>20</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.dropdownItemBtn}
-                        onPress={() => handleEntriesChange(30)}
-                      >
-                        <Text style={styles.dropdownItemText}>30</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.dropdownItemBtn}
-                        onPress={() => handleEntriesChange(9999)}
-                      >
-                        <Text style={styles.dropdownItemText}>All</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-                <Text style={styles.showText}>entries</Text>
-            </View>
-            
-            {entriesPerPage !== 9999 && (
-              <View style={styles.pageControls}>
-                <TouchableOpacity 
-                  style={styles.navArrow}
-                  onPress={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <Ionicons name="chevron-back" size={ms(18)} color={currentPage === 1 ? "#ccc" : "#999"} />
-                </TouchableOpacity>
-                
-                {currentPage > 1 && (
-                  <TouchableOpacity 
-                    style={styles.pageNum}
-                    onPress={() => handlePageChange(1)}
-                  >
-                    <Text style={styles.pageText}>1</Text>
-                  </TouchableOpacity>
-                )}
-                
-                {currentPage > 2 && <Text style={styles.pageText}>...</Text>}
-                
-                <TouchableOpacity style={[styles.pageNum, styles.activePage]}>
-                  <Text style={styles.activePageText}>{currentPage}</Text>
-                </TouchableOpacity>
-                
-                {currentPage < totalPages - 1 && <Text style={styles.pageText}>...</Text>}
-                
-                {currentPage < totalPages && (
-                  <TouchableOpacity 
-                    style={styles.pageNum}
-                    onPress={() => handlePageChange(totalPages)}
-                  >
-                    <Text style={styles.pageText}>Last</Text>
-                  </TouchableOpacity>
-                )}
-                
-                <TouchableOpacity 
-                  style={styles.navArrow}
-                  onPress={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <Ionicons name="chevron-forward" size={ms(18)} color={currentPage === totalPages ? "#ccc" : "#999"} />
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
+          <DataTable
+            columns={columns}
+            data={currentOrders}
+            trackWidth={wp(91.4)}
+            thumbWidth={wp(30)}
+          />
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            entriesPerPage={entriesPerPage}
+            onPageChange={handlePageChange}
+            onEntriesChange={handleEntriesChange}
+            entriesOptions={[5, 10, 15, 20, 30]}
+          />
 
           <View style={{ height: hp(5) }} /> 
         </ScrollView>
@@ -629,212 +358,15 @@ const styles = StyleSheet.create({
     paddingVertical: hp(0.6),
     backgroundColor: COLORS.white
   },
-  filterBtnText: { 
-    fontSize: rfs(10), 
-    color: COLORS.text, 
-    marginHorizontal: wp(1.1),
-    fontFamily: FONT_FAMILY.regular,
-  },
-  tableContainer: { 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.base, 
-    overflow: 'hidden', 
-    paddingBottom: hp(1) 
-  },
-  tableHeader: { 
-    flexDirection: 'row', 
-    backgroundColor: '#E6F0F8', 
-    paddingVertical: hp(1.5), 
-    paddingHorizontal: wp(2.1), 
-    borderBottomWidth: SIZES.border.thin, 
-    borderBottomColor: COLORS.divider 
-  },
-  columnHeader: { 
-    fontSize: FONT_SIZES.xs, 
-    fontFamily: FONT_FAMILY.bold, 
-    color: COLORS.textSecondary 
-  },
-  tableRow: { 
-    flexDirection: 'row', 
-    paddingVertical: hp(1.5), 
-    paddingHorizontal: wp(2.1), 
-    borderBottomWidth: SIZES.border.thin, 
-    borderBottomColor: COLORS.borderLight, 
-    alignItems: 'center' 
-  },
-  rowEven: { 
-    backgroundColor: COLORS.white 
-  },
-  rowOdd: { 
-    backgroundColor: COLORS.surface 
-  },
-  cellText: { 
-    fontSize: FONT_SIZES.xs, 
-    color: COLORS.text,
-    fontFamily: FONT_FAMILY.regular,
-  },
   statusDot: { 
     width: ms(8), 
     height: ms(8), 
     borderRadius: SIZES.radius.xs, 
     marginRight: wp(2.1) 
   },
-  customScrollContainer: { 
-    paddingHorizontal: wp(2.1), 
-    paddingTop: hp(1) 
-  },
-  scrollTrack: { 
-    height: hp(0.6), 
-    backgroundColor: COLORS.border, 
-    borderRadius: SIZES.radius.xs, 
-    width: '100%', 
-    overflow: 'hidden' 
-  },
-  scrollThumb: { 
-    height: '100%', 
-    width: wp(30), 
-    backgroundColor: '#0B1C36', 
-    borderRadius: SIZES.radius.xs 
-  },
-  paginationWrapper: { 
-    alignItems: 'center', 
-    marginTop: hp(2.5),
-    marginBottom: hp(1),
-    gap: hp(1.5)
-  },
-  entriesContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: wp(2)
-  },
-  showText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.textSecondary,
+  cellText: { 
+    fontSize: FONT_SIZES.xs, 
+    color: COLORS.text,
     fontFamily: FONT_FAMILY.regular,
   },
-  dropdownBox: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    paddingHorizontal: wp(3), 
-    paddingVertical: hp(0.6), 
-    borderRadius: SIZES.radius.sm,
-    gap: wp(1.5),
-    minWidth: wp(16)
-  },
-  dropdownText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.text,
-    fontFamily: FONT_FAMILY.medium,
-  },
-  pageControls: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: wp(2)
-  },
-  navArrow: { 
-    width: SIZES.icon.lg, 
-    height: SIZES.icon.lg, 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    borderRadius: SIZES.radius.xs
-  },
-  pageNum: { 
-    minWidth: ms(36), 
-    height: ms(36), 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    borderRadius: SIZES.radius.sm,
-    paddingHorizontal: wp(2)
-  },
-  activePage: { 
-    backgroundColor: '#0B1C36'
-  },
-  activePageText: { 
-    color: COLORS.white, 
-    fontSize: FONT_SIZES.sm, 
-    fontFamily: FONT_FAMILY.semiBold,
-  },
-  pageText: { 
-    fontSize: FONT_SIZES.sm, 
-    color: COLORS.textSecondary,
-    fontFamily: FONT_FAMILY.medium,
-  },
-  dropdownMenuContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: SIZES.radius.base,
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
-    marginBottom: hp(1.5),
-    ...SIZES.shadow.base,
-    overflow: 'hidden'
-  },
-  dropdownHeaderBtn: {
-    paddingVertical: hp(1.2),
-    paddingHorizontal: wp(3),
-    backgroundColor: '#E8F4F8'
-  },
-  dropdownHeaderText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    fontFamily: FONT_FAMILY.medium,
-  },
-  dropdownItemBtn: {
-    paddingVertical: hp(1.2),
-    paddingHorizontal: wp(3),
-    backgroundColor: '#0B1C36',
-    borderTopWidth: SIZES.border.thin,
-    borderTopColor: '#1e3a5f'
-  },
-  dropdownItemText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.white,
-    fontFamily: FONT_FAMILY.regular,
-  },
-  dropdownWrapper: {
-    position: 'relative',
-    zIndex: 1000
-  },
-  dropdownMenu: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    marginTop: hp(0.5),
-    backgroundColor: COLORS.white,
-    borderRadius: SIZES.radius.base,
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
-    ...SIZES.shadow.md,
-    overflow: 'hidden',
-    minWidth: wp(35),
-    zIndex: 2000
-  },
-  dropdownMenuAbove: {
-    position: 'absolute',
-    bottom: '100%',
-    left: 0,
-    marginBottom: hp(0.5),
-    backgroundColor: COLORS.white,
-    borderRadius: SIZES.radius.base,
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
-    ...SIZES.shadow.md,
-    overflow: 'hidden',
-    minWidth: wp(20),
-    zIndex: 2000
-  },
-  dropdownHeader: {
-    paddingVertical: hp(1.2),
-    paddingHorizontal: wp(3),
-    backgroundColor: '#E8F4F8'
-  },
-  dropdownItem: {
-    paddingVertical: hp(1.2),
-    paddingHorizontal: wp(3),
-    backgroundColor: '#0B1C36',
-    borderTopWidth: SIZES.border.thin,
-    borderTopColor: '#1e3a5f'
-  }
 });
