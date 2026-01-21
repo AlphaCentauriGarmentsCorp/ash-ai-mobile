@@ -1,4 +1,5 @@
 export { default as Button } from './Button';
+export { default as Checkbox } from './Checkbox';
 export { default as ConfirmModal } from './ConfirmModal';
 export { default as DataTable } from './DataTable';
 export type { Column } from './DataTable';
@@ -14,4 +15,6 @@ export { default as PageHeader } from './PageHeader';
 export { default as PageTitle } from './PageTitle';
 export { default as Pagination } from './Pagination';
 export { default as SearchBar } from './SearchBar';
+export { default as Stepper } from './Stepper';
+export type { Step } from './Stepper';
 

@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -13,11 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Button from '../../src/components/common/Button';
 import PageHeader from '../../src/components/common/PageHeader';
+import type { Step } from '../../src/components/common/Stepper';
+import Stepper from '../../src/components/common/Stepper';
 import DesignMockup from '../../src/components/specific/Order/DesignMockup';
 import OrderInfo from '../../src/components/specific/Order/OrderInfo';
 import PaymentSummary from '../../src/components/specific/Order/PaymentSummary';
 import PrintArea from '../../src/components/specific/Order/PrintArea';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../src/constants';
+import { COLORS, FONT_FAMILY } from '../../src/constants';
 import { usePoppinsFonts } from '../../src/hooks';
 import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
@@ -26,7 +27,7 @@ export default function AddOrderPage() {
   const fontsLoaded = usePoppinsFonts();
   const [currentStep, setCurrentStep] = useState(0);
 
-  const steps = [
+  const steps: Step[] = [
     { title: 'Info', id: 0 },
     { title: 'Print', id: 1 },
     { title: 'Design & Mockups', id: 2 },
@@ -72,22 +73,12 @@ export default function AddOrderPage() {
           breadcrumb="Home / Add New Order"
         />
 
-        <View style={styles.stepperContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stepperContent}>
-            {steps.map((step, index) => (
-              <View key={index} style={styles.stepItem}>
-                <TouchableOpacity onPress={() => setCurrentStep(index)}>
-                  <Text style={[styles.stepText, currentStep === index && styles.stepTextActive]}>
-                    {step.title}
-                  </Text>
-                </TouchableOpacity>
-                {index < steps.length - 1 && (
-                  <Ionicons name="chevron-forward" size={ms(12)} color="#CCC" style={{marginHorizontal: wp(2.1)}} />
-                )}
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+        <Stepper
+          steps={steps}
+          currentStep={currentStep}
+          onStepPress={setCurrentStep}
+          chevronSize={ms(12)}
+        />
 
         <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
@@ -164,29 +155,6 @@ const styles = StyleSheet.create({
   topSafeArea: {
     flex: 0,
     backgroundColor: '#0B1C36',
-  },
-  stepperContainer: {
-    backgroundColor: COLORS.surface,
-    paddingVertical: hp(1.5),
-    borderTopLeftRadius: SIZES.radius.xl,
-    borderTopRightRadius: SIZES.radius.xl,
-  },
-  stepperContent: {
-    paddingHorizontal: wp(4.3),
-    alignItems: 'center',
-  },
-  stepItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  stepText: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    fontFamily: FONT_FAMILY.medium,
-  },
-  stepTextActive: {
-    color: '#0B1C36',
-    fontFamily: FONT_FAMILY.bold,
   },
   mainContent: {
     flex: 1,
