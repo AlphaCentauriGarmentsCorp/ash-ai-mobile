@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -8,13 +7,13 @@ import {
     Image,
     KeyboardAvoidingView,
     Platform,
-    Pressable,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Checkbox from "../../src/components/common/Checkbox";
 import FormInput from "../../src/components/common/FormInput";
 import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
@@ -94,15 +93,16 @@ export default function Index() {
           />
 
           <View style={styles.rowBetween}>
-            <Pressable 
-              style={styles.rememberRow} 
+            <Checkbox
+              checked={isChecked}
               onPress={() => setChecked(!isChecked)}
-            >
-              <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
-                  {isChecked && <Ionicons name="checkmark" size={ms(12)} color="#fff" />}
-              </View>
-              <Text style={styles.rememberText}>Remember me</Text>
-            </Pressable>
+              label="Remember me"
+              size={ms(18)}
+              checkedColor="#084C7F"
+              borderColor="#889"
+              checkmarkSize={ms(12)}
+              containerStyle={styles.rememberRow}
+            />
             
             <TouchableOpacity onPress={() => handleNavigation("/login/forgot") }>
               <Text style={styles.forgot}>Forgot password?</Text>
@@ -187,26 +187,6 @@ const styles = StyleSheet.create({
   rememberRow: { 
     flexDirection: "row", 
     alignItems: "center" 
-  },
-  checkbox: {
-    width: ms(18),
-    height: ms(18),
-    borderRadius: ms(4),
-    borderWidth: 1.5,
-    borderColor: "#889",
-    backgroundColor: "#fff",
-    marginRight: wp(2.1),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: "#084C7F",
-    borderColor: "#4CA9FA",
-  },
-  rememberText: { 
-    color: "#334", 
-    fontSize: rfs(12), 
-    fontFamily: "Poppins_400Regular",
   },
   forgot: { 
     color: "#334",
