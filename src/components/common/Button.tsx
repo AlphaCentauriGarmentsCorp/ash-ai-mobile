@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { ActivityIndicator, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
 
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../constants';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../../constants';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'base' | 'lg';

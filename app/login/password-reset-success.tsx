@@ -11,7 +11,7 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { hp, ms, rfs, wp } from "../../utils/responsive";
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function PasswordResetSuccess() {
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function PasswordResetSuccess() {
       <SafeAreaView style={styles.safeArea}>
       <View style={styles.contentContainer}>
         <Image
-          source={require("../../assets/images/GreenCheck.png")}
+          source={require("../../src/assets/images/GreenCheck.png")}
           style={styles.iconImage}
           resizeMode="contain"
         />

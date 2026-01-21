@@ -10,7 +10,7 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { hp, ms, rfs, wp } from "../../utils/responsive";
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function ForgotSent() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function ForgotSent() {
       </TouchableOpacity>
 
       <View style={styles.centerContainer}>
-        <Image source={require("../../assets/images/Envelope.png")} style={styles.icon} resizeMode="contain" />
+        <Image source={require("../../src/assets/images/Envelope.png")} style={styles.icon} resizeMode="contain" />
 
         <Text style={styles.title}>E-mail successfully sent</Text>
         <Text style={styles.subtitle}>Reset link delivered to your email.</Text>
@@ -73,8 +73,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
     padding: ms(8),
   },
-  
-  // Center Section
   centerContainer: { 
     flex: 1,
     alignItems: "center", 
@@ -107,8 +105,6 @@ const styles = StyleSheet.create({
     lineHeight: rfs(22),
     maxWidth: "80%"
   },
-
-  // Bottom Section
   bottomContainer: {
     paddingHorizontal: wp(6.4),
     paddingBottom: hp(4.9),

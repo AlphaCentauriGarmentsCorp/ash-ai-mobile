@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../constants';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../../constants';
 
 export default function OrderInfo() {
   return (

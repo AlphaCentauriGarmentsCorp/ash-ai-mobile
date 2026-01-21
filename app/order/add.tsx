@@ -2,31 +2,30 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { usePoppinsFonts } from '../../hooks';
-import { hp, ms, rfs, wp } from "../../utils/responsive";
-import Button from '../components/Button';
-import PageHeader from '../components/PageHeader';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../constants';
-import DesignMockup from './components/DesignMockup';
-import OrderInfo from './components/OrderInfo';
-import PaymentSummary from './components/PaymentSummary';
-import PrintArea from './components/PrintArea';
+import Button from '../../src/components/common/Button';
+import PageHeader from '../../src/components/common/PageHeader';
+import DesignMockup from '../../src/components/specific/Order/DesignMockup';
+import OrderInfo from '../../src/components/specific/Order/OrderInfo';
+import PaymentSummary from '../../src/components/specific/Order/PaymentSummary';
+import PrintArea from '../../src/components/specific/Order/PrintArea';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../src/constants';
+import { usePoppinsFonts } from '../../src/hooks';
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function AddOrderPage() {
   const router = useRouter();
   const fontsLoaded = usePoppinsFonts();
   const [currentStep, setCurrentStep] = useState(0);
 
-  // Steps Configuration
   const steps = [
     { title: 'Info', id: 0 },
     { title: 'Print', id: 1 },
@@ -73,7 +72,6 @@ export default function AddOrderPage() {
           breadcrumb="Home / Add New Order"
         />
 
-        {/* Stepper */}
         <View style={styles.stepperContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stepperContent}>
             {steps.map((step, index) => (
@@ -91,7 +89,6 @@ export default function AddOrderPage() {
           </ScrollView>
         </View>
 
-        {/* Main Content */}
         <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
             {currentStep === 0 && <OrderInfo />}
@@ -100,7 +97,6 @@ export default function AddOrderPage() {
             {currentStep === 3 && <PaymentSummary />}
           </View>
 
-          {/* Footer */}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClear}>
               <Text style={styles.clearText}>Clear all fields</Text>

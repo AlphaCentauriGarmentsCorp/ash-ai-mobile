@@ -13,7 +13,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { hp, ms, rfs, wp } from "../../utils/responsive";
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function Forgot() {
   const router = useRouter();
@@ -35,13 +35,12 @@ export default function Forgot() {
       style={{ flex: 1 }}
     >
       <SafeAreaView style={styles.safeArea}>
-      {/* Header Row */}
       <View style={styles.headerRow}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={ms(24)} color="#084C7F" />
         </TouchableOpacity>
         <View style={styles.logo}>
-          <Image source={require("../../assets/images/ash-logo-small.png")} style={styles.logo} resizeMode="contain" />
+          <Image source={require("../../src/assets/images/ash-logo-small.png")} style={styles.logo} resizeMode="contain" />
         </View>
       </View>
 

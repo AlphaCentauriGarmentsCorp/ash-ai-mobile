@@ -13,7 +13,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { hp, ms, rfs, wp } from "../../utils/responsive";
+import { hp, ms, rfs, wp } from "../../src/utils/responsive";
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -48,7 +48,6 @@ export default function CreatePassword() {
           </View>
 
           <View style={styles.form}>
-            {/* New Password Input */}
             <View style={styles.inputRow}>
               <Ionicons name="key" size={ms(20)} color="#8899A6" style={styles.inputIcon} />
               <TextInput
@@ -66,7 +65,6 @@ export default function CreatePassword() {
               </Pressable>
             </View>
 
-            {/* Confirm Password Input */}
             <View style={styles.inputRow}>
               <Ionicons name="key" size={ms(20)} color="#8899A6" style={styles.inputIcon} />
               <TextInput

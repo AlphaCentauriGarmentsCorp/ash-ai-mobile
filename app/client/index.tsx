@@ -2,24 +2,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-  Animated,
-  Modal,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Animated,
+    Modal,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { usePoppinsFonts } from '../../hooks';
-import Button from '../components/Button';
-import GlobalHeader from '../components/GlobalHeader';
-import PageTitle from '../components/PageTitle';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../constants';
-import NewClientScreen from './components/new-client';
+import Button from '../../src/components/common/Button';
+import GlobalHeader from '../../src/components/common/GlobalHeader';
+import PageTitle from '../../src/components/common/PageTitle';
+import NewClientScreen from '../../src/components/specific/Client/new-client';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../../src/constants';
+import { usePoppinsFonts } from '../../src/hooks';
 
 // Types
 interface Client {
@@ -27,7 +27,7 @@ interface Client {
   name: string;
   contact: string;
   email: string;
-  [key: string]: string; // Index signature for router params
+  [key: string]: string;
 }
 
 const DATA: Client[] = Array(12).fill({
@@ -37,23 +37,17 @@ const DATA: Client[] = Array(12).fill({
   email: 'morganlee@gmail.com',
 });
 
-const ClientsScreen = () => {
+export default function ClientsScreen() {
   const router = useRouter();
-  
-  // 2. Get the safe area insets (top, bottom, etc.)
   const insets = useSafeAreaInsets(); 
-
   const fontsLoaded = usePoppinsFonts();
 
   const [searchText, setSearchText] = useState('');
   const [showNewClient, setShowNewClient] = useState(false);
-  
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
   
-  // Scrollbar Logic
   const scrollX = useRef(new Animated.Value(0)).current;
   const [contentWidth, setContentWidth] = useState(1);
   const [visibleWidth, setVisibleWidth] = useState(0);
@@ -68,12 +62,10 @@ const ClientsScreen = () => {
     extrapolate: 'clamp',
   });
   
-  // --- Modal States ---
   const [modalVisible, setModalVisible] = useState(false);
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<number | null>(null);
   
-  // Pagination Helpers
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentClients = DATA.slice(indexOfFirstEntry, indexOfLastEntry);
@@ -108,16 +100,13 @@ const ClientsScreen = () => {
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
 
-      {/* Global Header with padding for safe area */}
       <View style={{ paddingTop: insets.top }}>
         <GlobalHeader />
       </View>
 
-      {/* Page Title */}
       <PageTitle title="Clients" icon="people-outline" />
 
       <ScrollView style={styles.contentContainer}>
-        {/* Buttons */}
         <View style={styles.actionButtonsRow}>
           <Button
             title="New client"
@@ -136,7 +125,6 @@ const ClientsScreen = () => {
           />
         </View>
 
-        {/* Search */}
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -149,7 +137,6 @@ const ClientsScreen = () => {
           </View>
         </View>
 
-        {/* List Header */}
         <View style={styles.listControlRow}>
           <Text style={styles.listTitle}>List</Text>
           <View style={styles.filterContainer}>
@@ -162,7 +149,6 @@ const ClientsScreen = () => {
           </View>
         </View>
 
-        {/* Table */}
         <View style={styles.tableWrapper}>
           <ScrollView 
             horizontal 
@@ -212,7 +198,6 @@ const ClientsScreen = () => {
           </View>
         </View>
 
-        {/* Pagination */}
         <View style={styles.paginationWrapper}>
           <View style={styles.entriesContainer}>
             <Text style={styles.showText}>Show</Text>
@@ -245,7 +230,6 @@ const ClientsScreen = () => {
         <View style={{height: insets.bottom + 40}} />
       </ScrollView>
 
-      {/* --- ACTIONS MODAL --- */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
           <View style={styles.modalContent}>
@@ -253,7 +237,7 @@ const ClientsScreen = () => {
             <View style={styles.modalBody}>
               <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
                 setModalVisible(false);
-                if (selectedClient !== null) router.push({ pathname: "/client/components/edit-client", params: DATA[selectedClient] });
+                if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
               }}>
                 <Ionicons name="pencil" size={20} color="#0D253F" style={styles.modalIcon} />
                 <Text style={styles.modalBtnTextDefault}>Edit</Text>
@@ -262,7 +246,7 @@ const ClientsScreen = () => {
               <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
                 if (selectedClient !== null) {
                     setModalVisible(false);
-                    router.push({ pathname: "/client/components/view-client", params: DATA[selectedClient] });
+                    router.push({ pathname: "/client/view", params: DATA[selectedClient] });
                 }
               }}>
                 <Ionicons name="eye" size={20} color="#0D253F" style={styles.modalIcon} />
@@ -281,7 +265,6 @@ const ClientsScreen = () => {
         </TouchableOpacity>
       </Modal>
 
-      {/* --- CONFIRMATION MODAL --- */}
       <Modal animationType="fade" transparent={true} visible={removeModalVisible} onRequestClose={() => setRemoveModalVisible(false)}>
         <View style={styles.modalOverlay}>
             <View style={styles.removeModalContent}>
@@ -299,14 +282,13 @@ const ClientsScreen = () => {
 
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.surface,
   },
-
   contentContainer: { 
     flex: 1, 
     padding: SPACING.base, 
@@ -635,5 +617,3 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
   },
 });
-
-export default ClientsScreen;
