@@ -4,10 +4,14 @@ export { default as DataTable } from './DataTable';
 export type { Column } from './DataTable';
 export { default as Dropdown } from './Dropdown';
 export type { DropdownOption } from './Dropdown';
+export { default as FilterBar } from './FilterBar';
+export type { Legend } from './FilterBar';
+export { default as FormInput } from './FormInput';
 export { default as GlobalHeader } from './GlobalHeader';
 export { default as GlobalSidebar } from './GlobalSidebar';
 export { default as Modal } from './Modal';
 export { default as PageHeader } from './PageHeader';
 export { default as PageTitle } from './PageTitle';
 export { default as Pagination } from './Pagination';
+export { default as SearchBar } from './SearchBar';
 

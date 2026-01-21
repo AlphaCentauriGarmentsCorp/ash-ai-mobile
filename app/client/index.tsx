@@ -6,7 +6,6 @@ import {
     StatusBar,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -22,6 +21,7 @@ import GlobalHeader from '../../src/components/common/GlobalHeader';
 import Modal from '../../src/components/common/Modal';
 import PageTitle from '../../src/components/common/PageTitle';
 import Pagination from '../../src/components/common/Pagination';
+import SearchBar from '../../src/components/common/SearchBar';
 import NewClientScreen from '../../src/components/specific/Client/new-client';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../../src/constants';
 import { usePoppinsFonts } from '../../src/hooks';
@@ -134,17 +134,11 @@ export default function ClientsScreen() {
           />
         </View>
 
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search by client name, brand..."
-            value={searchText}
-            onChangeText={setSearchText}
-          />
-          <View style={styles.searchIconContainer}>
-            <Ionicons name="search" size={20} color="#666" />
-          </View>
-        </View>
+        <SearchBar
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholder="Search by client name, brand..."
+        />
 
         <View style={styles.listControlRow}>
           <Text style={styles.listTitle}>List</Text>
@@ -232,32 +226,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     marginBottom: SPACING.lg,
     gap: SPACING.base,
-  },
-  searchContainer: { 
-    flexDirection: 'row', 
-    marginBottom: SPACING.lg 
-  },
-  searchInput: { 
-    flex: 1, 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderTopLeftRadius: SIZES.radius.sm, 
-    borderBottomLeftRadius: SIZES.radius.sm, 
-    paddingHorizontal: SPACING.base, 
-    paddingVertical: SPACING.sm, 
-    backgroundColor: COLORS.white,
-    fontFamily: FONT_FAMILY.regular,
-    fontSize: FONT_SIZES.sm,
-  },
-  searchIconContainer: { 
-    width: 40, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderLeftWidth: 0, 
-    borderColor: COLORS.border, 
-    borderTopRightRadius: SIZES.radius.sm, 
-    borderBottomRightRadius: SIZES.radius.sm 
   },
   listControlRow: { 
     flexDirection: 'row', 
