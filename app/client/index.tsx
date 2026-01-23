@@ -1,13 +1,14 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,12 +19,10 @@ import DataTable from '../../src/components/common/DataTable';
 import type { DropdownOption } from '../../src/components/common/Dropdown';
 import Dropdown from '../../src/components/common/Dropdown';
 import GlobalHeader from '../../src/components/common/GlobalHeader';
-import Modal from '../../src/components/common/Modal';
-import PageTitle from '../../src/components/common/PageTitle';
 import Pagination from '../../src/components/common/Pagination';
 import SearchBar from '../../src/components/common/SearchBar';
 import NewClientScreen from '../../src/components/specific/Client/new-client';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../../src/constants';
+import { COLORS, FONT_SIZES, SIZES, SPACING } from '../../src/constants';
 import { usePoppinsFonts } from '../../src/hooks';
 
 // Types
@@ -44,7 +43,7 @@ const DATA: Client[] = Array(12).fill({
 
 export default function ClientsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets(); 
+  const insets = useSafeAreaInsets();
   const fontsLoaded = usePoppinsFonts();
 
   const [searchText, setSearchText] = useState('');
@@ -52,30 +51,36 @@ export default function ClientsScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  // Tracks which row index has the dropdown open
+  const [activeDropdownIndex, setActiveDropdownIndex] = useState<number | null>(null);
   
-  const [modalVisible, setModalVisible] = useState(false);
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<number | null>(null);
-  
+
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentClients = DATA.slice(indexOfFirstEntry, indexOfLastEntry);
   const totalPages = Math.ceil(DATA.length / entriesPerPage);
-  
+
   const handleEntriesChange = (value: number) => {
     setEntriesPerPage(value);
     setCurrentPage(1);
   };
-  
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
-  const handleEditPress = (index: number) => {
-    setSelectedClient(index);
-    setModalVisible(true);
+  const toggleDropdown = (index: number) => {
+    if (activeDropdownIndex === index) {
+      setActiveDropdownIndex(null); // Close if clicking the same one
+    } else {
+      setActiveDropdownIndex(index); // Open the new one
+      setSelectedClient(index); 
+    }
   };
 
   const filterOptions: DropdownOption[] = [
@@ -84,24 +89,61 @@ export default function ClientsScreen() {
     { label: 'Inactive', value: 'inactive' },
   ];
 
-  const columns: Column[] = [
+  // --- OPTIMIZED COLUMNS ---
+  const columns: Column[] = useMemo(() => [
     { key: 'company', header: 'Clothing/Company', width: 120 },
     { key: 'name', header: 'Name', width: 120 },
     { key: 'contact', header: 'Contact No.', width: 130 },
     { key: 'email', header: 'Email', width: 180 },
     {
       key: 'action',
-      header: 'Action',
+      header: '',
       width: 60,
       render: (_value: any, _item: any, index: number) => (
-        <TouchableOpacity style={styles.actionBtn} onPress={() => handleEditPress(index)}>
-          <Ionicons name="pencil" size={16} color="#1E3A5F" />
-        </TouchableOpacity>
+        <View style={{ position: 'relative', zIndex: activeDropdownIndex === index ? 1000 : 1 }}>
+          <TouchableOpacity 
+            style={styles.actionBtn} 
+            onPress={() => toggleDropdown(index)}
+          >
+            <Entypo name="chevron-down" size={20} color="#1E3A5F" />
+          </TouchableOpacity>
+
+          {activeDropdownIndex === index && (
+            <View style={styles.dropdownMenu}>
+              <TouchableOpacity style={styles.dropdownItem} onPress={() => {
+                 setActiveDropdownIndex(null);
+                 if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
+              }}>
+                <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>Edit</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.dropdownItem} onPress={() => {
+                 setActiveDropdownIndex(null);
+                 if (selectedClient !== null) router.push({ pathname: "/client/view", params: DATA[selectedClient] });
+              }}>
+                <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>View</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
+                onPress={() => {
+                  setActiveDropdownIndex(null);
+                  setRemoveModalVisible(true);
+                }}
+              >
+                <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       ),
     },
-  ];
+  ], [activeDropdownIndex, selectedClient]);
 
-  if (!fontsLoaded) return null; 
+  if (!fontsLoaded) return null;
   if (showNewClient) return <NewClientScreen />;
 
   return (
@@ -113,7 +155,28 @@ export default function ClientsScreen() {
         <GlobalHeader />
       </View>
 
-      <PageTitle title="Clients" icon="people-outline" />
+      {/* --- TITLE BAR START --- */}
+      <View style={styles.pageTitleContainer}>
+        
+        {/* LEFT SIDE: Icon + Title */}
+        <View style={styles.titleLeftGroup}>
+          <View style={styles.iconCircleWrapper}>
+             <Image 
+               source={require('../../src/assets/images/people-group-solid-full (1).png')} 
+               style={styles.pageTitleIcon}
+               resizeMode="contain"
+             />
+          </View>
+          <Text style={styles.pageTitleText}>Clients</Text>
+        </View>
+
+        {/* RIGHT SIDE: Breadcrumbs (Home / Clients) */}
+        <View style={styles.breadcrumbGroup}>
+          <Text style={styles.breadcrumbBold}>Home</Text>
+          <Text style={styles.breadcrumbNormal}> / Clients</Text>
+        </View>
+      </View>
+      {/* --- TITLE BAR END --- */}
 
       <ScrollView style={styles.contentContainer}>
         <View style={styles.actionButtonsRow}>
@@ -125,7 +188,7 @@ export default function ClientsScreen() {
             icon="add-circle-outline"
             iconPosition="left"
           />
-          
+
           <Button
             title="Remove Clients"
             onPress={() => console.log('Remove clients')}
@@ -143,7 +206,7 @@ export default function ClientsScreen() {
         <View style={styles.listControlRow}>
           <Text style={styles.listTitle}>List</Text>
           <View style={styles.filterContainer}>
-            <Ionicons name="filter" size={14} color="#666" />
+            <Ionicons name="funnel" size={14} color="#001C34" />
             <Text style={styles.filterText}>Filter:</Text>
             <Dropdown
               options={filterOptions}
@@ -163,37 +226,9 @@ export default function ClientsScreen() {
           onPageChange={handlePageChange}
           onEntriesChange={handleEntriesChange}
         />
-        
-        <View style={{height: insets.bottom + 40}} />
+
+        <View style={{ height: insets.bottom + 40 }} />
       </ScrollView>
-
-      <Modal visible={modalVisible} onClose={() => setModalVisible(false)} title="Actions">
-        <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
-          setModalVisible(false);
-          if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
-        }}>
-          <Ionicons name="pencil" size={20} color="#0D253F" style={styles.modalIcon} />
-          <Text style={styles.modalBtnTextDefault}>Edit</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.modalBtnDefault} onPress={() => {
-          if (selectedClient !== null) {
-            setModalVisible(false);
-            router.push({ pathname: "/client/view", params: DATA[selectedClient] });
-          }
-        }}>
-          <Ionicons name="eye" size={20} color="#0D253F" style={styles.modalIcon} />
-          <Text style={styles.modalBtnTextDefault}>View</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.modalBtnDanger} onPress={() => {
-          setModalVisible(false);
-          setRemoveModalVisible(true);
-        }}>
-          <Ionicons name="trash" size={20} color="#FFF" style={styles.modalIcon} />
-          <Text style={styles.modalBtnTextDanger}>Remove</Text>
-        </TouchableOpacity>
-      </Modal>
 
       <ConfirmModal
         visible={removeModalVisible}
@@ -207,7 +242,6 @@ export default function ClientsScreen() {
         confirmText="Remove Client"
         highlightText={selectedClient !== null ? DATA[selectedClient].name : ''}
       />
-
     </View>
   );
 }
@@ -217,71 +251,123 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.surface,
   },
-  contentContainer: { 
-    flex: 1, 
-    padding: SPACING.base, 
+  contentContainer: {
+    flex: 1,
+    padding: SPACING.base,
     backgroundColor: COLORS.white 
   },
-  actionButtonsRow: { 
-    flexDirection: 'row', 
+  
+  // --- CUSTOM HEADER STYLES ---
+  pageTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Pushes Left group and Right group apart
+    paddingHorizontal: SPACING.base, 
+    paddingVertical: SPACING.base,
+    backgroundColor: COLORS.white, // White background like the image
+  },
+  titleLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconCircleWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: '#0D253F',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
+  pageTitleIcon: {
+    width: 20, 
+    height: 20,
+  },
+  pageTitleText: {
+    fontSize: 16,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#0D253F',
+  },
+  
+  // Breadcrumb Styles
+  breadcrumbGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  breadcrumbBold: {
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
+    color: '#001C34',
+  },
+  breadcrumbNormal: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    color: '#001C34', // Slate-500 equivalent
+  },
+  // -----------------------------
+
+  actionButtonsRow: {
+    flexDirection: 'row',
     marginBottom: SPACING.lg,
     gap: SPACING.base,
   },
-  listControlRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginBottom: SPACING.sm + 2 
+  listControlRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.sm + 2
   },
-  listTitle: { 
-    fontSize: FONT_SIZES.base, 
-    fontFamily: FONT_FAMILY.bold, 
-    color: '#0D253F' 
+  listTitle: {
+    fontSize: FONT_SIZES.base,
+    fontFamily: 'Poppins_500Medium',
+    color: '#0D253F'
   },
-  filterContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center' 
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
-  filterText: { 
-    marginHorizontal: SPACING.xs + 1, 
-    color: COLORS.textSecondary,
-    fontFamily: FONT_FAMILY.regular,
+  filterText: {
+    marginHorizontal: SPACING.xs + 1,
+    color: "COLORS.textSecondary",
+    fontFamily: 'Poppins_300Light',
     fontSize: FONT_SIZES.sm,
   },
-  actionBtn: { 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.xs, 
-    padding: SPACING.xs / 2 
+  actionBtn: {
+    borderWidth: SIZES.border.thin + 1,
+    borderColor: '#A5B4BF',
+    backgroundColor: '#EBF6FF',
+    borderRadius: SIZES.radius.xs,
+    paddingVertical: SPACING.xs - 2,
+    paddingHorizontal: SPACING.xs + 1,
   },
-  modalBtnDefault: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: COLORS.gray[200], 
-    paddingVertical: SPACING.sm, 
-    paddingHorizontal: SPACING.sm + 4, 
-    borderRadius: SIZES.radius.sm, 
-    marginBottom: SPACING.sm 
+  
+  // Dropdown Styles
+  dropdownMenu: {
+    position: 'absolute',
+    top: 40,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    width: 150,
+    borderWidth: 2,
+    borderColor: '#A5B4BF',
+    zIndex: 9999,
   },
-  modalBtnDanger: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: COLORS.error, 
-    paddingVertical: SPACING.sm, 
-    paddingHorizontal: SPACING.sm + 4, 
-    borderRadius: SIZES.radius.sm 
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: '#A5B4BF',
   },
-  modalIcon: { 
-    marginRight: SPACING.sm 
+  dropdownIcon: {
+    marginRight: 8,
   },
-  modalBtnTextDefault: { 
-    color: COLORS.text, 
-    fontFamily: FONT_FAMILY.semiBold, 
-    fontSize: FONT_SIZES.sm 
-  },
-  modalBtnTextDanger: { 
-    color: COLORS.white, 
-    fontFamily: FONT_FAMILY.semiBold, 
-    fontSize: FONT_SIZES.sm 
+  dropdownItemText: {
+    fontSize: 15,
+    color: '#0D253F',
+    fontFamily: 'poppins-regular', 
   },
 });

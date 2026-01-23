@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-    StyleSheet,
-    TextInput,
-    TextInputProps,
-    View,
-    ViewStyle,
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  View,
+  ViewStyle,
 } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES, SPACING } from '../../constants';
+import { COLORS, FONT_SIZES, SIZES, SPACING } from '../../constants';
 
 interface SearchBarProps extends Omit<TextInputProps, 'style'> {
   value: string;
@@ -36,7 +36,7 @@ export default function SearchBar({
         {...textInputProps}
       />
       <View style={styles.searchIconContainer}>
-        <Ionicons name="search" size={iconSize} color="#666" />
+        <Ionicons name="search" size={iconSize} color="#A2A2A2" />
       </View>
     </View>
   );
@@ -49,24 +49,24 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
-    borderTopLeftRadius: SIZES.radius.sm,
-    borderBottomLeftRadius: SIZES.radius.sm,
+    borderWidth: SIZES.border.thin + 1,
+    borderColor: '#808D99',
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
     paddingHorizontal: SPACING.base,
     paddingVertical: SPACING.sm,
     backgroundColor: COLORS.white,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: "poppins-regular",
     fontSize: FONT_SIZES.sm,
   },
   searchIconContainer: {
     width: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: SIZES.border.thin,
+    borderWidth: SIZES.border.thin + 1,
     borderLeftWidth: 0,
-    borderColor: COLORS.border,
-    borderTopRightRadius: SIZES.radius.sm,
-    borderBottomRightRadius: SIZES.radius.sm,
+    borderColor: '#808D99',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
   },
 });

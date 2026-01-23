@@ -1,6 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Image // <--- 1. IMPORT IMAGE COMPONENT
+  ,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GlobalSidebar from './GlobalSidebar';
 
@@ -106,21 +132,39 @@ export default function GlobalHeader() {
           style={styles.menuButton}
           onPress={() => setShowSidebar(true)}
         >
-          <Ionicons name="menu" size={sizes.iconSize} color="white" />
+          <Ionicons name="menu" size={sizes.iconSize + 5} color="white" />
         </TouchableOpacity>
         
         <View style={styles.rightActions}>
           <TouchableOpacity style={styles.iconButton}>
             <View style={styles.iconCircle}>
-              <Ionicons name="list-outline" size={sizes.iconSize - 4} color="#0a2540" />
+              <Image 
+               source={require('../../assets/images/list-check-solid-full 1.png')}
+                style={{
+                  width: sizes.iconSize + 5, // Matches the size logic (approx 22px)
+                  height: sizes.iconSize + 5,
+                }}
+                resizeMode="contain"
+              />
             </View>
           </TouchableOpacity>
+          
           <TouchableOpacity 
             style={styles.iconButton}
             onPress={() => setShowNotifications(true)}
           >
             <View style={styles.iconCircle}>
-              <Ionicons name="notifications-outline" size={sizes.iconSize - 4} color="#0a2540" />
+              
+              {/* --- 2. REPLACED IONICONS WITH IMAGE HERE --- */}
+              <Image 
+               source={require('../../assets/images/bell-solid-full.png')}
+                style={{
+                  width: sizes.iconSize - 4, // Matches the size logic (approx 22px)
+                  height: sizes.iconSize - 4,
+                }}
+                resizeMode="contain"
+              />
+              
               <View style={styles.notificationBadge}>
                 <Text style={styles.badgeText}>2</Text>
               </View>
@@ -195,7 +239,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0a2540',
+    backgroundColor: '#001C34',
     paddingHorizontal: sizes.headerPadding,
     paddingVertical: sizes.isSmallDevice ? 14 : 18,
   },

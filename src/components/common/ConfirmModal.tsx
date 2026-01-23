@@ -1,10 +1,10 @@
 import React from 'react';
 import {
-    Modal as RNModal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal as RNModal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
 

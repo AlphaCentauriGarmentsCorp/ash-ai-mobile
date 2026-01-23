@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
-    ViewStyle,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
 

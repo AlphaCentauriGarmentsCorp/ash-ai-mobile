@@ -58,8 +58,9 @@ export default function Button({
       paddingVertical: SPACING.sm + 2,
       paddingHorizontal: SPACING.lg,
       fontSize: FONT_SIZES.sm,
+      fontFamily: FONT_FAMILY.medium,
       iconSize: 18,
-      borderRadius: SIZES.radius.full,
+      borderRadius: 18,
       height: SIZES.button.base,
     },
     lg: {
@@ -75,9 +76,9 @@ export default function Button({
   // Variant configurations
   const variantConfig = {
     primary: {
-      backgroundColor: '#1E3A5F',
+      backgroundColor: '#001C34',
       textColor: COLORS.white,
-      borderColor: '#1E3A5F',
+      borderColor: '#001C34',
       borderWidth: 0,
     },
     secondary: {
@@ -128,8 +129,8 @@ export default function Button({
   const textStyleConfig: TextStyle = {
     color: currentVariant.textColor,
     fontSize: currentSize.fontSize,
-    fontFamily: FONT_FAMILY.semiBold,
-    fontWeight: '600',
+    fontFamily: FONT_FAMILY.medium,
+    fontWeight: '500',
   };
 
   const iconColor = currentVariant.textColor;

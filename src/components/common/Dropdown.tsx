@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
 
@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
   dropdownBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
+    borderWidth: SIZES.border.thin + 1,
+    borderColor: '#808D99',
     borderRadius: SIZES.radius.full,
     paddingVertical: 5,
     paddingHorizontal: 12,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   dropdownMenu: {
     position: 'absolute',
     top: '100%',
-    left: 0,
+    right: 0,
     marginTop: 4,
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius.base,
@@ -116,11 +116,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     minWidth: 150,
     zIndex: 2000,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 3,
   },
   dropdownHeaderBtn: {
     paddingVertical: 10,

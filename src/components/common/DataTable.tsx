@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
 import {
-    Animated,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-    ViewStyle,
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
 } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
+import { COLORS, FONT_SIZES, SIZES } from '../../constants';
 
 export interface Column {
   key: string;
@@ -113,44 +113,41 @@ export default function DataTable({
 }
 
 const styles = StyleSheet.create({
-  tableWrapper: {
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
-    borderRadius: SIZES.radius.base,
+ tableWrapper: {
+    borderWidth: 2,           // Thicker stroke (matches image)
+    borderColor: '#A5B4BF',   // Blue-grey color (Slate-400)         // Keeps the rounded corners
     overflow: 'hidden',
     marginBottom: 16,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#E6F0F8',
-    paddingVertical: 14,
+    backgroundColor: '#EBF6FF',
+    paddingVertical: 10,
     paddingHorizontal: 10,
-    borderBottomWidth: SIZES.border.thin,
-    borderBottomColor: COLORS.divider,
+    borderBottomWidth: SIZES.border.thick,
+    borderBottomColor: '#A5B4BF',
   },
   columnHeader: {
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.bold,
-    color: COLORS.textSecondary,
+    fontSize: 10,
+    fontFamily: "Poppins_300Light",
+    color: 'COLORS.textSecondary',
   },
   tableRow: {
     flexDirection: 'row',
     paddingVertical: 14,
     paddingHorizontal: 10,
-    borderBottomWidth: SIZES.border.thin,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomWidth: SIZES.border.thick,
+    borderBottomColor: '#A5B4BF',
     alignItems: 'center',
   },
   rowEven: {
     backgroundColor: COLORS.white,
   },
-  rowOdd: {
-    backgroundColor: COLORS.surface,
-  },
+
   cellText: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.text,
-    fontFamily: FONT_FAMILY.regular,
+    fontFamily: 'poppins-regular',
   },
   customScrollContainer: {
     paddingHorizontal: 10,

@@ -1,13 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle
 } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
+// Assuming these constants exist in your project based on previous context
+import { FONT_FAMILY } from '../../constants';
 
 interface PaginationProps {
   currentPage: number;
@@ -17,7 +19,6 @@ interface PaginationProps {
   onEntriesChange: (entries: number) => void;
   entriesOptions?: number[];
   style?: ViewStyle;
-  showAllOption?: boolean;
 }
 
 export default function Pagination({
@@ -28,7 +29,6 @@ export default function Pagination({
   onEntriesChange,
   entriesOptions = [5, 10, 15],
   style,
-  showAllOption = true,
 }: PaginationProps) {
   const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
 
@@ -37,23 +37,67 @@ export default function Pagination({
     setShowEntriesDropdown(false);
   };
 
-  const toggleEntriesDropdown = () => {
-    setShowEntriesDropdown(!showEntriesDropdown);
+  // Helper to generate page numbers
+  const renderPageNumbers = () => {
+    const pagesToShow = [];
+    const limit = Math.min(totalPages, 7); 
+    
+    for (let i = 1; i <= limit; i++) {
+      pagesToShow.push(i);
+    }
+
+    return (
+      <>
+        {pagesToShow.map((page) => (
+          <TouchableOpacity
+            key={page}
+            style={[
+              styles.pageNum,
+              currentPage === page ? styles.activePage : styles.inactivePage
+            ]}
+            onPress={() => onPageChange(page)}
+          >
+            <Text
+              style={
+                currentPage === page ? styles.activePageText : styles.inactivePageText
+              }
+            >
+              {page}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        
+        {/* "Last" Button */}
+        {totalPages > 1 && (
+             <TouchableOpacity
+             style={[styles.pageNum, styles.lastButton]}
+             onPress={() => onPageChange(totalPages)}
+           >
+             <Text style={styles.inactivePageText}>Last</Text>
+           </TouchableOpacity>
+        )}
+      </>
+    );
   };
 
   return (
     <View style={[styles.paginationWrapper, style]}>
+      
+      {/* TOP ROW: Show Entries (Aligned Right) */}
       <View style={styles.entriesContainer}>
-        <Text style={styles.showText}>Show</Text>
+        <Text style={styles.showText}>Show all</Text>
+        
         <View style={styles.dropdownWrapperPagination}>
-          <TouchableOpacity style={styles.dropdownBox} onPress={toggleEntriesDropdown}>
+          <TouchableOpacity style={styles.dropdownBox} onPress={() => setShowEntriesDropdown(!showEntriesDropdown)}>
             <Text style={styles.dropdownText}>
-              {entriesPerPage === 9999 ? 'All' : entriesPerPage}
+              {entriesPerPage}
             </Text>
-            <Ionicons name="chevron-down" size={12} color="#999" />
+            <Ionicons name="chevron-down" size={14} color="#64748B" />
           </TouchableOpacity>
+
+          {/* Dropdown Menu */}
           {showEntriesDropdown && (
-            <View style={styles.dropdownMenuAbove}>
+            <View style={styles.dropdownMenu}>
               {entriesOptions.map((option) => (
                 <TouchableOpacity
                   key={option}
@@ -63,68 +107,73 @@ export default function Pagination({
                   <Text style={styles.dropdownItemText}>{option}</Text>
                 </TouchableOpacity>
               ))}
-              {showAllOption && (
-                <TouchableOpacity
-                  style={styles.dropdownItemBtn}
-                  onPress={() => handleEntriesChange(9999)}
-                >
-                  <Text style={styles.dropdownItemText}>All</Text>
-                </TouchableOpacity>
-              )}
             </View>
           )}
         </View>
+        
         <Text style={styles.showText}>entries</Text>
       </View>
 
-      {entriesPerPage !== 9999 && (
-        <View style={styles.pageControls}>
-          <TouchableOpacity
-            style={styles.navArrow}
-            onPress={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={18}
-              color={currentPage === 1 ? '#ccc' : '#999'}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.pageNum, styles.activePage]}>
-            <Text style={styles.activePageText}>{currentPage}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navArrow}
-            onPress={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={currentPage === totalPages ? '#ccc' : '#999'}
-            />
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* BOTTOM ROW: Pagination Controls (Centered) */}
+      <View style={styles.pageControls}>
+        {/* Previous Arrow */}
+        <TouchableOpacity
+          style={styles.navArrow}
+          onPress={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+        >
+          <Ionicons
+            name="chevron-back"
+            size={24}
+            color={currentPage === 1 ? "#94A3B8" : "#0B1C36"} // Grey if disabled
+          />
+        </TouchableOpacity>
+
+        {/* Page Numbers */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{flexGrow: 0}}>
+             <View style={{flexDirection: 'row', gap: 6}}>
+                {renderPageNumbers()}
+             </View>
+        </ScrollView>
+
+        {/* Next Arrow */}
+        <TouchableOpacity
+          style={styles.navArrow}
+          onPress={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+        >
+          <Ionicons
+            name="chevron-forward"
+            size={24}
+            color={currentPage === totalPages ? "#94A3B8" : "#0B1C36"} // Grey if disabled
+          />
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   paginationWrapper: {
-    alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 10,
-    gap: 12,
+    flexDirection: 'column', // Stack children vertically
+    marginTop: 20,
+    marginBottom: 20,
+    width: '100%',
+    gap: 16, // Space between the top and bottom rows
   },
+
+  // --- TOP ROW: Entries Dropdown ---
   entriesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    alignSelf: 'flex-end', // Align to the right side
+    gap: 10,
+    zIndex: 10, // Ensure dropdown floats on top of everything
   },
   showText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    fontSize: 14,
+    color: '#0B1C36',
     fontFamily: FONT_FAMILY.regular,
   },
   dropdownWrapperPagination: {
@@ -133,76 +182,90 @@ const styles = StyleSheet.create({
   dropdownBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
+    justifyContent: 'space-between',
+    borderWidth: 2,
+    borderColor: '#94A3B8',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: SIZES.radius.sm,
-    gap: 6,
-    minWidth: 60,
-    backgroundColor: COLORS.white,
+    paddingVertical: 1,
+    borderRadius: 10,
+    minWidth: 55,
+    backgroundColor: '#FFFFFF',
   },
   dropdownText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
+    fontSize: 14,
+    color: '#0B1C36',
     fontFamily: FONT_FAMILY.medium,
   },
-  dropdownMenuAbove: {
+  dropdownMenu: {
     position: 'absolute',
-    bottom: '100%',
-    left: 0,
-    marginBottom: 5,
-    backgroundColor: COLORS.white,
-    borderRadius: SIZES.radius.base,
-    borderWidth: SIZES.border.thin,
-    borderColor: COLORS.border,
+    bottom: '120%', // Pushes it down below the box
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     overflow: 'hidden',
-    minWidth: 80,
-    zIndex: 2000,
+    minWidth: 65,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
   },
   dropdownItemBtn: {
     paddingVertical: 10,
     paddingHorizontal: 12,
-    backgroundColor: '#0B1C36',
-    borderTopWidth: SIZES.border.thin,
-    borderTopColor: '#1e3a5f',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    alignItems: 'center',
   },
   dropdownItemText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.white,
+    fontSize: 14,
+    color: '#0B1C36',
     fontFamily: FONT_FAMILY.regular,
   },
+
+  // --- BOTTOM ROW: Page Controls ---
   pageControls: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center', // Center horizontally
     gap: 8,
   },
   navArrow: {
-    width: SIZES.icon.lg,
-    height: SIZES.icon.lg,
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: SIZES.radius.xs,
   },
   pageNum: {
-    minWidth: 36,
+    width: 36,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: SIZES.radius.sm,
-    paddingHorizontal: 8,
+    borderRadius: 6,
   },
+  lastButton: {
+    width: 50,
+    backgroundColor: '#F0F8FF',
+  },
+
+  // State: Active
   activePage: {
-    backgroundColor: '#0B1C36',
+    backgroundColor: '#0B1C36', 
   },
   activePageText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.semiBold,
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: FONT_FAMILY.medium,
+  },
+
+  // State: Inactive
+  inactivePage: {
+    backgroundColor: '#F0F8FF', 
+  },
+  inactivePageText: {
+    color: '#0B1C36',
+    fontSize: 14,
+    fontFamily: FONT_FAMILY.regular,
   },
 });
