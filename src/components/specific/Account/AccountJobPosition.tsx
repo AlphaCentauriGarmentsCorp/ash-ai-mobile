@@ -3,7 +3,12 @@ import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function AccountJobPosition() {
+interface AccountJobPositionProps {
+  readOnly?: boolean;
+  onEdit?: () => void;
+}
+
+export default function AccountJobPosition({ readOnly = false, onEdit }: AccountJobPositionProps) {
   const [jobPosition, setJobPosition] = useState('');
   const [department, setDepartment] = useState('');
 

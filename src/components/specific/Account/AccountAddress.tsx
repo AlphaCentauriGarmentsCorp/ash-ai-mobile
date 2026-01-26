@@ -3,7 +3,12 @@ import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function AccountAddress() {
+interface AccountAddressProps {
+  readOnly?: boolean;
+  onEdit?: () => void;
+}
+
+export default function AccountAddress({ readOnly = false, onEdit }: AccountAddressProps) {
   const [currentStreet, setCurrentStreet] = useState('');
   const [currentProvince, setCurrentProvince] = useState('');
   const [currentBarangay, setCurrentBarangay] = useState('');
