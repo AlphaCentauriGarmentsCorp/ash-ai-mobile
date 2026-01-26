@@ -5,7 +5,12 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 
 import FormDropdown, { FormDropdownOption } from '../../../components/common/FormDropdown';
 
-export default function AccountPersonalData() {
+interface AccountPersonalDataProps {
+  readOnly?: boolean;
+  onEdit?: () => void;
+}
+
+export default function AccountPersonalData({ readOnly = false, onEdit }: AccountPersonalDataProps) {
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -32,6 +37,17 @@ export default function AccountPersonalData() {
 
   return (
     <View style={styles.card}>
+      {/* Section Header with Edit Button */}
+      {readOnly && onEdit && (
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>Personal Data</Text>
+          <TouchableOpacity style={styles.innerEditBtn} onPress={onEdit}>
+            <Ionicons name="pencil" size={12} color="#333" style={{marginRight:5}}/>
+            <Text style={styles.innerEditText}>Edit</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Profile Picture Section */}
       <View style={styles.profileSection}>
         <View style={styles.avatarContainer}>
@@ -55,6 +71,7 @@ export default function AccountPersonalData() {
             placeholder="Enter first name"
             value={firstName}
             onChangeText={setFirstName}
+            editable={!readOnly}
           />
         </View>
         <View style={styles.halfInputContainer}>
@@ -64,6 +81,7 @@ export default function AccountPersonalData() {
             placeholder="Enter email"
             value={email}
             onChangeText={setEmail}
+            editable={!readOnly}
             keyboardType="email-address"
           />
         </View>
@@ -77,6 +95,7 @@ export default function AccountPersonalData() {
             placeholder="Enter middle name"
             value={middleName}
             onChangeText={setMiddleName}
+            editable={!readOnly}
           />
         </View>
         <View style={styles.halfInputContainer}>
@@ -86,6 +105,7 @@ export default function AccountPersonalData() {
             placeholder="Enter contact number"
             value={contactNumber}
             onChangeText={setContactNumber}
+            editable={!readOnly}
             keyboardType="phone-pad"
           />
         </View>
@@ -99,6 +119,7 @@ export default function AccountPersonalData() {
             placeholder="Enter last name"
             value={lastName}
             onChangeText={setLastName}
+            editable={!readOnly}
           />
         </View>
         <View style={styles.halfInputContainer}>
@@ -144,6 +165,7 @@ export default function AccountPersonalData() {
           placeholder="Enter username"
           value={username}
           onChangeText={setUsername}
+          editable={!readOnly}
         />
       </View>
 
@@ -154,6 +176,7 @@ export default function AccountPersonalData() {
           placeholder="Enter password"
           value={password}
           onChangeText={setPassword}
+          editable={!readOnly}
           secureTextEntry
         />
       </View>
@@ -168,6 +191,31 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: '#D1D5DB',
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZES.base,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.text,
+  },
+  innerEditBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DDD',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+  },
+  innerEditText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.text,
+    fontFamily: FONT_FAMILY.semiBold,
   },
   profileSection: {
     alignItems: 'center',

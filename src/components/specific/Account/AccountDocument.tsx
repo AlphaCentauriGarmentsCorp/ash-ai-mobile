@@ -3,7 +3,12 @@ import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export default function AccountDocument() {
+interface AccountDocumentProps {
+  readOnly?: boolean;
+  onEdit?: () => void;
+}
+
+export default function AccountDocument({ readOnly = false, onEdit }: AccountDocumentProps) {
   const [pagIbigNo, setPagIbigNo] = useState('');
   const [sssNo, setSssNo] = useState('');
   const [philhealthNo, setPhilhealthNo] = useState('');

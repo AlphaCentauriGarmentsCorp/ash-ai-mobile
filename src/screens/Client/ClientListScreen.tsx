@@ -214,7 +214,11 @@ export default function ClientListScreen() {
           </View>
         </View>
 
-        <DataTable columns={columns} data={currentClients} />
+        <DataTable 
+          columns={columns} 
+          data={currentClients} 
+          activeRowIndex={activeDropdownIndex}
+        />
 
         <Pagination
           currentPage={currentPage}
