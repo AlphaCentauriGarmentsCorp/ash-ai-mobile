@@ -1,8 +1,37 @@
-import React from 'react';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../../constants';
+
+interface SizeCard {
+  id: number;
+  size: string;
+  quantity: string;
+  costPrice: string;
+  unitPrice: string;
+}
 
 export default function DesignMockup() {
+  const [sizeCards, setSizeCards] = useState<SizeCard[]>([
+    { id: 1, size: '', quantity: '', costPrice: '', unitPrice: '' }
+  ]);
+
+  const addSizeCard = () => {
+    const newCard: SizeCard = {
+      id: Date.now(),
+      size: '',
+      quantity: '',
+      costPrice: '',
+      unitPrice: ''
+    };
+    setSizeCards([...sizeCards, newCard]);
+  };
+
+  const removeSizeCard = (id: number) => {
+    if (sizeCards.length > 1) {
+      setSizeCards(sizeCards.filter(card => card.id !== id));
+    }
+  };
+
   return (
     <View style={styles.card}>
       {/* Section: Design Files & Mockups */}
@@ -80,73 +109,91 @@ export default function DesignMockup() {
 <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Sizes & Quantities</Text>
 <View style={styles.divider} />
 
-<View style={styles.fullInputContainer}>
-  <Text style={styles.label}>Total Quantity</Text>
-  <TextInput 
-    style={styles.input} 
-    placeholder="0" 
-    keyboardType="numeric"
-    editable={false}
-  />
+{/* Render Size Cards */}
+{sizeCards.map((card, index) => (
+  <View key={card.id} style={styles.sizeCard}>
+    {sizeCards.length > 1 && (
+      <TouchableOpacity 
+        style={styles.removeBtn}
+        onPress={() => removeSizeCard(card.id)}
+      >
+        <Text style={styles.removeBtnText}>−</Text>
+      </TouchableOpacity>
+    )}
+    <View style={styles.sizeRowFirst}>
+      <View style={styles.fullInputContainer}>
+        <Text style={styles.label}>Size</Text>
+        <View style={styles.dropdownContainer}>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Select Size" 
+            editable={false}
+          />
+          <Text style={styles.dropdownIcon}>▼</Text>
+        </View>
+      </View>
+    </View>
+    <View style={styles.sizeRow}>
+      <View style={styles.sizeInputContainer}>
+        <Text style={styles.label}>Quantity</Text>
+        <TextInput 
+          style={styles.input} 
+          placeholder="0" 
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.sizeInputContainer}>
+        <Text style={styles.label}>Cost Price</Text>
+        <TextInput 
+          style={styles.blueInput} 
+          placeholder="₱0.00" 
+          editable={false}
+        />
+      </View>
+    </View>
+    <View style={styles.unitPriceContainer}>
+      <Text style={styles.label}>Unit Price</Text>
+      <TextInput 
+        style={styles.blueInput} 
+        placeholder="₱0.00" 
+        editable={false}
+      />
+    </View>
+  </View>
+))}
+
+{/* Add Size Button */}
+<TouchableOpacity style={styles.addSizeBtn} onPress={addSizeCard}>
+  <Text style={styles.addSizeBtnText}>+ Add Size</Text>
+</TouchableOpacity>
+
+{/* Section: Total Summary */}
+<View style={styles.totalRow}>
+  <View style={styles.totalInputContainer}>
+    <Text style={styles.label}>Total Quantity</Text>
+    <TextInput 
+      style={styles.blueInput} 
+      placeholder="0" 
+      editable={false}
+    />
+  </View>
+  <View style={styles.totalInputContainer}>
+    <Text style={styles.label}>Unit Price</Text>
+    <TextInput 
+      style={styles.blueInput} 
+      placeholder="₱0.00" 
+      editable={false}
+    />
+  </View>
 </View>
 
-<View style={styles.sizesGrid}>
-  <View style={styles.row}>
-    <View style={styles.halfInputContainer}>
-      <Text style={styles.sizeLabel}>XS</Text>
-      <TextInput 
-        style={styles.input} 
-        placeholder="0" 
-        keyboardType="numeric"
-      />
-    </View>
-    <View style={styles.halfInputContainer}>
-      <Text style={styles.sizeLabel}>L</Text>
-      <TextInput 
-        style={styles.input} 
-        placeholder="0" 
-        keyboardType="numeric"
-      />
-    </View>
-  </View>
-
-  <View style={styles.row}>
-    <View style={styles.halfInputContainer}>
-      <Text style={styles.sizeLabel}>S</Text>
-      <TextInput 
-        style={styles.input} 
-        placeholder="0" 
-        keyboardType="numeric"
-      />
-    </View>
-    <View style={styles.halfInputContainer}>
-      <Text style={styles.sizeLabel}>XL</Text>
-      <TextInput 
-        style={styles.input} 
-        placeholder="0" 
-        keyboardType="numeric"
-      />
-    </View>
-  </View>
-
-  <View style={styles.row}>
-    <View style={styles.halfInputContainer}>
-      <Text style={styles.sizeLabel}>M</Text>
-      <TextInput 
-        style={styles.input} 
-        placeholder="0" 
-        keyboardType="numeric"
-      />
-    </View>
-    <View style={styles.halfInputContainer}>
-      <Text style={styles.sizeLabel}>XXL</Text>
-      <TextInput 
-        style={styles.input} 
-        placeholder="0" 
-        keyboardType="numeric"
-      />
-    </View>
-  </View>
+<View style={styles.totalAmountContainer}>
+  <Text style={styles.label}>Total Amount</Text>
+  <TextInput 
+    style={styles.blueInput} 
+    placeholder="Total amount of the unit" 
+    editable={false}
+  />
 </View>
     </View>
   );
@@ -181,7 +228,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   fullInputContainer: {
-    marginBottom: 15,
+    marginBottom: 0,
   },
   label: {
     fontSize: FONT_SIZES.sm,
@@ -269,15 +316,91 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.regular,
   },
-  sizesGrid: {
-    backgroundColor: '#e8f4f8',
-    borderRadius: 8,
-    padding: 15,
+  dropdownContainer: {
+    position: 'relative',
   },
-  sizeLabel: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.semiBold,
+  dropdownIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+    fontSize: 12,
+    color: '#666',
+  },
+  sizeCard: {
+    position: 'relative',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  sizeRowFirst: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  sizeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    gap: 10,
+  },
+  sizeInputContainer: {
+    flex: 1,
+  },
+  unitPriceContainer: {
+    marginBottom: 0,
+  },
+  blueInput: {
+    backgroundColor: '#d4e8f0',
     color: '#333',
-    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  removeBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#1F2937',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  removeBtnText: {
+    color: '#fff',
+    fontSize: 20,
+    fontFamily: FONT_FAMILY.bold,
+  },
+  addSizeBtn: {
+    backgroundColor: '#2d3e50',
+    paddingVertical: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  addSizeBtnText: {
+    color: '#fff',
+    fontSize: FONT_SIZES.base,
+    fontFamily: FONT_FAMILY.semiBold,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    gap: 10,
+  },
+  totalInputContainer: {
+    flex: 1,
+  },
+  totalAmountContainer: {
+    marginBottom: 0,
   },
 });

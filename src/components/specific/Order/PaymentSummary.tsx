@@ -1,6 +1,6 @@
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../../constants';
 
 export default function PaymentSummary() {
   return (
@@ -11,42 +11,48 @@ export default function PaymentSummary() {
 
 <View style={styles.row}>
   <View style={styles.halfInputContainer}>
-    <Text style={styles.label}>Unit Price</Text>
-    <TextInput 
-      style={styles.input} 
-      placeholder="₱0.00" 
-      keyboardType="decimal-pad"
-    />
+    <Text style={styles.label}>Payment Method</Text>
+    <View style={styles.dropdownContainer}>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Select Payment Method" 
+        editable={false}
+      />
+      <Text style={styles.dropdownIcon}>▼</Text>
+    </View>
   </View>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Deposit %</Text>
     <TextInput 
-      style={styles.input} 
-      placeholder="Enter deposit percent" 
-      keyboardType="numeric"
-    />
-  </View>
-</View>
-
-<View style={styles.fullInputContainer}>
-  <Text style={styles.label}>Payment Method</Text>
-  <View style={styles.dropdownContainer}>
-    <TextInput 
-      style={styles.input} 
-      placeholder="Select Payment Method" 
+      style={styles.blueInput} 
+      placeholder="60%" 
       editable={false}
     />
-    <Text style={styles.dropdownIcon}>▼</Text>
   </View>
 </View>
 
 <View style={styles.fullInputContainer}>
-  <Text style={styles.label}>Estimated Total</Text>
+  <Text style={styles.label}>Total Left</Text>
   <TextInput 
-    style={[styles.input, styles.estimatedTotalInput]} 
-    value="₱0.00" 
+    style={styles.blueInput} 
+    placeholder="₱0.00" 
     editable={false}
   />
+</View>
+
+{/* Section: Receipt and Bank Account Details */}
+<Text style={[styles.sectionTitle, { marginTop: 20 }]}>Receipt and Bank Account Details</Text>
+<View style={styles.divider} />
+
+<View style={styles.uploadBox}>
+  <Text style={styles.uploadIcon}>⬇</Text>
+  <Text style={styles.uploadText}>Upload Receipt and Bank Account Details</Text>
+  <Text style={styles.uploadSubtext}>image/*.ai.psd (max 10MB)</Text>
+</View>
+
+<View style={styles.uploadedFilesBox}>
+  <Text style={styles.uploadedLabel}>Uploaded files</Text>
+  <Text style={styles.placeholderText}>Preview will show here</Text>
 </View>
 
 {/* Section: Order Summary */}
@@ -87,10 +93,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 15,
+    gap: 10,
   },
   halfInputContainer: {
     flex: 1,
-    marginHorizontal: 5,
   },
   fullInputContainer: {
     marginBottom: 15,
@@ -119,6 +125,62 @@ const styles = StyleSheet.create({
     top: 12,
     fontSize: 12,
     color: '#666',
+  },
+  blueInput: {
+    backgroundColor: '#d4e8f0',
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  uploadBox: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  uploadIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+    color: '#333',
+  },
+  uploadText: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#999',
+    marginBottom: 2,
+  },
+  uploadSubtext: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#bbb',
+  },
+  uploadedFilesBox: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+  },
+  uploadedLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.medium,
+    color: '#999',
+    marginBottom: 5,
+  },
+  placeholderText: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#ccc',
+    fontStyle: 'italic',
   },
   estimatedTotalInput: {
     backgroundColor: '#d4e8f0',

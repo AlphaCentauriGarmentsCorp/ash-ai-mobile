@@ -1,14 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewStyle,
 } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../constants';
 
 export interface Step {
   title: string;

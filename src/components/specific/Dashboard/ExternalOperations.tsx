@@ -39,7 +39,7 @@ export default function ExternalOperations() {
         
         <TouchableOpacity style={styles.operationCard}>
           <View style={styles.iconContainer}>
-            <Ionicons name="business-outline" size={sizes.iconSize} color="#1e3a5f" />
+            <Ionicons name="cut-outline" size={sizes.iconSize} color="#1e3a5f" />
           </View>
           <Text style={styles.operationTitle}>Subcontract</Text>
         </TouchableOpacity>
