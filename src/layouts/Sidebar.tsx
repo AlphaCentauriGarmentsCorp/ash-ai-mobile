@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-interface GlobalSidebarProps {
+interface SidebarProps {
   visible: boolean;
   onClose: () => void;
 }
@@ -18,7 +18,7 @@ interface MenuItem {
 
 const SIDEBAR_WIDTH = 280;
 
-export default function GlobalSidebar({ visible, onClose }: GlobalSidebarProps) {
+export default function Sidebar({ visible, onClose }: SidebarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;

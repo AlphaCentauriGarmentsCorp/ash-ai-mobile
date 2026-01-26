@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, FONT_SIZES, SIZES, SPACING } from '@styles';
 import React from 'react';
 import {
-  StyleSheet,
-  TextInput,
-  TextInputProps,
-  View,
-  ViewStyle,
+    StyleSheet,
+    TextInput,
+    TextInputProps,
+    View,
+    ViewStyle,
 } from 'react-native';
-import { COLORS, FONT_SIZES, SIZES, SPACING } from '../../constants';
 
 interface SearchBarProps extends Omit<TextInputProps, 'style'> {
   value: string;

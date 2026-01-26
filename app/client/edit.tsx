@@ -1,1 +1,1 @@
-export { default } from '../../src/components/specific/Client/edit-client';
+export { default } from '../../src/screens/Client/EditClientScreen';

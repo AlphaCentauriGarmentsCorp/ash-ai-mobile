@@ -1,3 +1,4 @@
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '@styles';
 import React from 'react';
 import {
     Modal as RNModal,
@@ -7,7 +8,6 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
 
 interface ModalProps {
   visible: boolean;
