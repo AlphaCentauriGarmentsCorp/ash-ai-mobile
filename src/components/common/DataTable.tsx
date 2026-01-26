@@ -22,6 +22,7 @@ interface DataTableProps {
   trackWidth?: number;
   thumbWidth?: number;
   style?: ViewStyle;
+  activeRowIndex?: number | null;
 }
 
 export default function DataTable({
@@ -30,6 +31,7 @@ export default function DataTable({
   trackWidth = 350,
   thumbWidth = 120,
   style,
+  activeRowIndex = null,
 }: DataTableProps) {
   const scrollX = useRef(new Animated.Value(0)).current;
   const [contentWidth, setContentWidth] = useState(1);
@@ -74,6 +76,7 @@ export default function DataTable({
               style={[
                 styles.tableRow,
                 rowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd,
+                { zIndex: activeRowIndex === rowIndex ? 1000 : 1 },
               ]}
             >
               {columns.map((column, colIndex) => {

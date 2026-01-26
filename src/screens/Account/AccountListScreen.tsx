@@ -2,7 +2,6 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-    Image,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -19,28 +18,34 @@ import DataTable from '@components/common/DataTable';
 import type { DropdownOption } from '@components/common/Dropdown';
 import Dropdown from '@components/common/Dropdown';
 import Pagination from '@components/common/Pagination';
+import type { RoleOption } from '@components/common/RoleDropdown';
+import RoleDropdown from '@components/common/RoleDropdown';
 import SearchBar from '@components/common/SearchBar';
 import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, FONT_SIZES, SIZES, SPACING } from '@styles';
 
 // Types
-interface Client {
-  company: string;
+interface Account {
+  id: string;
   name: string;
+  username: string;
+  role: string;
   contact: string;
   email: string;
   [key: string]: string;
 }
 
-const DATA: Client[] = Array(12).fill({
-  company: 'NIKE',
-  name: 'Morgan Lee',
-  contact: '09123456789',
-  email: 'morganlee@gmail.com',
-});
+const DATA: Account[] = Array(15).fill(null).map((_, i) => ({
+  id: `${i + 1}`,
+  name: 'Gerard Sarmiento',
+  username: 'bossangel',
+  role: 'developer',
+  contact: '0999-999-9999',
+  email: 'sample@gmail.com',
+}));
 
-export default function ClientListScreen() {
+export default function AccountListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const fontsLoaded = usePoppinsFonts();
@@ -53,12 +58,20 @@ export default function ClientListScreen() {
   // Tracks which row index has the dropdown open
   const [activeDropdownIndex, setActiveDropdownIndex] = useState<number | null>(null);
   
+  // Tracks which row has role dropdown open
+  const [activeRoleDropdownIndex, setActiveRoleDropdownIndex] = useState<number | null>(null);
+  
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<number | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
+
+  // Role state for each account
+  const [accountRoles, setAccountRoles] = useState<Record<number, string>>(
+    DATA.reduce((acc, _, index) => ({ ...acc, [index]: 'developer' }), {})
+  );
 
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentClients = DATA.slice(indexOfFirstEntry, indexOfLastEntry);
+  const currentAccounts = DATA.slice(indexOfFirstEntry, indexOfLastEntry);
   const totalPages = Math.ceil(DATA.length / entriesPerPage);
 
   const handleEntriesChange = (value: number) => {
@@ -74,24 +87,49 @@ export default function ClientListScreen() {
 
   const toggleDropdown = (index: number) => {
     if (activeDropdownIndex === index) {
-      setActiveDropdownIndex(null); // Close if clicking the same one
+      setActiveDropdownIndex(null);
     } else {
-      setActiveDropdownIndex(index); // Open the new one
-      setSelectedClient(index); 
+      setActiveDropdownIndex(index);
+      setSelectedAccount(index); 
     }
   };
 
+  const handleRoleChange = (index: number, role: string) => {
+    setAccountRoles(prev => ({ ...prev, [index]: role }));
+  };
+
   const filterOptions: DropdownOption[] = [
-    { label: 'All Clients', value: 'all' },
-    { label: 'Active', value: 'active' },
-    { label: 'Inactive', value: 'inactive' },
+    { label: 'All Accounts', value: 'all' },
+    { label: 'Admin', value: 'admin' },
+    { label: 'Developer', value: 'developer' },
+    { label: 'General Manager', value: 'general_manager' },
+  ];
+
+  const roleOptions: RoleOption[] = [
+    { label: 'Developer', value: 'developer', color: '#2ECC71' },
+    { label: 'Admin', value: 'admin', color: '#E74C3C' },
+    { label: 'General Manager', value: 'general_manager', color: '#3498DB' },
   ];
 
   // --- OPTIMIZED COLUMNS ---
   const columns: Column[] = useMemo(() => [
-    { key: 'company', header: 'Clothing/Company', width: 120 },
-    { key: 'name', header: 'Name', width: 120 },
-    { key: 'contact', header: 'Contact No.', width: 130 },
+    { key: 'id', header: 'ID', width: 60 },
+    { key: 'name', header: 'Name', width: 140 },
+    { key: 'username', header: 'Username', width: 120 },
+    {
+      key: 'role',
+      header: 'Role',
+      width: 140,
+      render: (_value: any, _item: any, index: number) => (
+        <RoleDropdown
+          options={roleOptions}
+          selectedValue={accountRoles[index] || 'developer'}
+          onSelect={(role) => handleRoleChange(index, role)}
+          onOpenChange={(isOpen) => setActiveRoleDropdownIndex(isOpen ? index : null)}
+        />
+      ),
+    },
+    { key: 'contact', header: 'Contact Number', width: 140 },
     { key: 'email', header: 'Email', width: 180 },
     {
       key: 'action',
@@ -110,7 +148,7 @@ export default function ClientListScreen() {
             <View style={styles.dropdownMenu}>
               <TouchableOpacity style={styles.dropdownItem} onPress={() => {
                  setActiveDropdownIndex(null);
-                 if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
+                 if (selectedAccount !== null) router.push({ pathname: "/Account/edit", params: DATA[selectedAccount] });
               }}>
                 <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
                 <Text style={styles.dropdownItemText}>Edit</Text>
@@ -118,7 +156,7 @@ export default function ClientListScreen() {
 
               <TouchableOpacity style={styles.dropdownItem} onPress={() => {
                  setActiveDropdownIndex(null);
-                 if (selectedClient !== null) router.push({ pathname: "/client/view", params: DATA[selectedClient] });
+                 if (selectedAccount !== null) router.push({ pathname: "/Account/view", params: DATA[selectedAccount] });
               }}>
                 <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
                 <Text style={styles.dropdownItemText}>View</Text>
@@ -139,7 +177,7 @@ export default function ClientListScreen() {
         </View>
       ),
     },
-  ], [activeDropdownIndex, selectedClient]);
+  ], [activeDropdownIndex, selectedAccount, accountRoles, activeRoleDropdownIndex]);
 
   if (!fontsLoaded) return null;
 
@@ -158,19 +196,15 @@ export default function ClientListScreen() {
         {/* LEFT SIDE: Icon + Title */}
         <View style={styles.titleLeftGroup}>
           <View style={styles.iconCircleWrapper}>
-             <Image 
-               source={require('../../assets/images/people-group-solid-full (1).png')} 
-               style={styles.pageTitleIcon}
-               resizeMode="contain"
-             />
+            <Ionicons name="person-circle" size={24} color="#0D253F" />
           </View>
-          <Text style={styles.pageTitleText}>Clients</Text>
+          <Text style={styles.pageTitleText}>Accounts</Text>
         </View>
 
-        {/* RIGHT SIDE: Breadcrumbs (Home / Clients) */}
+        {/* RIGHT SIDE: Breadcrumbs (Home / Accounts) */}
         <View style={styles.breadcrumbGroup}>
           <Text style={styles.breadcrumbBold}>Home</Text>
-          <Text style={styles.breadcrumbNormal}> / Clients</Text>
+          <Text style={styles.breadcrumbNormal}> / Accounts</Text>
         </View>
       </View>
       {/* --- TITLE BAR END --- */}
@@ -178,26 +212,19 @@ export default function ClientListScreen() {
       <ScrollView style={styles.contentContainer}>
         <View style={styles.actionButtonsRow}>
           <Button
-            title="New client"
-            onPress={() => router.push('/client/add')}
+            title="New Account"
+            onPress={() => router.push('/Account/add')}
             variant="primary"
             size="base"
             icon="add-circle-outline"
             iconPosition="left"
-          />
-
-          <Button
-            title="Remove Clients"
-            onPress={() => console.log('Remove clients')}
-            variant="outline"
-            size="base"
           />
         </View>
 
         <SearchBar
           value={searchText}
           onChangeText={setSearchText}
-          placeholder="Search by client name, brand..."
+          placeholder="Search by name, username, email..."
         />
 
         <View style={styles.listControlRow}>
@@ -209,12 +236,16 @@ export default function ClientListScreen() {
               options={filterOptions}
               selectedValue={selectedFilter}
               onSelect={setSelectedFilter}
-              placeholder="All Clients"
+              placeholder="All Accounts"
             />
           </View>
         </View>
 
-        <DataTable columns={columns} data={currentClients} />
+        <DataTable 
+          columns={columns} 
+          data={currentAccounts} 
+          activeRowIndex={activeRoleDropdownIndex !== null ? activeRoleDropdownIndex : activeDropdownIndex}
+        />
 
         <Pagination
           currentPage={currentPage}
@@ -234,10 +265,10 @@ export default function ClientListScreen() {
           console.log("Deleted");
           setRemoveModalVisible(false);
         }}
-        title="Remove Client?"
-        message={`Are you sure you want to remove ${selectedClient !== null ? DATA[selectedClient].name : 'this client'}? This action cannot be undone.`}
-        confirmText="Remove Client"
-        highlightText={selectedClient !== null ? DATA[selectedClient].name : ''}
+        title="Remove Account?"
+        message={`Are you sure you want to remove ${selectedAccount !== null ? DATA[selectedAccount].name : 'this account'}? This action cannot be undone.`}
+        confirmText="Remove Account"
+        highlightText={selectedAccount !== null ? DATA[selectedAccount].name : ''}
       />
     </View>
   );
@@ -258,10 +289,10 @@ const styles = StyleSheet.create({
   pageTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Pushes Left group and Right group apart
+    justifyContent: 'space-between',
     paddingHorizontal: SPACING.base, 
     paddingVertical: SPACING.base,
-    backgroundColor: COLORS.white, // White background like the image
+    backgroundColor: COLORS.white,
   },
   titleLeftGroup: {
     flexDirection: 'row',
@@ -276,10 +307,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.sm,
-  },
-  pageTitleIcon: {
-    width: 20, 
-    height: 20,
   },
   pageTitleText: {
     fontSize: 16,
@@ -300,9 +327,8 @@ const styles = StyleSheet.create({
   breadcrumbNormal: {
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
-    color: '#001C34', // Slate-500 equivalent
+    color: '#001C34',
   },
-  // -----------------------------
 
   actionButtonsRow: {
     flexDirection: 'row',
