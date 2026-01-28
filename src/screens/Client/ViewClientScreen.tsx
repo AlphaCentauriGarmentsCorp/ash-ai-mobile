@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   card: { 
     backgroundColor: COLORS.white, 
-    borderRadius: wp(2.7), 
+    borderRadius: 10, 
     padding: wp(5.3), 
     borderWidth: 1, 
     borderColor: '#D1D5DB' 
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
       borderColor: '#DDD', 
       paddingHorizontal: wp(2.7), 
       paddingVertical: hp(0.5), 
-      borderRadius: wp(1.1) 
+      borderRadius: 3 
   },
   innerEditText: { 
     fontSize: FONT_SIZES.xs, 
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   input: { 
     borderWidth: 1, 
     borderColor: '#D1D5DB', 
-    borderRadius: wp(1.3), 
+    borderRadius: 5, 
     paddingHorizontal: wp(2.7), 
     paddingVertical: hp(1), 
     fontSize: FONT_SIZES.sm, 
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#F3F4F6', 
       paddingVertical: hp(0.5), 
       paddingHorizontal: wp(2.7), 
-      borderRadius: wp(1.1), 
+      borderRadius: 3, 
       marginRight: 0 
   },
   chooseFileText: { 
@@ -329,8 +329,8 @@ const styles = StyleSheet.create({
       borderColor: '#CCC',
       paddingVertical: hp(0.5),
       paddingHorizontal: wp(2.7),
-      borderTopRightRadius: wp(1.1),
-      borderBottomRightRadius: wp(1.1),
+      borderTopRightRadius: 3,
+      borderBottomRightRadius: 3,
   },
 
   // Additional Brands Styles
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: wp(1.3),
+    borderRadius: 5,
     paddingVertical: hp(1),
     paddingHorizontal: wp(2.7),
     width: wp(26.7), 

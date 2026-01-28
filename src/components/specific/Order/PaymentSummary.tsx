@@ -72,7 +72,7 @@ export default function PaymentSummary() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#EBF6FF',
     borderRadius: 10,
     padding: 20,
     borderWidth: 1,
@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     paddingRight: 35,
     fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.regular,
+    backgroundColor: '#fff',
   },
   dropdownContainer: {
     position: 'relative',

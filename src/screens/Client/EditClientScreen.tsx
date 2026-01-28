@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: wp(2.7),
+    borderRadius: 10,
     padding: wp(5.3),
     borderWidth: 1,
     borderColor: '#D1D5DB'
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: wp(1.3),
+    borderRadius: 5,
     backgroundColor: COLORS.white,
     paddingRight: wp(2.7)
   },
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E3A5F',
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(4),
-    borderRadius: wp(1.3)
+    borderRadius: 5
   },
   addBrandText: {
     color: COLORS.white,
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     borderColor: '#CCC',
     paddingVertical: hp(0.5),
     paddingHorizontal: wp(2.7),
-    borderRadius: wp(1.1),
+    borderRadius: 3,
     marginRight: wp(2.7)
   },
   chooseFileText: {
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: wp(1.3),
+    borderRadius: 5,
     paddingVertical: hp(1),
     paddingHorizontal: wp(2.7),
     marginRight: wp(1.3),
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     height: hp(12.5),
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: wp(1.3)
+    borderRadius: 5
   },
   footer: {
     marginTop: hp(3.1),

@@ -6,12 +6,12 @@ import { hp, wp } from '@utils/responsive';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -231,14 +231,14 @@ export default function NewClientScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: COLORS.white,
   },
   scrollContent: {
     padding: wp(4),
   },
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: wp(2.7),
+    backgroundColor: '#EBF6FF',
+    borderRadius: 10,
     padding: wp(5.3),
     borderWidth: 1,
     borderColor: '#D1D5DB',
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: wp(1.3),
+    borderRadius: 5,
     paddingHorizontal: wp(2.7),
     paddingVertical: hp(1),
     fontSize: FONT_SIZES.sm,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E3A5F',
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(4),
-    borderRadius: wp(1.3),
+    borderRadius: 5,
   },
   addBrandText: {
     color: COLORS.white,
@@ -312,9 +312,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: wp(1.3),
+    borderRadius: 5,
     overflow: 'hidden',
     marginTop: hp(0.6),
+    backgroundColor: '#fff',
   },
   chooseFileBtn: {
     backgroundColor: '#E5E7EB',
