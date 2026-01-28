@@ -2,24 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
   Dimensions,
-  Image // <--- 1. IMPORT IMAGE COMPONENT
-  ,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  Image, // <--- 1. IMPORT IMAGE COMPONENT
   Modal,
   ScrollView,
   StyleSheet,
@@ -132,7 +115,7 @@ export default function GlobalHeader() {
           style={styles.menuButton}
           onPress={() => setShowSidebar(true)}
         >
-          <Ionicons name="menu" size={sizes.iconSize + 5} color="white" />
+          <Ionicons name="menu" size={sizes.iconSize + 5  } color="white" />
         </TouchableOpacity>
         
         <View style={styles.rightActions}>
