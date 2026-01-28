@@ -1,1 +1,2 @@
-export { default } from '../../src/components/specific/Client/view-client';
+export { default } from '../../src/screens/Client/ViewClientScreen';
+

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-interface GlobalSidebarProps {
+interface SidebarProps {
   visible: boolean;
   onClose: () => void;
 }
@@ -18,7 +18,7 @@ interface MenuItem {
 
 const SIDEBAR_WIDTH = 280;
 
-export default function GlobalSidebar({ visible, onClose }: GlobalSidebarProps) {
+export default function Sidebar({ visible, onClose }: SidebarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
@@ -77,6 +77,7 @@ export default function GlobalSidebar({ visible, onClose }: GlobalSidebarProps) 
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
   ];

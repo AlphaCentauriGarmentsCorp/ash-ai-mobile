@@ -1,20 +1,25 @@
+import Button from '@components/common/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { usePoppinsFonts } from '@hooks';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { hp, wp } from '@utils/responsive';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditClientScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const fontsLoaded = usePoppinsFonts();
 
   // Initialize state
   const initialFirstName = params.name ? params.name.toString().split(' ')[0] : 'Morgan';
@@ -40,31 +45,41 @@ export default function EditClientScreen() {
     { id: 1, name: 'Brand # 1', logo: 'logo.png' } 
   ]);
 
-  // UPDATE: This function now takes the text from the 'company' input 
-  // and creates a new brand with that name.
   const handleAddBrand = () => {
-    // 1. Validate if input is empty
     if (!company.trim()) return;
 
-    // 2. Create new brand using the value from the 'company' input
-    const newId = additionalBrands.length + 1;
     const newBrand = { 
-      id: Date.now(), // Use unique ID
-      name: company,  // <--- Uses the text you typed
+      id: Date.now(),
+      name: company,
       logo: '' 
     };
 
     setAdditionalBrands([...additionalBrands, newBrand]);
-
-    // 3. Optional: Clear the input field after adding, so you can type a new one?
-    // If 'company' represents the Main Client Name, you might NOT want to clear it.
-    // If you want to clear it, uncomment the line below:
-    // setCompany(''); 
   };
 
   const handleRemoveBrand = (id: number) => {
     setAdditionalBrands(additionalBrands.filter(brand => brand.id !== id));
   };
+
+  const handleClearAll = () => {
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setContact('');
+    setCompany('');
+    setStreet('');
+    setCity('');
+    setProvince('');
+    setPostal('');
+    setNotes('');
+    setAdditionalBrands([]);
+  };
+
+  const handleSubmit = () => {
+    console.log('Submit edit');
+  };
+
+  if (!fontsLoaded) return null;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -135,7 +150,6 @@ export default function EditClientScreen() {
                  value={company} 
                  onChangeText={setCompany}
                  placeholder="Enter brand name here..."
-                 // UPDATE: Pressing Enter triggers the add function
                  onSubmitEditing={handleAddBrand} 
                  returnKeyType="done"
                />
@@ -260,16 +274,25 @@ export default function EditClientScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.clearButtonContainer}>
+          <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClearAll}>
              <Text style={styles.clearText}>Clear all fields</Text>
           </TouchableOpacity>
           <View style={styles.actionButtons}>
-             <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()}>
-                <Text style={styles.cancelText}>Cancel</Text>
-             </TouchableOpacity>
-             <TouchableOpacity style={styles.submitBtn}>
-                <Text style={styles.submitText}>Submit</Text>
-             </TouchableOpacity>
+             <Button
+               title="Cancel"
+               onPress={() => router.back()}
+               variant="outline"
+               size="base"
+               style={styles.cancelBtn}
+               textStyle={styles.cancelText}
+             />
+             <Button
+               title="Submit"
+               onPress={handleSubmit}
+               variant="primary"
+               size="base"
+               style={styles.submitBtn}
+             />
           </View>
         </View>
         
@@ -289,57 +312,58 @@ const styles = StyleSheet.create({
     height: 60,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: wp(4),
     justifyContent: 'space-between'
   },
   headerTitle: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
+    color: COLORS.white,
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONT_FAMILY.bold,
+    marginLeft: wp(2.7),
     flex: 1
   },
   backButton: {
-    padding: 5
+    padding: wp(1.3)
   },
   breadCrumb: {
     color: '#A0A0A0',
-    fontSize: 12
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.regular,
   },
   scrollContent: {
-    padding: 15
+    padding: wp(4)
   },
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 10,
-    padding: 20,
+    padding: wp(5.3),
     borderWidth: 1,
     borderColor: '#D1D5DB'
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0D253F'
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.text,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0E0E0',
-    marginVertical: 10,
-    marginBottom: 15
+    backgroundColor: '#e0e0e0',
+    marginVertical: hp(1.2),
+    marginBottom: hp(1.9)
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15
+    marginBottom: hp(1.9)
   },
   halfInputContainer: {
     width: '48%'
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 5
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.text,
+    marginBottom: hp(0.6)
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -347,20 +371,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 5,
-    backgroundColor: '#FFF',
-    paddingRight: 10
+    backgroundColor: COLORS.white,
+    paddingRight: wp(2.7)
   },
   input: {
     flex: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 13,
-    color: '#333',
-    height: 38,
+    paddingHorizontal: wp(2.7),
+    paddingVertical: hp(1),
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
+    height: hp(4.8),
     borderWidth: 0
   },
   inputIcon: {
-    marginLeft: 5
+    marginLeft: wp(1.3)
   },
   brandRow: {
     flexDirection: 'row',
@@ -368,59 +393,62 @@ const styles = StyleSheet.create({
   },
   addBrandBtn: {
     backgroundColor: '#1E3A5F',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingVertical: hp(1.2),
+    paddingHorizontal: wp(4),
     borderRadius: 5
   },
   addBrandText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: 'bold'
+    color: COLORS.white,
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.semiBold,
   },
   helperTextContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 5,
-    marginBottom: 15
+    marginTop: hp(0.6),
+    marginBottom: hp(1.9)
   },
   helperText: {
-    fontSize: 9,
+    fontSize: FONT_SIZES.xs,
     color: '#F87171',
     flex: 1,
-    marginRight: 5,
-    lineHeight: 12
+    marginRight: wp(1.3),
+    lineHeight: hp(1.5),
+    fontFamily: FONT_FAMILY.regular,
   },
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: hp(1.2)
   },
   chooseFileBtn: {
     borderWidth: 1,
     borderColor: '#CCC',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    marginRight: 10
+    paddingVertical: hp(0.5),
+    paddingHorizontal: wp(2.7),
+    borderRadius: 3,
+    marginRight: wp(2.7)
   },
   chooseFileText: {
-    fontSize: 11,
-    color: '#333'
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.text,
   },
   fileNameText: {
-    fontSize: 11,
+    fontSize: FONT_SIZES.xs,
     color: '#888',
     borderBottomWidth: 1,
     borderBottomColor: '#EEE',
-    paddingHorizontal: 5
+    paddingHorizontal: wp(1.3),
+    fontFamily: FONT_FAMILY.regular,
   },
   additionalBrandsContainer: {
-    marginTop: 5
+    marginTop: hp(0.6)
   },
   additionalBrandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: hp(1.2)
   },
   fileDisplay: {
     flexDirection: 'row',
@@ -428,57 +456,48 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginRight: 5,
-    width: 100,
-    height: 38
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(2.7),
+    marginRight: wp(1.3),
+    width: wp(26.7),
+    height: hp(4.8)
   },
   textArea: {
-    height: 100,
+    height: hp(12.5),
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 5
   },
   footer: {
-    marginTop: 25,
-    marginBottom: 20
+    marginTop: hp(3.1),
+    marginBottom: hp(2.5)
   },
   clearButtonContainer: {
     alignItems: 'flex-end',
-    marginBottom: 20
+    marginBottom: hp(2.5)
   },
   clearText: {
     color: '#4B5563',
     textDecorationLine: 'underline',
-    fontSize: 12
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.regular,
   },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    gap: wp(4),
   },
   cancelBtn: {
     backgroundColor: '#E5E7EB',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    marginRight: 15
+    borderColor: '#E5E7EB',
+    minWidth: wp(26.7),
   },
   cancelText: {
     color: '#1F2937',
-    fontWeight: '700',
-    fontSize: 14
   },
   submitBtn: {
     backgroundColor: '#0D253F',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30
+    minWidth: wp(26.7),
   },
-  submitText: {
-    color: '#FFF',
-    fontWeight: '700',
-    fontSize: 14
-  }
 });

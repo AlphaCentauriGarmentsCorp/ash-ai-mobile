@@ -1,15 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewStyle
 } from 'react-native';
 // Assuming these constants exist in your project based on previous context
-import { FONT_FAMILY } from '../../constants';
+import { FONT_FAMILY } from '@styles';
 
 interface PaginationProps {
   currentPage: number;

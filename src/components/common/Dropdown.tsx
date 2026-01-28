@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '@styles';
 import React, { useState } from 'react';
 import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewStyle,
 } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '../../constants';
 
 export interface DropdownOption {
   label: string;
@@ -24,6 +24,7 @@ interface DropdownProps {
   style?: ViewStyle;
   buttonStyle?: ViewStyle;
   menuStyle?: ViewStyle;
+  textStyle?: ViewStyle;
 }
 
 export default function Dropdown({
@@ -36,6 +37,7 @@ export default function Dropdown({
   style,
   buttonStyle,
   menuStyle,
+  textStyle,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -54,7 +56,7 @@ export default function Dropdown({
         onPress={() => setIsOpen(!isOpen)}
       >
         {showIcon && <Ionicons name={iconName} size={14} color="#666" />}
-        <Text style={styles.dropdownText}>{selectedLabel}</Text>
+        <Text style={[styles.dropdownText, textStyle]}>{selectedLabel}</Text>
         <Ionicons name="chevron-down" size={14} color="#666" />
       </TouchableOpacity>
 

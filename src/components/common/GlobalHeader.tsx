@@ -11,7 +11,7 @@ import {
   View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import GlobalSidebar from './GlobalSidebar';
+// import GlobalSidebar from './GlobalSidebar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -209,10 +209,10 @@ export default function GlobalHeader() {
       </Modal>
 
       {/* Sidebar */}
-      <GlobalSidebar 
+      {/* <GlobalSidebar 
         visible={showSidebar} 
         onClose={() => setShowSidebar(false)} 
-      />
+      /> */}
     </>
   );
 }

@@ -1,4 +1,8 @@
+import Button from '@components/common/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { usePoppinsFonts } from '@hooks';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { hp, wp } from '@utils/responsive';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -15,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ViewClientScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const fontsLoaded = usePoppinsFonts();
 
   // Initialize state with passed parameters
   const initialFirstName = params.name ? params.name.toString().split(' ')[0] : 'Morgan';
@@ -38,6 +43,8 @@ export default function ViewClientScreen() {
     { id: 1, name: 'Brand # 1', logo: 'logo1.png' } 
   ]);
 
+  if (!fontsLoaded) return null;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
@@ -60,7 +67,7 @@ export default function ViewClientScreen() {
              <Text style={styles.sectionTitle}>Client Information</Text>
              <TouchableOpacity 
                 style={styles.innerEditBtn}
-                onPress={() => router.push({ pathname: "/edit-client", params: params })}
+                onPress={() => router.push({ pathname: "/client/edit", params: params })}
              >
                 <Ionicons name="pencil" size={12} color="#333" style={{marginRight:5}}/>
                 <Text style={styles.innerEditText}>Edit</Text>
@@ -180,13 +187,13 @@ export default function ViewClientScreen() {
 
         {/* --- UPDATED FOOTER: DONE BUTTON REDIRECTS TO INDEX --- */}
         <View style={styles.footer}>
-          <TouchableOpacity 
-             style={styles.doneBtn} 
-             // Uses router.push('/') to go to the main index page
-             onPress={() => router.push('/client')} 
-          >
-             <Text style={styles.doneText}>Done</Text>
-          </TouchableOpacity>
+          <Button
+            title="Done"
+            onPress={() => router.push('/client')}
+            variant="primary"
+            size="base"
+            style={styles.doneBtn}
+          />
         </View>
         
         <View style={{height: 40}} />
@@ -196,106 +203,177 @@ export default function ViewClientScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F9FF' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F5F9FF' 
+  },
   header: {
     backgroundColor: '#0D253F',
     height: 60,
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, justifyContent: 'space-between',
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: wp(4), 
+    justifyContent: 'space-between',
   },
-  headerTitle: { color: '#FFF', fontSize: 18, fontWeight: 'bold', marginLeft: 10, flex: 1 },
-  backButton: { padding: 5 },
-  breadCrumb: { color: '#A0A0A0', fontSize: 12 },
-  scrollContent: { padding: 15 },
-  card: { backgroundColor: '#FFF', borderRadius: 10, padding: 20, borderWidth: 1, borderColor: '#D1D5DB' },
+  headerTitle: { 
+    color: COLORS.white, 
+    fontSize: FONT_SIZES.lg, 
+    fontFamily: FONT_FAMILY.bold, 
+    marginLeft: wp(2.7), 
+    flex: 1 
+  },
+  backButton: { 
+    padding: wp(1.3) 
+  },
+  breadCrumb: { 
+    color: '#A0A0A0', 
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  scrollContent: { 
+    padding: wp(4) 
+  },
+  card: { 
+    backgroundColor: COLORS.white, 
+    borderRadius: 10, 
+    padding: wp(5.3), 
+    borderWidth: 1, 
+    borderColor: '#D1D5DB' 
+  },
   
-  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#0D253F' },
+  sectionHeaderRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center' 
+  },
+  sectionTitle: { 
+    fontSize: FONT_SIZES.lg, 
+    fontFamily: FONT_FAMILY.bold, 
+    color: COLORS.text 
+  },
   innerEditBtn: { 
       flexDirection: 'row', 
       alignItems: 'center', 
       borderWidth: 1, 
       borderColor: '#DDD', 
-      paddingHorizontal: 10, 
-      paddingVertical: 4, 
-      borderRadius: 4 
+      paddingHorizontal: wp(2.7), 
+      paddingVertical: hp(0.5), 
+      borderRadius: 3 
   },
-  innerEditText: { fontSize: 12, color: '#333', fontWeight: '600' },
+  innerEditText: { 
+    fontSize: FONT_SIZES.xs, 
+    color: COLORS.text, 
+    fontFamily: FONT_FAMILY.semiBold,
+  },
 
-  divider: { height: 1, backgroundColor: '#E0E0E0', marginVertical: 10, marginBottom: 15 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
-  halfInputContainer: { width: '48%' },
-  label: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 5 },
+  divider: { 
+    height: 1, 
+    backgroundColor: '#e0e0e0', 
+    marginVertical: hp(1.2), 
+    marginBottom: hp(1.9) 
+  },
+  row: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: hp(1.9) 
+  },
+  halfInputContainer: { 
+    width: '48%' 
+  },
+  label: { 
+    fontSize: FONT_SIZES.sm, 
+    fontFamily: FONT_FAMILY.medium, 
+    color: COLORS.text, 
+    marginBottom: hp(0.6) 
+  },
   
   input: { 
     borderWidth: 1, 
     borderColor: '#D1D5DB', 
     borderRadius: 5, 
-    paddingHorizontal: 10, 
-    paddingVertical: 8, 
-    fontSize: 13, 
-    backgroundColor: '#FFF', 
-    color: '#333',
-    height: 38,
+    paddingHorizontal: wp(2.7), 
+    paddingVertical: hp(1), 
+    fontSize: FONT_SIZES.sm, 
+    fontFamily: FONT_FAMILY.regular,
+    backgroundColor: COLORS.white, 
+    color: COLORS.text,
+    height: hp(4.8),
   },
   
   // Logo Section
-  logoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  logoRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: hp(1.2) 
+  },
   disabledFileBtn: { 
       borderWidth: 1, 
       borderColor: '#CCC', 
       backgroundColor: '#F3F4F6', 
-      paddingVertical: 4, 
-      paddingHorizontal: 10, 
-      borderRadius: 4, 
+      paddingVertical: hp(0.5), 
+      paddingHorizontal: wp(2.7), 
+      borderRadius: 3, 
       marginRight: 0 
   },
-  chooseFileText: { fontSize: 11, color: '#888' },
+  chooseFileText: { 
+    fontSize: FONT_SIZES.xs, 
+    fontFamily: FONT_FAMILY.medium,
+    color: '#888' 
+  },
   fileNameText: { 
-      fontSize: 11, 
+      fontSize: FONT_SIZES.xs, 
+      fontFamily: FONT_FAMILY.regular,
       color: '#888', 
       borderWidth: 1,
       borderLeftWidth: 0,
       borderColor: '#CCC',
-      paddingVertical: 4,
-      paddingHorizontal: 10,
-      borderTopRightRadius: 4,
-      borderBottomRightRadius: 4,
+      paddingVertical: hp(0.5),
+      paddingHorizontal: wp(2.7),
+      borderTopRightRadius: 3,
+      borderBottomRightRadius: 3,
   },
 
   // Additional Brands Styles
-  additionalBrandsContainer: { marginTop: 5, marginBottom: 10 },
-  smallLabel: { fontSize: 10, color: '#888', marginBottom: 5 },
-  additionalBrandRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  additionalBrandsContainer: { 
+    marginTop: hp(0.6), 
+    marginBottom: hp(1.2) 
+  },
+  smallLabel: { 
+    fontSize: FONT_SIZES.xs, 
+    fontFamily: FONT_FAMILY.regular,
+    color: '#888', 
+    marginBottom: hp(0.6) 
+  },
+  additionalBrandRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: hp(1.2) 
+  },
   fileDisplay: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    width: 100, 
-    height: 38,
-    backgroundColor: '#FFF',
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(2.7),
+    width: wp(26.7), 
+    height: hp(4.8),
+    backgroundColor: COLORS.white,
   },
 
-  textArea: { height: 100 },
+  textArea: { 
+    height: hp(12.5) 
+  },
   
   // Footer
   footer: { 
-      marginTop: 25, 
-      marginBottom: 20, 
+      marginTop: hp(3.1), 
+      marginBottom: hp(2.5), 
       alignItems: 'center' 
   },
   doneBtn: { 
       backgroundColor: '#0D253F', 
-      paddingVertical: 12, 
-      paddingHorizontal: 40, 
-      borderRadius: 30 
-  },
-  doneText: { 
-      color: '#FFF', 
-      fontWeight: '700', 
-      fontSize: 14 
+      minWidth: wp(26.7),
   },
 });

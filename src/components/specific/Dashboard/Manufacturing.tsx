@@ -48,14 +48,14 @@ export default function Manufacturing() {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const items = [
+    'Graphic Designing',
+    'Purchasing',
     'Cutting',
-    'Packer',
-    'Printing',
+    'Screen Making',
+    'Sample Maker',
     'Sewing',
-    'Quality Control (QA)',
-    'Inventory',
-    'Screen Maker',
-    'Sample Maker'
+    'Packing',
+    'Quality Control',
   ];
 
   return (

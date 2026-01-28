@@ -11,23 +11,59 @@
       "@/*": [
         "./src/*"
       ],
+      "@components": [
+        "./src/components"
+      ],
       "@components/*": [
         "./src/components/*"
+      ],
+      "@screens": [
+        "./src/screens"
       ],
       "@screens/*": [
         "./src/screens/*"
       ],
+      "@layouts": [
+        "./src/layouts"
+      ],
+      "@layouts/*": [
+        "./src/layouts/*"
+      ],
+      "@utils": [
+        "./src/utils"
+      ],
       "@utils/*": [
         "./src/utils/*"
       ],
-      "@constants/*": [
-        "./src/constants/*"
+      "@styles": [
+        "./src/styles"
+      ],
+      "@styles/*": [
+        "./src/styles/*"
+      ],
+      "@hooks": [
+        "./src/hooks"
       ],
       "@hooks/*": [
         "./src/hooks/*"
       ],
+      "@services": [
+        "./src/services"
+      ],
       "@services/*": [
         "./src/services/*"
+      ],
+      "@store": [
+        "./src/store"
+      ],
+      "@store/*": [
+        "./src/store/*"
+      ],
+      "@assets": [
+        "./src/assets"
+      ],
+      "@assets/*": [
+        "./src/assets/*"
       ]
     }
   },

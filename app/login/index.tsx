@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     fontFamily: 'poppins-regular',
     opacity: 0.95,
     marginRight: 10,
-  
+    
   },
 
   loginBtn: {

@@ -1,6 +1,6 @@
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '../../../constants';
 
 export default function PrintArea() {
   return (
@@ -112,7 +112,7 @@ export default function PrintArea() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#EBF6FF',
     borderRadius: 10,
     padding: 20,
     borderWidth: 1,
@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
     paddingRight: 35,
     fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.regular,
+    backgroundColor: '#fff',
   },
   dropdownIcon: {
     position: 'absolute',
