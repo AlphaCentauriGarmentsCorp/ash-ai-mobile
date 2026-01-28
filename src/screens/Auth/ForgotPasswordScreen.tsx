@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     alignItems: "center", 
     backgroundColor: "#fff", 
-    borderRadius: ms(10), 
+    borderRadius: 8, 
     height: hp(6.2), 
     paddingHorizontal: wp(3.7), 
     marginBottom: hp(2.5), 
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   submitButton: { 
     backgroundColor: "#084C7F", 
     height: hp(6.2), 
-    borderRadius: ms(10), 
+    borderRadius: 8, 
     alignItems: "center", 
     justifyContent: "center",
     shadowColor: "#000", 

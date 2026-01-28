@@ -4,14 +4,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     alignItems: "center", 
     backgroundColor: "#fff", 
-    borderRadius: ms(12),
+    borderRadius: 10,
     paddingHorizontal: wp(3.7), 
     paddingVertical: hp(1.7), 
     marginBottom: hp(2), 
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   submitButton: { 
     backgroundColor: "#084C7F", 
     paddingVertical: hp(2), 
-    borderRadius: ms(12), 
+    borderRadius: 10, 
     alignItems: "center", 
     marginTop: hp(1.2),
     shadowColor: "#000", 
