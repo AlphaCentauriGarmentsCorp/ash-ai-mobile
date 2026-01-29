@@ -1,8 +1,52 @@
+import Checkbox from '@components/common/Checkbox';
+import FormDropdown from '@components/common/FormDropdown';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function OrderInfo() {
+const OrderInfo = forwardRef((props, ref) => {
+  const [brand, setBrand] = useState('');
+  const [priority, setPriority] = useState('');
+  const [apparelType, setApparelType] = useState('');
+  const [fabricType, setFabricType] = useState('');
+  const [addFreebies, setAddFreebies] = useState(false);
+  const [keepSameColor, setKeepSameColor] = useState(false);
+  const [options, setOptions] = useState<boolean[]>(Array(8).fill(false));
+
+  useImperativeHandle(ref, () => ({
+    clearFields: () => {
+      setBrand('');
+      setPriority('');
+      setApparelType('');
+      setFabricType('');
+      setAddFreebies(false);
+      setKeepSameColor(false);
+      setOptions(Array(8).fill(false));
+    }
+  }));
+
+  const brandOptions = [
+    { label: 'Reefer', value: 'reefer' },
+    { label: 'Sorbetes', value: 'sorbetes' },
+  ];
+
+  const priorityOptions = [
+    { label: 'High', value: 'high' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'Low', value: 'low' },
+  ];
+
+  const apparelTypeOptions = [
+    { label: 'T-shirt', value: 't-shirt' },
+    { label: 'Pants', value: 'pants' },
+    { label: 'Hoodie', value: 'hoodie' },
+    { label: 'Enter new apparel type here', value: 'new' },
+  ];
+
+  const fabricTypeOptions = [
+    { label: 'CVC', value: 'cvc' },
+  ];
 
   return (
     <View style={styles.card}>
@@ -30,7 +74,7 @@ export default function OrderInfo() {
         placeholder="Choose Date" 
         editable={false}
       />
-      <Text style={styles.dropdownIcon}>📅</Text>
+      <Ionicons name="calendar-outline" size={16} color="#666" style={styles.calendarIcon} />
     </View>
   </View>
 </View>
@@ -47,25 +91,21 @@ export default function OrderInfo() {
 <View style={styles.row}>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Brand</Text>
-    <View style={styles.dropdownContainer}>
-      <TextInput 
-        style={styles.input} 
-        placeholder="Select Brand" 
-        editable={false}
-      />
-      <Text style={styles.dropdownIcon}>▼</Text>
-    </View>
+    <FormDropdown
+      options={brandOptions}
+      selectedValue={brand}
+      onSelect={setBrand}
+      placeholder="Select Brand"
+    />
   </View>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Priority</Text>
-    <View style={styles.dropdownContainer}>
-      <TextInput 
-        style={styles.input} 
-        placeholder="Select Priority" 
-        editable={false}
-      />
-      <Text style={styles.dropdownIcon}>▼</Text>
-    </View>
+    <FormDropdown
+      options={priorityOptions}
+      selectedValue={priority}
+      onSelect={setPriority}
+      placeholder="Select Priority"
+    />
   </View>
 </View>
 
@@ -193,7 +233,11 @@ export default function OrderInfo() {
 <View style={styles.freebiesHeader}>
   <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Freebies</Text>
   <View style={styles.freebiesCheckbox}>
-    <View style={styles.checkbox} />
+    <Checkbox 
+      checked={addFreebies} 
+      onPress={() => setAddFreebies(!addFreebies)}
+      size={18}
+    />
     <Text style={styles.checkboxLabel}>Add Freebies</Text>
   </View>
 </View>
@@ -237,14 +281,12 @@ export default function OrderInfo() {
 <View style={styles.row}>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Apparel Type</Text>
-    <View style={styles.dropdownContainer}>
-      <TextInput 
-        style={styles.input} 
-        placeholder="Select Apparel Type" 
-        editable={false}
-      />
-      <Text style={styles.dropdownIcon}>▼</Text>
-    </View>
+    <FormDropdown
+      options={apparelTypeOptions}
+      selectedValue={apparelType}
+      onSelect={setApparelType}
+      placeholder="Select Apparel Type"
+    />
   </View>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Pattern Type</Text>
@@ -311,9 +353,11 @@ export default function OrderInfo() {
 
 <View style={styles.fullInputContainer}>
   <Text style={styles.label}>Fabric Type</Text>
-  <TextInput 
-    style={styles.input} 
-    placeholder="Enter Fabric Color" 
+  <FormDropdown
+    options={fabricTypeOptions}
+    selectedValue={fabricType}
+    onSelect={setFabricType}
+    placeholder="Select Fabric Type"
   />
 </View>
 
@@ -324,7 +368,11 @@ export default function OrderInfo() {
     placeholder="Enter Fabric Color" 
   />
   <View style={styles.checkboxRow}>
-    <View style={styles.checkbox} />
+    <Checkbox 
+      checked={keepSameColor} 
+      onPress={() => setKeepSameColor(!keepSameColor)}
+      size={18}
+    />
     <Text style={styles.checkboxLabel}>keep the same color for the others</Text>
   </View>
 </View>
@@ -350,7 +398,15 @@ export default function OrderInfo() {
   <View style={styles.optionsGrid}>
     {Array.from({ length: 8 }).map((_, index) => (
       <View key={index} style={styles.checkboxRow}>
-        <View style={styles.checkbox} />
+        <Checkbox 
+          checked={options[index]} 
+          onPress={() => {
+            const newOptions = [...options];
+            newOptions[index] = !newOptions[index];
+            setOptions(newOptions);
+          }}
+          size={18}
+        />
         <Text style={styles.checkboxLabel}>with Collar</Text>
       </View>
     ))}
@@ -358,7 +414,11 @@ export default function OrderInfo() {
 </View>
     </View>
   );
-}
+});
+
+OrderInfo.displayName = 'OrderInfo';
+
+export default OrderInfo;
 
 const styles = StyleSheet.create({
   card: {
@@ -425,6 +485,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
+  calendarIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+  },
   disabledInput: {
     backgroundColor: '#f5f5f5',
     color: '#999',
@@ -438,15 +503,7 @@ const styles = StyleSheet.create({
   freebiesCheckbox: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginRight: 8,
-    borderRadius: 3,
-    backgroundColor: '#fff',
+    gap: 0,
   },
   checkboxLabel: {
     fontSize: FONT_SIZES.sm,

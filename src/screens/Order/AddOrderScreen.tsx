@@ -1,12 +1,12 @@
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,6 +26,11 @@ export default function AddOrderScreen() {
   const router = useRouter();
   const fontsLoaded = usePoppinsFonts();
   const [currentStep, setCurrentStep] = useState(0);
+  
+  const orderInfoRef = useRef<any>(null);
+  const printAreaRef = useRef<any>(null);
+  const designMockupRef = useRef<any>(null);
+  const paymentSummaryRef = useRef<any>(null);
 
   const steps: Step[] = [
     { title: 'Info', id: 0 },
@@ -44,7 +49,20 @@ export default function AddOrderScreen() {
   };
 
   const handleClear = () => {
-    console.log('Clear all fields');
+    switch (currentStep) {
+      case 0:
+        orderInfoRef.current?.clearFields();
+        break;
+      case 1:
+        printAreaRef.current?.clearFields();
+        break;
+      case 2:
+        designMockupRef.current?.clearFields();
+        break;
+      case 3:
+        paymentSummaryRef.current?.clearFields();
+        break;
+    }
   };
 
   const handleSave = () => {
@@ -82,10 +100,10 @@ export default function AddOrderScreen() {
 
         <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
-            {currentStep === 0 && <OrderInfo />}
-            {currentStep === 1 && <PrintArea />}
-            {currentStep === 2 && <DesignMockup />}
-            {currentStep === 3 && <PaymentSummary />}
+            {currentStep === 0 && <OrderInfo ref={orderInfoRef} />}
+            {currentStep === 1 && <PrintArea ref={printAreaRef} />}
+            {currentStep === 2 && <DesignMockup ref={designMockupRef} />}
+            {currentStep === 3 && <PaymentSummary ref={paymentSummaryRef} />}
           </View>
 
           <View style={styles.footer}>

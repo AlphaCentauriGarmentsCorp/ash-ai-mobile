@@ -1,5 +1,5 @@
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React, { useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface SizeCard {
@@ -10,10 +10,16 @@ interface SizeCard {
   unitPrice: string;
 }
 
-export default function DesignMockup() {
+const DesignMockup = forwardRef((props, ref) => {
   const [sizeCards, setSizeCards] = useState<SizeCard[]>([
     { id: 1, size: '', quantity: '', costPrice: '', unitPrice: '' }
   ]);
+
+  useImperativeHandle(ref, () => ({
+    clearFields: () => {
+      setSizeCards([{ id: 1, size: '', quantity: '', costPrice: '', unitPrice: '' }]);
+    }
+  }));
 
   const addSizeCard = () => {
     const newCard: SizeCard = {
@@ -197,7 +203,11 @@ export default function DesignMockup() {
 </View>
     </View>
   );
-}
+});
+
+DesignMockup.displayName = 'DesignMockup';
+
+export default DesignMockup;
 
 const styles = StyleSheet.create({
   card: {

@@ -1,8 +1,15 @@
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function PaymentSummary() {
+const PaymentSummary = forwardRef((props, ref) => {
+  useImperativeHandle(ref, () => ({
+    clearFields: () => {
+      // PaymentSummary doesn't have state yet, but we'll add this for future use
+      console.log('Clear PaymentSummary fields');
+    }
+  }));
+
   return (
     <View style={styles.card}>
       {/* Section: Pricing & Payment Control */}
@@ -68,7 +75,11 @@ export default function PaymentSummary() {
 </View>
     </View>
   );
-}
+});
+
+PaymentSummary.displayName = 'PaymentSummary';
+
+export default PaymentSummary;
 
 const styles = StyleSheet.create({
   card: {

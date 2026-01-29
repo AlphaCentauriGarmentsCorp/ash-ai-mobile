@@ -1,8 +1,15 @@
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export default function PrintArea() {
+const PrintArea = forwardRef((props, ref) => {
+  useImperativeHandle(ref, () => ({
+    clearFields: () => {
+      // PrintArea doesn't have state yet, but we'll add this for future use
+      console.log('Clear PrintArea fields');
+    }
+  }));
+
   return (
     <View style={styles.card}>
       {/* Section: Print Area */}
@@ -108,7 +115,11 @@ export default function PrintArea() {
 </TouchableOpacity>
     </View>
   );
-}
+});
+
+PrintArea.displayName = 'PrintArea';
+
+export default PrintArea;
 
 const styles = StyleSheet.create({
   card: {
