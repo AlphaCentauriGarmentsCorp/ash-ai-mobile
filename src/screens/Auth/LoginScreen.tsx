@@ -1,212 +1,285 @@
-import Checkbox from "@components/common/Checkbox";
-import FormInput from "@components/common/FormInput";
-import { hp, ms, rfs, wp } from "@utils/responsive";
-import { useFonts } from "expo-font";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { EuphoriaScript_400Regular, useFonts } from '@expo-google-fonts/euphoria-script';
+import { GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
+import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import {
-    ActivityIndicator,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+  Poppins_400Regular,
+  Poppins_700Bold,
+  Poppins_800ExtraBold
+} from '@expo-google-fonts/poppins';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation, useRouter } from 'expo-router';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 
-export default function LoginScreen() {
+import {
+  Alert,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+export default function Index() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isChecked, setChecked] = useState(false);
+  const navigation = useNavigation();
 
-  const handleLogin = () => {
-    router.push("/dashboard" as any);
-  };
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
-  const handleNavigation = (route: string) => {
-    router.push(route as any);
-  };
-  
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false, tabBarStyle: { display: 'none' } });
+  }, [navigation]);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, []);
+
   const [fontsLoaded] = useFonts({
-    'EuphoriaScript': require('../../assets/fonts/EuphoriaScript-Regular.ttf'),
+    GreatVibes_400Regular,
+    Inter_400Regular,
+    Inter_700Bold,
+    EuphoriaScript_400Regular,
+    Poppins_400Regular,
+    Poppins_700Bold,
+    Poppins_800ExtraBold
   });
 
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#084C7F" />
-      </View>
-    );
-  }
+  const handleLogin = () => {
+    if (username === '' || password === '') {
+      Alert.alert('Error', 'Please fill in both username and password.');
+      return;
+    }
+    router.push('/dashboard'); 
+  };
+
+  const handleForgotPassword = () => {
+    router.push('/login/forgot'); 
+  };
+
+  if (!fontsLoaded) return null;
 
   return (
     <LinearGradient
-      colors={["#95BAD98C", "#31A0FF"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={{ flex: 1 }}
+      colors={['#E0F4FB', '#9AD1F0', '#6FBBE8']}
+      style={styles.container}
     >
-      <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardView}
-        >
-        <View style={styles.logoWrap}>
-          <Image
-            source={require("../../assets/images/ash-logo.png")} 
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.appSubtitle}>Companion App</Text>
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
 
-        <View style={styles.formWrap}>
-          <Text style={styles.welcome}>Welcome!</Text>
-          <Text style={styles.caption}>
-            Manage your tasks and production workflow with ease.
-          </Text>
-
-          <FormInput
-            value={username}
-            onChangeText={setUsername}
-            placeholder="Username"
-            leftIcon="person"
-            autoCapitalize="none"
-            iconSize={ms(20)}
-            containerStyle={styles.inputRow}
-            inputStyle={styles.input}
-          />
-
-          <FormInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            leftIcon="key"
-            isPassword={true}
-            iconSize={ms(20)}
-            containerStyle={styles.inputRow}
-            inputStyle={styles.input}
-          />
-
-          <View style={styles.rowBetween}>
-            <Checkbox
-              checked={isChecked}
-              onPress={() => setChecked(!isChecked)}
-              label="Remember me"
-              size={ms(18)}
-              checkedColor="#084C7F"
-              borderColor="#889"
-              checkmarkSize={ms(12)}
-              containerStyle={styles.rememberRow}
+        {/* TOP LOGO SECTION */}
+        <View style={[styles.topSection, { paddingTop: insets.top + 30 }]}>
+          {!isKeyboardVisible && (
+            <Image
+              // FIXED PATH: Removed the extra 'src/'
+              source={require('../../assets/images/ash-logo.png')}
+              style={styles.logoImage}
             />
-            
-            <TouchableOpacity onPress={() => handleNavigation("/login/forgot") }>
-              <Text style={styles.forgot}>Forgot password?</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={styles.loginButton}
-            activeOpacity={0.8}
-            onPress={handleLogin}
-          >
-            <Text style={styles.loginText}>Login</Text>
-          </TouchableOpacity>
+          )}
+          {!isKeyboardVisible && (
+            <Text style={styles.tagline}>Companion App</Text>
+          )}
         </View>
+
+        {/* BOTTOM FORM SECTION */}
+        <View style={[styles.bottomSection, { paddingBottom: insets.bottom + 30 }]}>
+          <View style={styles.formContainer}>
+            
+            <View style={styles.textContainer}>
+              <Text style={styles.welcomeTitle}>Welcome!</Text>
+              <Text style={styles.welcomeSub}>Manage your tasks and production workflow with ease.</Text>
+            </View>
+
+            {/* Username */}
+            <View style={styles.inputBox}>
+              <Ionicons name="person" size={20} color="#999" style={styles.icon} />
+              <TextInput
+                placeholder="Username"
+                placeholderTextColor="#999"
+                style={styles.input}
+                value={username}
+                onChangeText={setUsername}
+              />
+            </View>
+
+            {/* Password */}
+            <View style={styles.inputBox}>
+              <Ionicons name="key" size={20} color="#999" style={styles.icon} />
+              <TextInput
+                placeholder="Password"
+                placeholderTextColor="#999"
+                secureTextEntry
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <Ionicons name="eye-outline" size={20} color="#999" style={{ opacity: 0.7 }} />
+            </View>
+          
+            {/* Checkbox & Forgot Password Row */}
+            <View style={styles.row}>
+              <Pressable 
+                style={styles.checkboxWrapper} 
+                onPress={() => setRememberMe(!rememberMe)}
+                hitSlop={10} 
+              >
+                <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
+                  {rememberMe && <Ionicons name="checkmark" size={10} color="#093554" />}
+                </View>
+                <Text style={styles.smallLabel}>Remember me</Text>
+              </Pressable>
+
+              <TouchableOpacity 
+                onPress={handleForgotPassword}
+                hitSlop={15} 
+                style={{ padding: 5 }} 
+              >
+                <Text style={styles.smallLabel}>Forgot password?</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Login Button */}
+            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+              <Text style={styles.loginBtnText}>Login</Text>
+            </TouchableOpacity>
+
+          </View>
+        </View>
+
       </KeyboardAvoidingView>
-      </SafeAreaView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-  keyboardView: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "space-between", 
-    paddingBottom: hp(3.7), 
-  },
-  logoWrap: {
-    alignItems: "center",
-    justifyContent: 'center',
+  container: { flex: 1 },
+  keyboardView: { flex: 1, justifyContent: 'space-between' },
+  
+  topSection: {
+    alignItems: 'center',
+    paddingBottom: 20,
     flex: 1, 
-    marginTop: hp(-2.5), 
+    justifyContent: 'center',
   },
-  logo: {
-    width: wp(112), 
-    height: hp(46.8),
-    marginBottom: hp(-8.6),
+  logoImage: {
+    width: 320,
+    height: 320,
+    resizeMode: 'contain',
   },
-  appSubtitle: {
-    color: "#4a5b6c",
-    fontSize: rfs(32), 
-    fontFamily: 'EuphoriaScript',
-    marginTop: hp(-1.2),
+  tagline: {
+    fontFamily: 'EuphoriaScript_400Regular',
+    fontSize: 32,
+    color: '#2C3E50',
+    marginTop: -80, 
+    opacity: 0.9,
   },
-  formWrap: {
-    width: "88%",
-    marginBottom: hp(2.5),
+  
+  bottomSection: {
+    justifyContent: 'flex-end',
+    paddingHorizontal: 35,
   },
-  welcome: {
-    fontSize: rfs(28),
-    fontFamily: "Poppins_700Bold", 
-    color: "#1A2B3C",
-    marginBottom: hp(1),
-    textAlign: "left",
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
-  caption: {
-    color: "#556677",
-    fontSize: rfs(14),
-    fontFamily: "Poppins_300Light", 
-    marginBottom: hp(3.9), 
-    lineHeight: rfs(20),
-    textAlign: "left",
+  textContainer: { marginBottom: 25 },
+  welcomeTitle: {
+    fontFamily: 'Poppins_800ExtraBold',
+    fontSize: 20,
+    color: '#0B3048',
   },
-  inputRow: {
-    marginBottom: hp(4.2),
+  welcomeSub: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 10,
+    color: '#2C3E50',
+    opacity: 0.8,
   },
+  
+  inputBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    height: 35, 
+    marginBottom: 25,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  icon: { marginRight: 12 },
   input: {
-    fontSize: rfs(16),
+    flex: 1,
+    fontFamily: 'Poppins_400Regular', // Ensure this matches loaded font name
+    fontSize: 13,
+    color: '#333',
+    height: '120%',
+    opacity: 1,
   },
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: hp(3),
-    marginTop: hp(0.5), 
-    paddingHorizontal: wp(0.5),
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 5,
+    marginBottom: 30, 
   },
-  rememberRow: { 
-    flexDirection: "row", 
-    alignItems: "center" 
+  checkboxWrapper: { 
+    flexDirection: 'row', 
+    alignItems: 'center',
   },
-  forgot: { 
-    color: "#334",
-    fontSize: rfs(12), 
-    fontFamily: "Poppins_400Regular",
+  checkbox: {
+    width: 10,
+    height: 10,
+    backgroundColor: '#FFFFFF',
+    marginRight: 8,
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  loginButton: {
-    backgroundColor: "#084C7F",
-    paddingVertical: hp(1.5), 
-    borderRadius: ms(12),
-    alignItems: "center",
+  checkboxActive: {
+    // Optional: Add background color when active if desired
+  },
+  smallLabel: {
+    color: '#000000',
+    fontSize: 9,
+    fontFamily: 'Poppins_400Regular', // Ensure this matches loaded font name
+    opacity: 0.95,
+    marginRight: 10,
+  },
+
+  loginBtn: {
+    backgroundColor: '#00437A',
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowRadius: 5,
+    marginBottom: 50,
+    marginTop: -5,
   },
-  loginText: { 
-    color: "#fff", 
-    fontSize: rfs(18), 
-    fontFamily: "Poppins_700Bold",
+  loginBtnText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    letterSpacing: 0.5,
   },
 });
