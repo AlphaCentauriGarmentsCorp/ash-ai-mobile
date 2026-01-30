@@ -4,12 +4,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -35,7 +35,7 @@ export default function PasswordResetSuccessScreen() {
 
   return (
     <LinearGradient
-      colors={["#95BAD98C", "#31A0FF"]}
+      colors={['#E0F4FB', '#9AD1F0', '#6FBBE8']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
@@ -89,23 +89,34 @@ const styles = StyleSheet.create({
     marginBottom: hp(3) 
   },
   title: {
-    fontSize: rfs(24),
+    fontSize: rfs(32),
     fontFamily: "Poppins_700Bold",
-    color: "#0D253F",
+    color: "#032A4A",
     textAlign: "center",
     marginBottom: hp(1.5),
   },
   subtitle: {
-    color: "#556677",
+    color: "#032A4A",
     fontSize: rfs(14),
+    marginBottom: 20,
+    marginTop: -20,
     textAlign: "center",
   },
   continueButton: {
-    width: "100%",
-    backgroundColor: "#084C7F",
-    paddingVertical: hp(2),
+    width: "85%", 
+    backgroundColor: "#00437A",
     borderRadius: ms(12),
     alignItems: "center",
+    marginLeft:30,
+    marginRight:30,
+    marginBottom: 50, 
+    marginTop: -50, 
+    height: 40
   },
-  continueText: { color: "#fff", fontWeight: "700", fontSize: rfs(16) },
+  continueText: { 
+    color: "#fff", 
+    fontFamily: "Poppins_700Bold",
+    marginTop: hp(1), 
+    fontSize: rfs(16) 
+  },
 });
