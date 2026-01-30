@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -28,18 +29,20 @@ interface QuickActionItem {
   id: string;
   title: string;
   icon: string;
+  route: string;
 }
 
 export default function QuickActions() {
+  const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
 
   const quickActions: QuickActionItem[] = [
-    { id: 'orders', title: 'View\nOrders', icon: 'receipt-outline' },
-    { id: 'clients', title: 'Clients', icon: 'people-outline' },
-    { id: 'payroll', title: 'Payroll', icon: 'card-outline' },
-    { id: 'finance', title: 'Finance', icon: 'calculator-outline' },
+    { id: 'orders', title: 'View\nOrders', icon: 'receipt-outline', route: '/order' },
+    { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    { id: 'payroll', title: 'Payroll', icon: 'card-outline', route: '' },
+    { id: 'finance', title: 'Finance', icon: 'calculator-outline', route: '' },
   ];
 
   const handleScroll = (event: any) => {
@@ -56,6 +59,10 @@ export default function QuickActions() {
     ? (containerWidth - dimensions.cardSpacing) / 2 
     : (SCREEN_WIDTH - (dimensions.containerPadding * 2) - dimensions.cardSpacing) / 2;
 
+  const handleActionPress = (item: QuickActionItem) => {
+    router.push(item.route);
+  };
+
   const renderActionCard = (item: QuickActionItem, index: number) => {
     return (
       <TouchableOpacity 
@@ -66,7 +73,7 @@ export default function QuickActions() {
             width: cardWidth,
           }
         ]}
-        onPress={() => console.log('Action pressed:', item.id)}
+        onPress={() => handleActionPress(item)}
         activeOpacity={0.8}
       >
         <View style={styles.iconContainer}>
