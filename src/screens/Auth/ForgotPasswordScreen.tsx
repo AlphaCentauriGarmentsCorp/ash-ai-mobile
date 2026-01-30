@@ -4,14 +4,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -29,7 +29,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <LinearGradient
-      colors={["#95BAD98C", "#31A0FF"]}
+      colors={['#E0F4FB', '#9AD1F0', '#6FBBE8']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
@@ -53,10 +53,10 @@ export default function ForgotPasswordScreen() {
           <Text style={styles.subtitle}>Provide your email to get a reset link.</Text>
 
           <View style={styles.inputRow}>
-            <Ionicons name="mail-outline" size={ms(20)} color="#6B7C93" style={styles.inputIcon} />
+            <Ionicons name="mail-open-outline" size={ms(20)} color="#B3B3B3" style={styles.inputIcon} />
             <TextInput 
               placeholder="Your e-mail" 
-              placeholderTextColor="#6B7C93" 
+              placeholderTextColor="#B3B3B3" 
               style={styles.input} 
               autoCapitalize="none"
               keyboardType="email-address"
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
   logo: {
     width: wp(22.9), 
     height: hp(10.6),
+    marginTop: 7,
     transform: [
     { translateX: wp(3.2) }, 
     { translateY: hp(-1.5) }  
@@ -114,17 +115,20 @@ const styles = StyleSheet.create({
     width: "82%", 
   },
   title: { 
-    fontSize: rfs(36), 
-    fontWeight: "900", 
-    color: "#0D253F", 
-    lineHeight: rfs(40), 
-    marginBottom: hp(1.2),
+    fontSize: 45, 
+    fontFamily: "Poppins_800ExtraBold",
+    color: "#032A4A", 
+    lineHeight: rfs(55), 
+    marginBottom: 130,
+    marginTop: -130,
     textAlign: "left"
   },
   subtitle: { 
-    color: "#556677", 
+    color: "#032A4A", 
     fontSize: rfs(14), 
-    marginBottom: hp(3.9), 
+    fontFamily: "Poppins_200ExtraLight",
+    marginBottom: 120, 
+    marginTop: -120,
     textAlign: "left",
     lineHeight: rfs(20)
   },
@@ -132,15 +136,11 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     alignItems: "center", 
     backgroundColor: "#fff", 
-    borderRadius: 8, 
-    height: hp(6.2), 
+    borderRadius: 10, 
+    height: 35, 
     paddingHorizontal: wp(3.7), 
-    marginBottom: hp(2.5), 
-    shadowColor: "#000", 
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.05, 
-    shadowRadius: 3, 
-    elevation: 2 
+    marginBottom: 70, 
+    marginTop: -70, 
   },
   inputIcon: { 
     marginRight: wp(2.7), 
@@ -148,25 +148,30 @@ const styles = StyleSheet.create({
   },
   input: { 
     flex: 1, 
-    fontSize: rfs(15), 
+    fontSize: 12, 
+    fontFamily: "Poppins_200ExtraLight", 
     color: "#111",
-    height: "100%" 
+    marginBottom: -5,
+    
   },
   submitButton: { 
-    backgroundColor: "#084C7F", 
-    height: hp(6.2), 
-    borderRadius: 8, 
+    backgroundColor: "#00437A", 
+    height: 40, 
+    borderRadius: 10, 
     alignItems: "center", 
     justifyContent: "center",
-    shadowColor: "#000", 
-    shadowOffset: { width: 0, height: 3 }, 
-    shadowOpacity: 0.2, 
-    shadowRadius: 4, 
-    elevation: 4 
+    marginLeft:25,
+    marginRight:25,
+    marginBottom: 30, 
+    marginTop: -30, 
+        width: "85%", 
+
+
   },
   submitText: { 
     color: "#fff", 
-    fontWeight: "bold", 
+   fontFamily: "Poppins_700Bold", 
+    marginBottom: -5,
     fontSize: rfs(16) 
   },
 });

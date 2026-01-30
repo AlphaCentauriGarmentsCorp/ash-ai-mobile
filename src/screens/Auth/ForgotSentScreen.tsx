@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { hp, ms, rfs, wp } from "@utils/responsive";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -26,15 +25,13 @@ export default function ForgotSentScreen() {
 
   return (
     <LinearGradient
-      colors={["#95BAD98C", "#31A0FF"]}
+      colors={['#E0F4FB', '#9AD1F0', '#6FBBE8']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >
       <SafeAreaView style={styles.safeArea}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={ms(24)} color="#084C7F" />
-      </TouchableOpacity>
+      
 
       <View style={styles.centerContainer}>
         <Image source={require("../../assets/images/Envelope.png")} style={styles.icon} resizeMode="contain" />
@@ -91,16 +88,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   title: { 
-    fontSize: rfs(26), 
-    fontWeight: "900", 
-    color: "#0D253F", 
+    fontSize: rfs(22), 
+    fontFamily: "Poppins_700Bold", 
+    color: "#032A4A", 
     textAlign: "center", 
     marginBottom: hp(1.2),
     lineHeight: rfs(32)
   },
   subtitle: { 
-    color: "#556677", 
-    fontSize: rfs(15), 
+    color: "#032A4A", 
+    fontSize: rfs(14), 
+    fontFamily: "Poppins_300Light", 
     textAlign: "center", 
     lineHeight: rfs(22),
     maxWidth: "80%"
@@ -111,20 +109,20 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   continueButton: { 
-    width: "100%", 
-    backgroundColor: "#084C7F", 
-    paddingVertical: hp(2), 
-    borderRadius: ms(12), 
+    width: "85%", 
+    backgroundColor: "#00437A",  
+    borderRadius: ms(10), 
     alignItems: "center",
-    shadowColor: "#084C7F",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,
+    height: 40,
+    marginLeft:30,
+    marginRight:30,
+    marginBottom: 50, 
+    marginTop: -50, 
   },
   continueText: { 
     color: "#fff", 
     fontWeight: "bold", 
+    marginTop: 8,
     fontSize: rfs(17) 
   },
 });
