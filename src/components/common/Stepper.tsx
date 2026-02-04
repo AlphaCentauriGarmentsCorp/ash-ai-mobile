@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { FONT_SIZES } from '@styles';
 import React from 'react';
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 
 export interface Step {
@@ -68,10 +68,10 @@ export default function Stepper({
 
 const styles = StyleSheet.create({
   stepperContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: "#EBF6FF",
     paddingVertical: 12,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 5,
+  
   },
   stepperContent: {
     paddingHorizontal: 16,
@@ -83,14 +83,16 @@ const styles = StyleSheet.create({
   },
   stepText: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    fontFamily: FONT_FAMILY.medium,
+    color: "#808D99",
+    fontFamily: "Poppins_300Light",
   },
   stepTextActive: {
-    color: '#0B1C36',
-    fontFamily: FONT_FAMILY.bold,
+    color: '#001C34',
+    fontFamily: "Poppins_600SemiBold",
   },
   chevron: {
     marginHorizontal: 8,
+    
+
   },
 });

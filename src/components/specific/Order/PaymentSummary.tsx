@@ -1,78 +1,113 @@
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { Ionicons } from '@expo/vector-icons';
+import { FONT_FAMILY } from '@styles';
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const PaymentSummary = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     clearFields: () => {
-      // PaymentSummary doesn't have state yet, but we'll add this for future use
       console.log('Clear PaymentSummary fields');
     }
   }));
 
   return (
     <View style={styles.card}>
+      {/* --- NEW SECTION: Freebies --- */}
+      <Text style={styles.sectionTitle}>Freebies</Text>
+      <View style={styles.divider} />
+
+      <View style={styles.row}>
+        <View style={styles.halfInputContainer}>
+          <Text style={styles.label}>Items</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Select Client" 
+            placeholderTextColor="#9CA3AF"
+          />
+        </View>
+        <View style={styles.halfInputContainer}>
+          <Text style={styles.label}>Quantity</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Enter Quantity" 
+            placeholderTextColor="#9CA3AF"
+            keyboardType="numeric"
+          />
+        </View>
+      </View>
+
+      <View style={styles.fullInputContainer}>
+        <Text style={styles.label}>Others</Text>
+        <View style={styles.dropdownContainer}>
+          <Text style={styles.dropdownPlaceholder}>Choose Freebies package</Text>
+          <Ionicons name="chevron-down" size={16} color="#6B7280" />
+        </View>
+      </View>
+
       {/* Section: Pricing & Payment Control */}
-<Text style={styles.sectionTitle}>Pricing & Payment Control</Text>
-<View style={styles.divider} />
+      <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Pricing & Payment Control</Text>
+      <View style={styles.divider} />
 
-<View style={styles.row}>
-  <View style={styles.halfInputContainer}>
-    <Text style={styles.label}>Payment Method</Text>
-    <View style={styles.dropdownContainer}>
-      <TextInput 
-        style={styles.input} 
-        placeholder="Select Payment Method" 
-        editable={false}
-      />
-      <Text style={styles.dropdownIcon}>▼</Text>
-    </View>
-  </View>
-  <View style={styles.halfInputContainer}>
-    <Text style={styles.label}>Deposit %</Text>
-    <TextInput 
-      style={styles.blueInput} 
-      placeholder="60%" 
-      editable={false}
-    />
-  </View>
-</View>
+      <View style={styles.row}>
+        <View style={styles.halfInputContainer}>
+          <Text style={styles.label}>Payment Method</Text>
+          <View style={styles.dropdownContainer}>
+            <Text style={styles.dropdownPlaceholder}>Select Payment Method</Text>
+            <Ionicons name="chevron-down" size={16} color="#6B7280" />
+          </View>
+        </View>
+        <View style={styles.halfInputContainer}>
+          <Text style={styles.label}>Deposit %</Text>
+          <TextInput 
+            style={styles.blueInput} 
+            placeholder="60%" 
+            placeholderTextColor="#1F2937"
+            editable={false}
+          />
+        </View>
+      </View>
 
-<View style={styles.fullInputContainer}>
-  <Text style={styles.label}>Total Left</Text>
-  <TextInput 
-    style={styles.blueInput} 
-    placeholder="₱0.00" 
-    editable={false}
-  />
-</View>
+      <View style={styles.fullInputContainer}>
+        <Text style={styles.label}>Total Left</Text>
+        <TextInput 
+          style={styles.blueInput} 
+          placeholder="₱0.00" 
+          placeholderTextColor="#1F2937"
+          editable={false}
+        />
+      </View>
 
-{/* Section: Receipt and Bank Account Details */}
-<Text style={[styles.sectionTitle, { marginTop: 20 }]}>Receipt and Bank Account Details</Text>
-<View style={styles.divider} />
+      {/* Section: Receipt and Bank Account Details */}
+      <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Receipt and Bank Account Details</Text>
+      <View style={styles.divider} />
 
-<View style={styles.uploadBox}>
-  <Text style={styles.uploadIcon}>⬇</Text>
-  <Text style={styles.uploadText}>Upload Receipt and Bank Account Details</Text>
-  <Text style={styles.uploadSubtext}>image/*.ai.psd (max 10MB)</Text>
-</View>
+      <TouchableOpacity style={styles.uploadBox}>
+        <Image 
+          source={require('../../../assets/images/download-solid-full.png')} 
+          style={styles.uploadIconImage} 
+        />
+        <Text style={styles.uploadText}>Upload Receipt and Bank Account Details</Text>
+        <Text style={styles.uploadSubtext}>image/*.ai, .psd (max 10MB)</Text>
+      </TouchableOpacity>
 
-<View style={styles.uploadedFilesBox}>
-  <Text style={styles.uploadedLabel}>Uploaded files</Text>
-  <Text style={styles.placeholderText}>Preview will show here</Text>
-</View>
+      <View style={styles.uploadedFilesBox}>
+        <Text style={styles.uploadedLabel}>Uploaded files</Text>
+        <Text style={styles.placeholderText}>Preview will show here</Text>
+      </View>
 
-{/* Section: Order Summary */}
-<Text style={[styles.sectionTitle, { marginTop: 20 }]}>Order Summary</Text>
-<View style={styles.divider} />
+      {/* Section: Order Summary */}
+      <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Order Summary</Text>
+      <View style={styles.divider} />
 
-<View style={styles.summaryBox}>
-  <Text style={styles.summaryPlaceholder}>*Please add show here</Text>
-</View>
+      <View style={styles.summaryBox}>
+        <Text style={styles.summaryPlaceholder}>Preview will show here</Text>
+      </View>
 
-<View style={styles.summaryBox}>
-  <Text style={styles.summaryPlaceholder}>*Please add show here</Text>
-</View>
+      <View style={styles.summaryBox}>
+        <Text style={styles.summaryPlaceholder}>Preview will show here</Text>
+      </View>
+
+     
     </View>
   );
 });
@@ -84,27 +119,27 @@ export default PaymentSummary;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#EBF6FF',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
     borderWidth: 1,
     borderColor: '#D1D5DB',
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: 18,
     fontFamily: FONT_FAMILY.bold,
-    color: COLORS.text,
-    marginBottom: 10,
+    color: '#111827',
+    marginBottom: 8,
   },
   divider: {
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#cbd5e1',
     marginBottom: 15,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
-    gap: 10,
+    marginBottom: 12,
+    gap: 12,
   },
   halfInputContainer: {
     flex: 1,
@@ -113,106 +148,124 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.medium,
-    color: COLORS.text,
-    marginBottom: 5,
+    fontSize: 14,
+    fontFamily: FONT_FAMILY.bold,
+    color: '#1F2937',
+    marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    paddingRight: 35,
-    fontSize: FONT_SIZES.sm,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
     fontFamily: FONT_FAMILY.regular,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
+    color: '#1F2937',
   },
   dropdownContainer: {
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
   },
-  dropdownIcon: {
-    position: 'absolute',
-    right: 15,
-    top: 12,
-    fontSize: 12,
-    color: '#666',
+  dropdownPlaceholder: {
+    fontSize: 10,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#6B7280',
   },
   blueInput: {
-    backgroundColor: '#d4e8f0',
-    color: '#333',
+    backgroundColor: '#DCEAF5',
+    color: '#1F2937',
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    fontSize: FONT_SIZES.sm,
+    borderColor: '#CFE0EE',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
     fontFamily: FONT_FAMILY.regular,
   },
   uploadBox: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 40,
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    paddingVertical: 35,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  uploadIconImage: {
+    width: 24,
+    height: 24,
+    marginBottom: 8,
+    resizeMode: 'contain',
+  },
+  uploadText: {
+    fontSize: 12,
+    fontFamily: FONT_FAMILY.medium,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  uploadSubtext: {
+    fontSize: 11,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#D1D5DB',
+    marginTop: 2,
+  },
+  uploadedFilesBox: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    padding: 15,
+    minHeight: 60,
     justifyContent: 'center',
     marginBottom: 15,
   },
-  uploadIcon: {
-    fontSize: 32,
-    marginBottom: 8,
-    color: '#333',
-  },
-  uploadText: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.regular,
-    color: '#999',
-    marginBottom: 2,
-  },
-  uploadSubtext: {
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.regular,
-    color: '#bbb',
-  },
-  uploadedFilesBox: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-  },
   uploadedLabel: {
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.medium,
-    color: '#999',
-    marginBottom: 5,
+    position: 'absolute',
+    top: 8,
+    left: 12,
+    fontSize: 12,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#9CA3AF',
   },
   placeholderText: {
-    fontSize: FONT_SIZES.xs,
+    fontSize: 12,
     fontFamily: FONT_FAMILY.regular,
-    color: '#ccc',
-    fontStyle: 'italic',
-  },
-  estimatedTotalInput: {
-    backgroundColor: '#d4e8f0',
-    color: '#333',
-    fontFamily: FONT_FAMILY.semiBold,
+    color: '#D1D5DB',
+    textAlign: 'center',
+    marginTop: 12,
   },
   summaryBox: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#E5E7EB',
     borderRadius: 8,
-    padding: 40,
-    marginBottom: 15,
+    paddingVertical: 30,
+    marginBottom: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   summaryPlaceholder: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: 12,
     fontFamily: FONT_FAMILY.regular,
-    color: '#ccc',
-    fontStyle: 'italic',
+    color: '#D1D5DB',
   },
+  clearAllText: {
+    color: '#1E3A8A',
+    fontSize: 12,
+    fontFamily: FONT_FAMILY.regular,
+    textAlign: 'right',
+    textDecorationLine: 'underline',
+    marginTop: 5,
+  }
 });

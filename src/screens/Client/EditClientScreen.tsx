@@ -6,13 +6,13 @@ import { hp, wp } from '@utils/responsive';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -92,7 +92,10 @@ export default function EditClientScreen() {
           <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Client</Text>
-        <Text style={styles.breadCrumb}>Home / Edit Client</Text>
+       <View style={styles.breadcrumbGroup}>
+                 <Text style={styles.breadcrumbBold}>Home</Text>
+                 <Text style={styles.breadcrumbNormal}> / View Clients</Text>
+               </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -305,7 +308,7 @@ export default function EditClientScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F9FF'
+    backgroundColor: '#ffffff'
   },
   header: {
     backgroundColor: '#0D253F',
@@ -325,16 +328,25 @@ const styles = StyleSheet.create({
   backButton: {
     padding: wp(1.3)
   },
-  breadCrumb: {
-    color: '#A0A0A0',
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.regular,
+ breadcrumbGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  breadcrumbBold: {
+    fontSize: 10,
+    fontFamily: 'Poppins_700Bold',
+    color: '#ffffff',
+  },
+  breadcrumbNormal: {
+    fontSize: 10,
+    fontFamily: 'Poppins_300',
+    color: '#ffffff', // Slate-500 equivalent
   },
   scrollContent: {
     padding: wp(4)
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: '#F5F9FF',
     borderRadius: 10,
     padding: wp(5.3),
     borderWidth: 1,
@@ -382,7 +394,6 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     color: COLORS.text,
     height: hp(4.8),
-    borderWidth: 0
   },
   inputIcon: {
     marginLeft: wp(1.3)
@@ -465,7 +476,8 @@ const styles = StyleSheet.create({
   textArea: {
     height: hp(12.5),
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    backgroundColor: COLORS.white,
+    borderColor: '#B9CDDF',
     borderRadius: 5
   },
   footer: {
