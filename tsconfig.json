@@ -47,11 +47,11 @@
       "@hooks/*": [
         "./src/hooks/*"
       ],
-      "@services": [
-        "./src/services"
+      "@api": [
+        "./src/api"
       ],
-      "@services/*": [
-        "./src/services/*"
+      "@api/*": [
+        "./src/api/*"
       ],
       "@store": [
         "./src/store"
