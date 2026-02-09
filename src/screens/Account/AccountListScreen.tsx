@@ -36,13 +36,17 @@ interface Account {
   [key: string]: string;
 }
 
+const names = ['Joedemar Rosero', 'Harres Uba', 'Jayvin Andeza'];
+const usernames = ['joedemar', 'harres', 'jayvin'];
+const emails = ['joedemar@gmail.com', 'harres@gmail.com', 'jayvin@gmail.com'];
+
 const DATA: Account[] = Array(15).fill(null).map((_, i) => ({
   id: `${i + 1}`,
-  name: 'Gerard Sarmiento',
-  username: 'bossangel',
+  name: names[i % 3],
+  username: usernames[i % 3],
   role: 'developer',
   contact: '0999-999-9999',
-  email: 'sample@gmail.com',
+  email: emails[i % 3],
 }));
 
 export default function AccountListScreen() {
@@ -113,13 +117,14 @@ export default function AccountListScreen() {
 
   // --- OPTIMIZED COLUMNS ---
   const columns: Column[] = useMemo(() => [
-    { key: 'id', header: 'ID', width: 60 },
-    { key: 'name', header: 'Name', width: 140 },
-    { key: 'username', header: 'Username', width: 120 },
+    { key: 'id', header: 'ID', width: 60, sortable: true },
+    { key: 'name', header: 'Name', width: 140, sortable: true },
+    { key: 'username', header: 'Username', width: 120, sortable: true },
     {
       key: 'role',
       header: 'Role',
       width: 140,
+      sortable: false,
       render: (_value: any, _item: any, index: number) => (
         <RoleDropdown
           options={roleOptions}
@@ -129,12 +134,13 @@ export default function AccountListScreen() {
         />
       ),
     },
-    { key: 'contact', header: 'Contact Number', width: 140 },
-    { key: 'email', header: 'Email', width: 180 },
+    { key: 'contact', header: 'Contact Number', width: 140, sortable: true },
+    { key: 'email', header: 'Email', width: 180, sortable: true },
     {
       key: 'action',
       header: '',
       width: 60,
+      sortable: false,
       render: (_value: any, _item: any, index: number) => (
         <View style={{ position: 'relative', zIndex: activeDropdownIndex === index ? 1000 : 1 }}>
           <TouchableOpacity 

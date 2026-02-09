@@ -33,12 +33,15 @@ interface Client {
   [key: string]: string;
 }
 
-const DATA: Client[] = Array(12).fill({
+const names = ['Joedemar Rosero', 'Harres Uba', 'Jayvin Andeza'];
+const emails = ['joedemar@gmail.com', 'harres@gmail.com', 'jayvin@gmail.com'];
+
+const DATA: Client[] = Array(12).fill(null).map((_, i) => ({
   company: 'NIKE',
-  name: 'Morgan Lee',
+  name: names[i % 3],
   contact: '09123456789',
-  email: 'morganlee@gmail.com',
-});
+  email: emails[i % 3],
+}));
 
 export default function ClientListScreen() {
   const router = useRouter();
@@ -89,14 +92,15 @@ export default function ClientListScreen() {
 
   // --- OPTIMIZED COLUMNS ---
   const columns: Column[] = useMemo(() => [
-    { key: 'company', header: 'Clothing/Company', width: 120 },
-    { key: 'name', header: 'Name', width: 120 },
-    { key: 'contact', header: 'Contact No.', width: 130 },
-    { key: 'email', header: 'Email', width: 180 },
+    { key: 'company', header: 'Clothing/Company', width: 120, sortable: true },
+    { key: 'name', header: 'Name', width: 120, sortable: true },
+    { key: 'contact', header: 'Contact No.', width: 130, sortable: true },
+    { key: 'email', header: 'Email', width: 180, sortable: true },
     {
       key: 'action',
       header: '',
       width: 60,
+      sortable: false,
       render: (_value: any, _item: any, index: number) => (
         <View style={{ position: 'relative', zIndex: activeDropdownIndex === index ? 1000 : 1 }}>
           <TouchableOpacity 
