@@ -25,11 +25,12 @@ const sizes = getResponsiveSizes();
 
 interface ManufacturingItemProps {
   title: string;
+  pendingCount: number;
   isSelected: boolean;
   onPress: () => void;
 }
 
-function ManufacturingItem({ title, isSelected, onPress }: ManufacturingItemProps) {
+function ManufacturingItem({ title, pendingCount, isSelected, onPress }: ManufacturingItemProps) {
   return (
     <TouchableOpacity 
       style={[
@@ -39,7 +40,12 @@ function ManufacturingItem({ title, isSelected, onPress }: ManufacturingItemProp
       onPress={onPress}
     >
       <Text style={styles.itemText}>{title}</Text>
-      <Ionicons name="chevron-forward" size={sizes.iconSize} color="white" />
+      <View style={styles.rightSection}>
+        <View style={styles.pendingBadge}>
+          <Text style={styles.pendingText}>{pendingCount} Pending</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={sizes.iconSize} color="white" />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -48,14 +54,14 @@ export default function Manufacturing() {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const items = [
-    'Graphic Designing',
-    'Purchasing',
-    'Cutting',
-    'Screen Making',
-    'Sample Maker',
-    'Sewing',
-    'Packing',
-    'Quality Control',
+    { title: 'Graphic Designing', pendingCount: 100 },
+    { title: 'Purchasing', pendingCount: 100 },
+    { title: 'Cutting', pendingCount: 100 },
+    { title: 'Screen Making', pendingCount: 100 },
+    { title: 'Sample Maker', pendingCount: 100 },
+    { title: 'Sewing', pendingCount: 100 },
+    { title: 'Packing', pendingCount: 100 },
+    { title: 'Quality Control', pendingCount: 100 },
   ];
 
   return (
@@ -67,9 +73,10 @@ export default function Manufacturing() {
         {items.map((item, index) => (
           <ManufacturingItem
             key={index}
-            title={item}
-            isSelected={selectedItem === item}
-            onPress={() => setSelectedItem(item)}
+            title={item.title}
+            pendingCount={item.pendingCount}
+            isSelected={selectedItem === item.title}
+            onPress={() => setSelectedItem(item.title)}
           />
         ))}
       </View>
@@ -114,5 +121,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: sizes.itemTextSize,
     fontWeight: '500',
+    flex: 1,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: sizes.isSmallDevice ? 8 : 12,
+  },
+  pendingBadge: {
+    backgroundColor: '#FDB022',
+    paddingHorizontal: sizes.isSmallDevice ? 10 : 12,
+    paddingVertical: sizes.isSmallDevice ? 4 : 6,
+    borderRadius: sizes.isSmallDevice ? 12 : 14,
+  },
+  pendingText: {
+    color: '#1e3a5f',
+    fontSize: sizes.isSmallDevice ? 12 : 14,
+    fontWeight: '600',
   },
 });
