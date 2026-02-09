@@ -86,32 +86,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
-<<<<<<< Updated upstream
-    { 
-      id: 'dropdown-settings', 
-      title: 'Dropdown Settings', 
-      icon: 'settings-outline',
-      subItems: [
-        { 
-          id: 'category', 
-          title: '(Category)',
-          subItems: []
-        },
-        { 
-          id: 'page', 
-          title: '(Page)',
-          subItems: []
-        },
-        { 
-          id: 'dropdown-name', 
-          title: '(Dropdown name)',
-          route: '/dropdown-settings'
-        },
-      ]
-    },
-=======
     { id: 'dropdown-settings', title: 'Dropdown Settings', icon: 'settings-outline', route: '/dropdown-settings' },
->>>>>>> Stashed changes
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
