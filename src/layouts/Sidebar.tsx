@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,14 @@ interface MenuItem {
   title: string;
   icon: string;
   route?: string;
+  subItems?: SubMenuItem[];
+}
+
+interface SubMenuItem {
+  id: string;
+  title: string;
+  route?: string;
+  subItems?: SubMenuItem[];
 }
 
 const SIDEBAR_WIDTH = 280;
@@ -23,6 +31,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (visible) {
@@ -77,6 +86,28 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    { 
+      id: 'dropdown-settings', 
+      title: 'Dropdown Settings', 
+      icon: 'settings-outline',
+      subItems: [
+        { 
+          id: 'category', 
+          title: '(Category)',
+          subItems: []
+        },
+        { 
+          id: 'page', 
+          title: '(Page)',
+          subItems: []
+        },
+        { 
+          id: 'dropdown-name', 
+          title: '(Dropdown name)',
+          route: '/dropdown-settings'
+        },
+      ]
+    },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
@@ -90,23 +121,67 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     { id: 'material', title: 'Material Preparation', icon: 'cube-outline' },
   ];
 
-  const handleItemPress = (item: MenuItem) => {
-    if (item.route) {
-      router.push(item.route as any);
-    }
-    handleClose();
+  const toggleExpand = (itemId: string) => {
+    setExpandedItems((prev: Record<string, boolean>) => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
   };
 
+  const handleItemPress = (item: MenuItem | SubMenuItem) => {
+    if (item.subItems && item.subItems.length > 0) {
+      toggleExpand(item.id);
+    } else if (item.route) {
+      router.push(item.route as any);
+      handleClose();
+    }
+  };
+
+  const renderSubMenuItem = (item: SubMenuItem, level: number = 1) => (
+    <View key={item.id}>
+      <TouchableOpacity
+        style={[styles.subMenuItem, { paddingLeft: 20 + (level * 20) }]}
+        onPress={() => handleItemPress(item)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.subMenuText}>{item.title}</Text>
+        {item.subItems && item.subItems.length > 0 && (
+          <Ionicons 
+            name={expandedItems[item.id] ? "chevron-down" : "chevron-forward"} 
+            size={16} 
+            color="#ffffff" 
+          />
+        )}
+      </TouchableOpacity>
+      {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
+        renderSubMenuItem(subItem, level + 1)
+      )}
+    </View>
+  );
+
   const renderMenuItem = (item: MenuItem) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.menuItem}
-      onPress={() => handleItemPress(item)}
-      activeOpacity={0.7}
-    >
-      <Ionicons name={item.icon as any} size={20} color="#ffffff" />
-      <Text style={styles.menuText}>{item.title}</Text>
-    </TouchableOpacity>
+    <View key={item.id}>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => handleItemPress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.menuItemContent}>
+          <Ionicons name={item.icon as any} size={20} color="#ffffff" />
+          <Text style={styles.menuText}>{item.title}</Text>
+        </View>
+        {item.subItems && item.subItems.length > 0 && (
+          <Ionicons 
+            name={expandedItems[item.id] ? "chevron-down" : "chevron-forward"} 
+            size={16} 
+            color="#ffffff" 
+          />
+        )}
+      </TouchableOpacity>
+      {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
+        renderSubMenuItem(subItem)
+      )}
+    </View>
   );
 
   return (
@@ -285,14 +360,34 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 4,
     marginBottom: 8,
+  },
+  menuItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   menuText: {
     fontSize: 16,
     color: '#ffffff',
     marginLeft: 16,
     fontWeight: '400',
+  },
+  subMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingRight: 4,
+    marginBottom: 4,
+  },
+  subMenuText: {
+    fontSize: 15,
+    color: '#ffffff',
+    fontWeight: '300',
+    flex: 1,
   },
 });
