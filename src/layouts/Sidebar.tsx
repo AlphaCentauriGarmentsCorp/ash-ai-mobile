@@ -86,7 +86,67 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
-    { id: 'dropdown-settings', title: 'Dropdown Settings', icon: 'settings-outline', route: '/dropdown-settings' },
+    { 
+      id: 'dropdown-settings', 
+      title: 'Dropdown Settings', 
+      icon: 'settings-outline',
+      subItems: [
+        {
+          id: 'pattern-type',
+          title: 'Pattern Type',
+          subItems: [
+            { id: 'pattern-client', title: 'Client', route: '/dropdown-settings/Pattern Type/Client' },
+            { id: 'pattern-order', title: 'Order', route: '/dropdown-settings/Pattern Type/Order' },
+            { id: 'pattern-accounts', title: 'Accounts', route: '/dropdown-settings/Pattern Type/Accounts' },
+          ]
+        },
+        {
+          id: 'apparel-type',
+          title: 'Apparel Type',
+          subItems: [
+            { id: 'apparel-client', title: 'Client', route: '/dropdown-settings/Apparel Type/Client' },
+            { id: 'apparel-order', title: 'Order', route: '/dropdown-settings/Apparel Type/Order' },
+            { id: 'apparel-accounts', title: 'Accounts', route: '/dropdown-settings/Apparel Type/Accounts' },
+          ]
+        },
+        {
+          id: 'service-type',
+          title: 'Service Type',
+          subItems: [
+            { id: 'service-client', title: 'Client', route: '/dropdown-settings/Service Type/Client' },
+            { id: 'service-order', title: 'Order', route: '/dropdown-settings/Service Type/Order' },
+            { id: 'service-accounts', title: 'Accounts', route: '/dropdown-settings/Service Type/Accounts' },
+          ]
+        },
+        {
+          id: 'fabric-type',
+          title: 'Fabric Type',
+          subItems: [
+            { id: 'fabric-client', title: 'Client', route: '/dropdown-settings/Fabric Type/Client' },
+            { id: 'fabric-order', title: 'Order', route: '/dropdown-settings/Fabric Type/Order' },
+            { id: 'fabric-accounts', title: 'Accounts', route: '/dropdown-settings/Fabric Type/Accounts' },
+          ]
+        },
+        {
+          id: 'color',
+          title: 'Color',
+          subItems: [
+            { id: 'color-client', title: 'Client', route: '/dropdown-settings/Color/Client' },
+            { id: 'color-order', title: 'Order', route: '/dropdown-settings/Color/Order' },
+            { id: 'color-accounts', title: 'Accounts', route: '/dropdown-settings/Color/Accounts' },
+          ]
+        },
+        {
+          id: 'size',
+          title: 'Size',
+          subItems: [
+            { id: 'size-client', title: 'Client', route: '/dropdown-settings/Size/Client' },
+            { id: 'size-order', title: 'Order', route: '/dropdown-settings/Size/Order' },
+            { id: 'size-accounts', title: 'Accounts', route: '/dropdown-settings/Size/Accounts' },
+          ]
+        },
+      ]
+    },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
@@ -100,27 +160,45 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     { id: 'material', title: 'Material Preparation', icon: 'cube-outline' },
   ];
 
-  const toggleExpand = (itemId: string) => {
-    setExpandedItems((prev: Record<string, boolean>) => ({
-      ...prev,
-      [itemId]: !prev[itemId]
-    }));
+  const toggleExpand = (itemId: string, parentId?: string) => {
+    setExpandedItems((prev: Record<string, boolean>) => {
+      const newState = { ...prev };
+      
+      // If this is a category under dropdown-settings, close other categories
+      if (parentId === 'dropdown-settings') {
+        // Close all other categories under dropdown-settings
+        const categoryIds = [
+          'pattern-type', 'apparel-type', 'service-type', 
+          'fabric-type', 'color', 'size'
+        ];
+        categoryIds.forEach(catId => {
+          if (catId !== itemId) {
+            newState[catId] = false;
+          }
+        });
+      }
+      
+      // Toggle the clicked item
+      newState[itemId] = !prev[itemId];
+      
+      return newState;
+    });
   };
 
-  const handleItemPress = (item: MenuItem | SubMenuItem) => {
+  const handleItemPress = (item: MenuItem | SubMenuItem, parentId?: string) => {
     if (item.subItems && item.subItems.length > 0) {
-      toggleExpand(item.id);
+      toggleExpand(item.id, parentId);
     } else if (item.route) {
       router.push(item.route as any);
       handleClose();
     }
   };
 
-  const renderSubMenuItem = (item: SubMenuItem, level: number = 1) => (
+  const renderSubMenuItem = (item: SubMenuItem, level: number = 1, parentId?: string) => (
     <View key={item.id}>
       <TouchableOpacity
         style={[styles.subMenuItem, { paddingLeft: 20 + (level * 20) }]}
-        onPress={() => handleItemPress(item)}
+        onPress={() => handleItemPress(item, parentId)}
         activeOpacity={0.7}
       >
         <Text style={styles.subMenuText}>{item.title}</Text>
@@ -133,7 +211,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         )}
       </TouchableOpacity>
       {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
-        renderSubMenuItem(subItem, level + 1)
+        renderSubMenuItem(subItem, level + 1, item.id)
       )}
     </View>
   );
@@ -158,7 +236,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         )}
       </TouchableOpacity>
       {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
-        renderSubMenuItem(subItem)
+        renderSubMenuItem(subItem, 1, item.id)
       )}
     </View>
   );

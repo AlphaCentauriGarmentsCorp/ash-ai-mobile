@@ -1,35 +1,39 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
-    TouchableOpacity,
+    TextInput,
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Button from '@components/common/Button';
-import FormInput from '@components/common/FormInput';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
-import { COLORS, SPACING } from '@styles';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { hp, wp } from '@utils/responsive';
 
 export default function AddDropdownScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
   
-  const [name, setName] = useState('');
+  const [dropdownTitle, setDropdownTitle] = useState('');
   const [description, setDescription] = useState('');
 
+  const category = params.category as string || '';
+  const page = params.page as string || '';
+
   const handleClear = () => {
-    setName('');
+    setDropdownTitle('');
     setDescription('');
   };
 
   const handleSave = () => {
-    console.log('Save dropdown:', { name, description });
+    console.log('Save dropdown:', { category, page, dropdownTitle, description });
     router.back();
   };
 
@@ -47,45 +51,61 @@ export default function AddDropdownScreen() {
         <Stack.Screen options={{ headerShown: false }} />
         
         <PageHeader 
-          title="Add Dropdown" 
-          breadcrumbBold="Home / Dropdown Settings"
-          breadcrumbNormal=" / Add"
+          title="Add Option"
+          breadcrumbBold={`Home / ${category}`}
+          breadcrumbNormal={` / ${page} / Add`}
         />
 
-        <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.formContainer}>
-            <FormInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Enter dropdown name"
-            />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.card}>
+            
+            {/* Section: Dropdown Details */}
+            <Text style={styles.sectionTitle}>Dropdown Details</Text>
+            <View style={styles.divider} />
+            
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Option Name</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder={`Enter ${category.toLowerCase()} option name`}
+                value={dropdownTitle}
+                onChangeText={setDropdownTitle}
+              />
+            </View>
 
-            <FormInput
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Enter description"
-              multiline
-              numberOfLines={4}
-            />
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Description</Text>
+              <TextInput 
+                style={[styles.input, styles.textArea]} 
+                placeholder="Enter description here..."
+                multiline={true}
+                numberOfLines={6}
+                textAlignVertical="top"
+                value={description}
+                onChangeText={setDescription}
+              />
+            </View>
+
           </View>
 
+          {/* Footer */}
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClear}>
-              <Text style={styles.clearText}>Clear all fields</Text>
-            </TouchableOpacity>
-
             <View style={styles.actionButtons}>
               <Button
-                title="Back"
+                title="Cancel"
                 onPress={() => router.back()}
                 variant="outline"
                 size="base"
+                style={styles.cancelBtn}
+                textStyle={styles.cancelText}
               />
+              
               <Button
                 title="Save"
                 onPress={handleSave}
                 variant="primary"
                 size="base"
+                style={styles.saveBtn}
               />
             </View>
           </View>
@@ -104,30 +124,76 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
-  mainContent: {
-    flex: 1,
-    paddingHorizontal: SPACING.base,
+  scrollContent: {
+    padding: wp(4),
   },
-  formContainer: {
-    paddingTop: SPACING.lg,
-    gap: SPACING.base,
+  card: {
+    backgroundColor: '#EBF6FF',
+    borderRadius: 10,
+    padding: wp(5.3),
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.text,
+    marginBottom: hp(1.2),
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginBottom: hp(1.9),
+  },
+  inputContainer: {
+    marginBottom: hp(1.9),
+  },
+  label: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.text,
+    marginBottom: hp(0.6),
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 5,
+    paddingHorizontal: wp(2.7),
+    paddingVertical: hp(1),
+    fontSize: FONT_SIZES.sm,
+    backgroundColor: COLORS.white,
+    fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
+  },
+  textArea: {
+    height: hp(15),
+    paddingTop: hp(1),
+  },
+  disabledInput: {
+    backgroundColor: '#F3F4F6',
+    color: '#6B7280',
   },
   footer: {
-    marginTop: SPACING.xl,
-    marginBottom: SPACING.xl,
-  },
-  clearButtonContainer: {
-    alignSelf: 'flex-start',
-    marginBottom: SPACING.base,
-  },
-  clearText: {
-    color: '#0D253F',
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    textDecorationLine: 'underline',
+    marginTop: hp(3.1),
+    marginBottom: hp(2.5),
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: SPACING.base,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: wp(4),
+  },
+  cancelBtn: {
+    backgroundColor: '#E5E7EB',
+    borderColor: '#E5E7EB',
+    minWidth: wp(26.7),
+  },
+  cancelText: {
+    color: '#1F2937',
+    fontWeight: '700',
+  },
+  saveBtn: {
+    backgroundColor: '#0D253F',
+    minWidth: wp(26.7),
   },
 });

@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,12 +35,16 @@ const DATA: DropdownItem[] = Array(10).fill(null).map((_, i) => ({
 
 export default function DropdownSettingsListScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const fontsLoaded = usePoppinsFonts();
 
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+
+  const category = params.category as string || 'Dropdown Settings';
+  const page = params.page as string || '';
 
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
@@ -94,20 +98,20 @@ export default function DropdownSettingsListScreen() {
           <View style={styles.iconCircleWrapper}>
             <Ionicons name="settings-outline" size={24} color="#0D253F" />
           </View>
-          <Text style={styles.pageTitleText}>Dropdown Settings</Text>
+          <Text style={styles.pageTitleText}>{category}</Text>
         </View>
 
         <View style={styles.breadcrumbGroup}>
           <Text style={styles.breadcrumbBold}>Home</Text>
-          <Text style={styles.breadcrumbNormal}> / Settings</Text>
+          <Text style={styles.breadcrumbNormal}> / {category}</Text>
         </View>
       </View>
 
       <ScrollView style={styles.contentContainer}>
         <View style={styles.actionButtonsRow}>
           <Button
-            title="Add Dropdown"
-            onPress={() => router.push('/dropdown-settings/add')}
+            title={`Add ${category}`}
+            onPress={() => router.push(`/dropdown-settings/${category}/${page}/add` as any)}
             variant="primary"
             size="base"
             icon="add-circle-outline"
