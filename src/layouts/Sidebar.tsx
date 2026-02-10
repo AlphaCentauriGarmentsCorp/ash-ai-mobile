@@ -145,6 +145,24 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
             { id: 'size-accounts', title: 'Accounts', route: '/dropdown-settings/Size/Accounts' },
           ]
         },
+        {
+          id: 'print-label',
+          title: 'Print Label',
+          subItems: [
+            { id: 'label-client', title: 'Client', route: '/dropdown-settings/Print Label/Client' },
+            { id: 'label-order', title: 'Order', route: '/dropdown-settings/Print Label/Order' },
+            { id: 'label-accounts', title: 'Accounts', route: '/dropdown-settings/Print Label/Accounts' },
+          ]
+        },
+        {
+          id: 'print-method',
+          title: 'Print Method',
+          subItems: [
+            { id: 'method-client', title: 'Client', route: '/dropdown-settings/Print Method/Client' },
+            { id: 'method-order', title: 'Order', route: '/dropdown-settings/Print Method/Order' },
+            { id: 'method-accounts', title: 'Accounts', route: '/dropdown-settings/Print Method/Accounts' },
+          ]
+        },
       ]
     },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
@@ -169,7 +187,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         // Close all other categories under dropdown-settings
         const categoryIds = [
           'pattern-type', 'apparel-type', 'service-type', 
-          'fabric-type', 'color', 'size'
+          'fabric-type', 'color', 'size', 'print-label', 'print-method'
         ];
         categoryIds.forEach(catId => {
           if (catId !== itemId) {
