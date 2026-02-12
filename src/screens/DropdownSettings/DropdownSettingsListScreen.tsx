@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -63,7 +63,7 @@ export default function DropdownSettingsListScreen() {
   };
 
   const columns: Column[] = useMemo(() => [
-    { key: 'id', header: 'Index', width: 80, sortable: true },
+    { key: 'id', header: '#', width: 80, sortable: true },
     { key: 'name', header: 'Name', width: 150, sortable: true },
     { key: 'description', header: 'Description', width: 400, sortable: true },
     {
