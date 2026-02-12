@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,14 @@ interface MenuItem {
   title: string;
   icon: string;
   route?: string;
+  subItems?: SubMenuItem[];
+}
+
+interface SubMenuItem {
+  id: string;
+  title: string;
+  route?: string;
+  subItems?: SubMenuItem[];
 }
 
 const SIDEBAR_WIDTH = 280;
@@ -23,6 +31,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (visible) {
@@ -77,6 +86,85 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    { 
+      id: 'dropdown-settings', 
+      title: 'Dropdown Settings', 
+      icon: 'settings-outline',
+      subItems: [
+        {
+          id: 'pattern-type',
+          title: 'Pattern Type',
+          subItems: [
+            { id: 'pattern-client', title: 'Client', route: '/dropdown-settings/Pattern Type/Client' },
+            { id: 'pattern-order', title: 'Order', route: '/dropdown-settings/Pattern Type/Order' },
+            { id: 'pattern-accounts', title: 'Accounts', route: '/dropdown-settings/Pattern Type/Accounts' },
+          ]
+        },
+        {
+          id: 'apparel-type',
+          title: 'Apparel Type',
+          subItems: [
+            { id: 'apparel-client', title: 'Client', route: '/dropdown-settings/Apparel Type/Client' },
+            { id: 'apparel-order', title: 'Order', route: '/dropdown-settings/Apparel Type/Order' },
+            { id: 'apparel-accounts', title: 'Accounts', route: '/dropdown-settings/Apparel Type/Accounts' },
+          ]
+        },
+        {
+          id: 'service-type',
+          title: 'Service Type',
+          subItems: [
+            { id: 'service-client', title: 'Client', route: '/dropdown-settings/Service Type/Client' },
+            { id: 'service-order', title: 'Order', route: '/dropdown-settings/Service Type/Order' },
+            { id: 'service-accounts', title: 'Accounts', route: '/dropdown-settings/Service Type/Accounts' },
+          ]
+        },
+        {
+          id: 'fabric-type',
+          title: 'Fabric Type',
+          subItems: [
+            { id: 'fabric-client', title: 'Client', route: '/dropdown-settings/Fabric Type/Client' },
+            { id: 'fabric-order', title: 'Order', route: '/dropdown-settings/Fabric Type/Order' },
+            { id: 'fabric-accounts', title: 'Accounts', route: '/dropdown-settings/Fabric Type/Accounts' },
+          ]
+        },
+        {
+          id: 'color',
+          title: 'Color',
+          subItems: [
+            { id: 'color-client', title: 'Client', route: '/dropdown-settings/Color/Client' },
+            { id: 'color-order', title: 'Order', route: '/dropdown-settings/Color/Order' },
+            { id: 'color-accounts', title: 'Accounts', route: '/dropdown-settings/Color/Accounts' },
+          ]
+        },
+        {
+          id: 'size',
+          title: 'Size',
+          subItems: [
+            { id: 'size-client', title: 'Client', route: '/dropdown-settings/Size/Client' },
+            { id: 'size-order', title: 'Order', route: '/dropdown-settings/Size/Order' },
+            { id: 'size-accounts', title: 'Accounts', route: '/dropdown-settings/Size/Accounts' },
+          ]
+        },
+        {
+          id: 'print-label',
+          title: 'Print Label',
+          subItems: [
+            { id: 'label-client', title: 'Client', route: '/dropdown-settings/Print Label/Client' },
+            { id: 'label-order', title: 'Order', route: '/dropdown-settings/Print Label/Order' },
+            { id: 'label-accounts', title: 'Accounts', route: '/dropdown-settings/Print Label/Accounts' },
+          ]
+        },
+        {
+          id: 'print-method',
+          title: 'Print Method',
+          subItems: [
+            { id: 'method-client', title: 'Client', route: '/dropdown-settings/Print Method/Client' },
+            { id: 'method-order', title: 'Order', route: '/dropdown-settings/Print Method/Order' },
+            { id: 'method-accounts', title: 'Accounts', route: '/dropdown-settings/Print Method/Accounts' },
+          ]
+        },
+      ]
+    },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
@@ -90,23 +178,85 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     { id: 'material', title: 'Material Preparation', icon: 'cube-outline' },
   ];
 
-  const handleItemPress = (item: MenuItem) => {
-    if (item.route) {
-      router.push(item.route as any);
-    }
-    handleClose();
+  const toggleExpand = (itemId: string, parentId?: string) => {
+    setExpandedItems((prev: Record<string, boolean>) => {
+      const newState = { ...prev };
+      
+      // If this is a category under dropdown-settings, close other categories
+      if (parentId === 'dropdown-settings') {
+        // Close all other categories under dropdown-settings
+        const categoryIds = [
+          'pattern-type', 'apparel-type', 'service-type', 
+          'fabric-type', 'color', 'size', 'print-label', 'print-method'
+        ];
+        categoryIds.forEach(catId => {
+          if (catId !== itemId) {
+            newState[catId] = false;
+          }
+        });
+      }
+      
+      // Toggle the clicked item
+      newState[itemId] = !prev[itemId];
+      
+      return newState;
+    });
   };
 
+  const handleItemPress = (item: MenuItem | SubMenuItem, parentId?: string) => {
+    if (item.subItems && item.subItems.length > 0) {
+      toggleExpand(item.id, parentId);
+    } else if (item.route) {
+      router.push(item.route as any);
+      handleClose();
+    }
+  };
+
+  const renderSubMenuItem = (item: SubMenuItem, level: number = 1, parentId?: string) => (
+    <View key={item.id}>
+      <TouchableOpacity
+        style={[styles.subMenuItem, { paddingLeft: 20 + (level * 20) }]}
+        onPress={() => handleItemPress(item, parentId)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.subMenuText}>{item.title}</Text>
+        {item.subItems && item.subItems.length > 0 && (
+          <Ionicons 
+            name={expandedItems[item.id] ? "chevron-down" : "chevron-forward"} 
+            size={16} 
+            color="#ffffff" 
+          />
+        )}
+      </TouchableOpacity>
+      {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
+        renderSubMenuItem(subItem, level + 1, item.id)
+      )}
+    </View>
+  );
+
   const renderMenuItem = (item: MenuItem) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.menuItem}
-      onPress={() => handleItemPress(item)}
-      activeOpacity={0.7}
-    >
-      <Ionicons name={item.icon as any} size={20} color="#ffffff" />
-      <Text style={styles.menuText}>{item.title}</Text>
-    </TouchableOpacity>
+    <View key={item.id}>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => handleItemPress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.menuItemContent}>
+          <Ionicons name={item.icon as any} size={20} color="#ffffff" />
+          <Text style={styles.menuText}>{item.title}</Text>
+        </View>
+        {item.subItems && item.subItems.length > 0 && (
+          <Ionicons 
+            name={expandedItems[item.id] ? "chevron-down" : "chevron-forward"} 
+            size={16} 
+            color="#ffffff" 
+          />
+        )}
+      </TouchableOpacity>
+      {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
+        renderSubMenuItem(subItem, 1, item.id)
+      )}
+    </View>
   );
 
   return (
@@ -285,14 +435,34 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 4,
     marginBottom: 8,
+  },
+  menuItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   menuText: {
     fontSize: 16,
     color: '#ffffff',
     marginLeft: 16,
     fontWeight: '400',
+  },
+  subMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingRight: 4,
+    marginBottom: 4,
+  },
+  subMenuText: {
+    fontSize: 15,
+    color: '#ffffff',
+    fontWeight: '300',
+    flex: 1,
   },
 });

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_SIZES, SIZES } from '@styles';
 import React, { useRef, useState } from 'react';
 import {
@@ -5,14 +6,16 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
-    ViewStyle,
+    ViewStyle
 } from 'react-native';
 
 export interface Column {
   key: string;
   header: string;
   width: number;
+  sortable?: boolean;
   render?: (value: any, item: any, index: number) => React.ReactNode;
 }
 
@@ -23,6 +26,7 @@ interface DataTableProps {
   thumbWidth?: number;
   style?: ViewStyle;
   activeRowIndex?: number | null;
+  onSort?: (key: string, direction: 'asc' | 'desc') => void;
 }
 
 export default function DataTable({
@@ -32,10 +36,12 @@ export default function DataTable({
   thumbWidth = 120,
   style,
   activeRowIndex = null,
+  onSort,
 }: DataTableProps) {
   const scrollX = useRef(new Animated.Value(0)).current;
   const [contentWidth, setContentWidth] = useState(1);
   const [visibleWidth, setVisibleWidth] = useState(0);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   const scrollableWidth = contentWidth - visibleWidth;
 
@@ -44,6 +50,38 @@ export default function DataTable({
     outputRange: [0, trackWidth - thumbWidth],
     extrapolate: 'clamp',
   });
+
+  const handleSort = (columnKey: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    
+    if (sortConfig && sortConfig.key === columnKey && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    
+    setSortConfig({ key: columnKey, direction });
+    
+    if (onSort) {
+      onSort(columnKey, direction);
+    }
+  };
+
+  const getSortedData = () => {
+    if (!sortConfig) return data;
+
+    const sortedData = [...data].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue === bValue) return 0;
+
+      const comparison = aValue < bValue ? -1 : 1;
+      return sortConfig.direction === 'asc' ? comparison : -comparison;
+    });
+
+    return sortedData;
+  };
+
+  const sortedData = getSortedData();
 
   return (
     <View style={[styles.tableWrapper, style]}>
@@ -60,17 +98,40 @@ export default function DataTable({
       >
         <View>
           <View style={styles.tableHeader}>
-            {columns.map((column, index) => (
-              <Text
-                key={index}
-                style={[styles.columnHeader, { width: column.width }]}
-              >
-                {column.header}
-              </Text>
-            ))}
+            {columns.map((column, index) => {
+              const isSortable = column.sortable !== false && !column.render;
+              const isSorted = sortConfig?.key === column.key;
+              
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.columnHeaderContainer, { width: column.width }]}
+                  onPress={() => isSortable && handleSort(column.key)}
+                  disabled={!isSortable}
+                  activeOpacity={isSortable ? 0.7 : 1}
+                >
+                  <Text style={styles.columnHeader}>
+                    {column.header}
+                  </Text>
+                  {isSortable && (
+                    <View style={styles.sortIconContainer}>
+                      {isSorted ? (
+                        <Ionicons
+                          name={sortConfig.direction === 'asc' ? 'chevron-up' : 'chevron-down'}
+                          size={14}
+                          color="#0D253F"
+                        />
+                      ) : (
+                        <Ionicons name="swap-vertical" size={14} color="#A5B4BF" />
+                      )}
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          {data.map((item, rowIndex) => (
+          {sortedData.map((item, rowIndex) => (
             <View
               key={rowIndex}
               style={[
@@ -130,10 +191,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: SIZES.border.thick,
     borderBottomColor: '#A5B4BF',
   },
+  columnHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   columnHeader: {
     fontSize: 10,
     fontFamily: "Poppins_300Light",
     color: 'COLORS.textSecondary',
+  },
+  sortIconContainer: {
+    marginLeft: 2,
   },
   tableRow: {
     flexDirection: 'row',
@@ -146,7 +215,9 @@ const styles = StyleSheet.create({
   rowEven: {
     backgroundColor: COLORS.white,
   },
-
+  rowOdd: {
+    backgroundColor: '#F9FAFB',
+  },
   cellText: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.text,

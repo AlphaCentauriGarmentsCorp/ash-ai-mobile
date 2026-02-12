@@ -30,6 +30,7 @@ const allOrders = Array.from({ length: 30 }).map((_, i) => {
   const designs = ['The Reefer', 'Classic Logo', 'Modern Stripe', 'Vintage Style', 'Bold Print'];
   const statuses = ['In Production', 'Pending Approval', 'Confirmed', 'Draft'];
   const colors = ['#F58220', '#000'];
+  const leadTimes = ['2 days', '5 days', '1 week', '3 days', '10 days'];
   
   return {
     id: (i + 1).toString(),
@@ -39,6 +40,7 @@ const allOrders = Array.from({ length: 30 }).map((_, i) => {
     clothing: clothings[i % clothings.length],
     designName: designs[i % designs.length],
     status: statuses[i % statuses.length],
+    leadTimeLeft: leadTimes[i % leadTimes.length],
     color: colors[i % colors.length]
   };
 });
@@ -135,6 +137,7 @@ export default function OrderListScreen() {
     { key: 'clothing', header: 'Clothing', width: wp(24) },
     { key: 'designName', header: 'Design Name', width: wp(30) },
     { key: 'status', header: 'Status', width: wp(27) },
+    { key: 'leadTimeLeft', header: 'Lead Time Left', width: wp(25) },
   ];
 
   const legends: Legend[] = [
