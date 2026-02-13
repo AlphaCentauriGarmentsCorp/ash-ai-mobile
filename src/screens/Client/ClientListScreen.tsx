@@ -2,14 +2,15 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  Modal,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,6 +46,8 @@ export default function ClientListScreen() {
   
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [brandModalVisible, setBrandModalVisible] = useState(false);
+  const [selectedClientForBrands, setSelectedClientForBrands] = useState<Client | null>(null);
 
   // Client-side filtering
   const filteredClients = useMemo(() => {
@@ -134,6 +137,11 @@ export default function ClientListScreen() {
       setActiveDropdownIndex(index);
       setSelectedClient(currentClients[index]); 
     }
+  };
+
+  const handleRowPress = (client: Client, index: number) => {
+    setSelectedClientForBrands(client);
+    setBrandModalVisible(true);
   };
 
   const filterOptions: DropdownOption[] = [
@@ -312,6 +320,7 @@ export default function ClientListScreen() {
               columns={columns} 
               data={currentClients} 
               activeRowIndex={activeDropdownIndex}
+              onRowPress={handleRowPress}
             />
 
             <Pagination
@@ -337,6 +346,50 @@ export default function ClientListScreen() {
         confirmText="Remove Client"
         highlightText={selectedClient ? selectedClient.name : ''}
       />
+
+      {/* Brand Modal */}
+      <Modal
+        visible={brandModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setBrandModalVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setBrandModalVisible(false)}
+        >
+          <TouchableOpacity 
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Clothing/Company</Text>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              {selectedClientForBrands?.brands && selectedClientForBrands.brands.length > 0 ? (
+                selectedClientForBrands.brands.map((brand, index) => (
+                  <View key={index} style={styles.brandItem}>
+                    <Text style={styles.brandName}>{brand.name}</Text>
+                    <Text style={styles.ownerName}>{selectedClientForBrands.name}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.noBrandsText}>No brands available</Text>
+              )}
+            </ScrollView>
+
+            <TouchableOpacity 
+              style={styles.closeModalButton}
+              onPress={() => setBrandModalVisible(false)}
+            >
+              <Text style={styles.closeModalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -481,5 +534,87 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.base,
     fontFamily: 'Poppins_400Regular',
     color: '#0D253F',
+  },
+  
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: '90%',
+    maxWidth: 380,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#0D253F',
+  },
+  modalBody: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    maxHeight: 280,
+  },
+  brandItem: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    marginBottom: 4,
+  },
+  brandName: {
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold',
+    color: '#0D253F',
+    textAlign: 'center',
+    letterSpacing: 0.3,
+    marginBottom: 4,
+  },
+  ownerName: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    color: '#6B7280',
+    textAlign: 'center',
+    letterSpacing: 0.2,
+  },
+  noBrandsText: {
+    fontSize: 15,
+    fontFamily: 'Poppins_400Regular',
+    color: '#9CA3AF',
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
+  closeModalButton: {
+    backgroundColor: '#0D253F',
+    marginHorizontal: 24,
+    marginTop: 12,
+    marginBottom: 20,
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  closeModalButtonText: {
+    fontSize: 16,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
 });

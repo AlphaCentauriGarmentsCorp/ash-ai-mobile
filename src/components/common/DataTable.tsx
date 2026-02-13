@@ -27,6 +27,7 @@ interface DataTableProps {
   style?: ViewStyle;
   activeRowIndex?: number | null;
   onSort?: (key: string, direction: 'asc' | 'desc') => void;
+  onRowPress?: (item: any, index: number) => void;
 }
 
 export default function DataTable({
@@ -37,6 +38,7 @@ export default function DataTable({
   style,
   activeRowIndex = null,
   onSort,
+  onRowPress,
 }: DataTableProps) {
   const scrollX = useRef(new Animated.Value(0)).current;
   const [contentWidth, setContentWidth] = useState(1);
@@ -131,34 +133,43 @@ export default function DataTable({
             })}
           </View>
 
-          {sortedData.map((item, rowIndex) => (
-            <View
-              key={rowIndex}
-              style={[
-                styles.tableRow,
-                rowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd,
-                { zIndex: activeRowIndex === rowIndex ? 1000 : 1 },
-              ]}
-            >
-              {columns.map((column, colIndex) => {
-                const value = item[column.key];
-                return (
-                  <View
-                    key={colIndex}
-                    style={{ width: column.width, alignItems: column.render ? 'center' : 'flex-start' }}
-                  >
-                    {column.render ? (
-                      column.render(value, item, rowIndex)
-                    ) : (
-                      <Text style={styles.cellText} numberOfLines={1}>
-                        {value}
-                      </Text>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          ))}
+          {sortedData.map((item, rowIndex) => {
+            const RowWrapper = onRowPress ? TouchableOpacity : View;
+            return (
+              <RowWrapper
+                key={rowIndex}
+                style={[
+                  styles.tableRow,
+                  rowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd,
+                  { zIndex: activeRowIndex === rowIndex ? 1000 : 1 },
+                ]}
+                onPress={onRowPress ? () => onRowPress(item, rowIndex) : undefined}
+                activeOpacity={onRowPress ? 0.7 : 1}
+              >
+                {columns.map((column, colIndex) => {
+                  const value = item[column.key];
+                  return (
+                    <View
+                      key={colIndex}
+                      style={{ 
+                        width: column.width, 
+                        alignItems: column.render ? 'center' : 'flex-start',
+                        paddingHorizontal: 4,
+                      }}
+                    >
+                      {column.render ? (
+                        column.render(value, item, rowIndex)
+                      ) : (
+                        <Text style={styles.cellText} numberOfLines={2}>
+                          {value}
+                        </Text>
+                      )}
+                    </View>
+                  );
+                })}
+              </RowWrapper>
+            );
+          })}
         </View>
       </ScrollView>
 
@@ -187,14 +198,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#EBF6FF',
     paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     borderBottomWidth: SIZES.border.thick,
     borderBottomColor: '#A5B4BF',
+    gap: 16,
   },
   columnHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   columnHeader: {
     fontSize: 10,
@@ -207,10 +219,11 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     paddingVertical: 14,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     borderBottomWidth: SIZES.border.thick,
     borderBottomColor: '#A5B4BF',
     alignItems: 'center',
+    gap: 16,
   },
   rowEven: {
     backgroundColor: COLORS.white,
@@ -222,6 +235,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     color: COLORS.text,
     fontFamily: 'poppins-regular',
+    flexWrap: 'wrap',
   },
   customScrollContainer: {
     paddingHorizontal: 10,
