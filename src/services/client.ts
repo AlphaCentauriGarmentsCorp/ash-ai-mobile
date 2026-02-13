@@ -1,6 +1,6 @@
-import apiClient from '../client';
-import API_CONFIG from '../config';
-import type { Client, CreateClientRequest, PaginatedResponse, UpdateClientRequest } from '../types';
+import apiClient from '../api/client';
+import API_CONFIG from '../api/config';
+import type { Client, CreateClientRequest, PaginatedResponse, UpdateClientRequest } from '../api/types';
 
 class ClientService {
   // Get all clients with pagination

@@ -1,6 +1,6 @@
-import apiClient from '../client';
-import API_CONFIG from '../config';
-import type { Account, CreateAccountRequest, PaginatedResponse, UpdateAccountRequest } from '../types';
+import apiClient from '../api/client';
+import API_CONFIG from '../api/config';
+import type { Account, CreateAccountRequest, PaginatedResponse, UpdateAccountRequest } from '../api/types';
 
 class EmployeeService {
   // Get all employees with pagination

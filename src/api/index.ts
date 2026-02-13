@@ -5,7 +5,6 @@ export { default as API_CONFIG } from './config';
 
 // Services
 export * from '../services';
-export * from './services';
 
 // Types
 export * from './types';
