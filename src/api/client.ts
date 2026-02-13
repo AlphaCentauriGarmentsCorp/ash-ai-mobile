@@ -29,19 +29,35 @@ class ApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        const url = `${config.baseURL || ''}${config.url || ''}`;
+        console.log('API Request:', config.method?.toUpperCase(), url);
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => {
+        console.error('Request Error:', error);
+        return Promise.reject(error);
+      }
     );
 
     // Response interceptor
     this.api.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log('API Response:', response.status, response.config.url);
+        return response;
+      },
       async (error: AxiosError) => {
+        // Log error details
+        if (error.response) {
+          console.error('API Error Response:', error.response.status, error.response.data);
+        } else if (error.request) {
+          console.error('API Network Error:', error.message);
+        } else {
+          console.error('API Error:', error.message);
+        }
+
         // Handle 401 Unauthorized - clear token and redirect to login
         if (error.response?.status === 401) {
           await this.clearTokens();
-          // You can emit an event here to redirect to login screen
         }
 
         return Promise.reject(error);

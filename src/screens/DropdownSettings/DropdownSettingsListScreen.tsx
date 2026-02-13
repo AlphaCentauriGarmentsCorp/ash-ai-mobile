@@ -41,7 +41,7 @@ export default function DropdownSettingsListScreen() {
 
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(15);
 
   const category = params.category as string || 'Dropdown Settings';
   const page = params.page as string || '';

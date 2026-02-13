@@ -1,3 +1,4 @@
+import { useAuth } from '@/context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -29,9 +30,16 @@ const SIDEBAR_WIDTH = 280;
 export default function Sidebar({ visible, onClose }: SidebarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user, logout } = useAuth();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  // Log user data for debugging
+  useEffect(() => {
+    console.log('Sidebar - Current user:', JSON.stringify(user, null, 2));
+  }, [user]);
 
   useEffect(() => {
     if (visible) {
@@ -212,6 +220,16 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      handleClose();
+      router.replace('/login' as any);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   const renderSubMenuItem = (item: SubMenuItem, level: number = 1, parentId?: string) => (
     <View key={item.id}>
       <TouchableOpacity
@@ -299,17 +317,40 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                     <Ionicons name="person" size={24} color="#1e3a5f" />
                   </View>
                   <View style={styles.userDetails}>
-                    <Text style={styles.userName}>Harres Uba</Text>
+                    <Text style={styles.userName}>{user?.name || 'User'}</Text>
                     <View style={styles.adminBadge}>
                       <View style={styles.statusDot} />
-                      <Text style={styles.adminText}>Admin</Text>
+                      <Text style={styles.adminText}>
+                        {user?.domain_role?.[0] || user?.role || 'User'}
+                      </Text>
                     </View>
                   </View>
                 </View>
-                <TouchableOpacity style={styles.dropdownButton}>
-                  <Ionicons name="chevron-down" size={16} color="#666" />
+                <TouchableOpacity 
+                  style={styles.dropdownButton}
+                  onPress={() => setShowUserDropdown(!showUserDropdown)}
+                >
+                  <Ionicons 
+                    name={showUserDropdown ? "chevron-up" : "chevron-down"} 
+                    size={16} 
+                    color="#666" 
+                  />
                 </TouchableOpacity>
               </View>
+              
+              {/* User Dropdown Menu */}
+              {showUserDropdown && (
+                <View style={styles.userDropdown}>
+                  <TouchableOpacity 
+                    style={styles.dropdownItem}
+                    onPress={handleLogout}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="log-out-outline" size={18} color="#d32f2f" />
+                    <Text style={styles.dropdownItemText}>Logout</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
 
             {/* Sidebar Menu */}
@@ -418,6 +459,28 @@ const styles = StyleSheet.create({
   },
   dropdownButton: {
     padding: 4,
+  },
+  userDropdown: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    marginTop: 8,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 12,
+  },
+  dropdownItemText: {
+    fontSize: 14,
+    color: '#d32f2f',
+    fontWeight: '500',
   },
   menuContainer: {
     flex: 1,

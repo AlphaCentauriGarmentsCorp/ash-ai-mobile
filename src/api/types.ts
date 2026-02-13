@@ -49,27 +49,35 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'customer';
+  username?: string;
+  role?: 'admin' | 'customer';
+  domain_role?: string[];
+  domain_access?: string[];
   frontend_access?: 'ash' | 'sorbetes' | 'reefer';
   avatar?: string;
+  email_verified_at?: string;
+  otp?: string | null;
+  otp_expires_at?: string | null;
+  last_verified?: string;
   created_at: string;
   updated_at: string;
 }
 
 // Client Types
+export interface ClientBrand {
+  id: number;
+  name: string;
+  logo?: string;
+}
+
 export interface Client {
-  id: string;
-  first_name: string;
-  last_name: string;
+  id: number;
+  name: string;
   email: string;
   contact_number: string;
-  brand_name: string;
-  logo?: string;
-  street_address: string;
-  city: string;
-  province: string;
-  postal_code: string;
+  address?: string;
   notes?: string;
+  brands: ClientBrand[];
   created_at: string;
   updated_at: string;
 }
@@ -92,13 +100,13 @@ export interface UpdateClientRequest extends Partial<CreateClientRequest> {
   id: string;
 }
 
-// Account Types
+// Account Types (Employee)
 export interface Account {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: string;
-  status: 'active' | 'inactive';
+  status?: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }
@@ -148,16 +156,6 @@ export interface UploadResponse {
   filename: string;
   size: number;
   mime_type: string;
-}
-
-// Client Brand Types
-export interface ClientBrand {
-  id: string;
-  client_id: string;
-  brand_name: string;
-  logo?: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface CreateClientBrandRequest {

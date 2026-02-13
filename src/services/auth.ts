@@ -1,6 +1,6 @@
-import apiClient from '../client';
-import API_CONFIG from '../config';
-import { LoginRequest, LoginResponse, RegisterRequest, User, VerifyOtpRequest } from '../types';
+import apiClient from '../api/client';
+import API_CONFIG from '../api/config';
+import { LoginRequest, LoginResponse, RegisterRequest, User, VerifyOtpRequest } from '../api/types';
 
 class AuthService {
   // Main login (for Ash AI admin)
@@ -74,14 +74,9 @@ class AuthService {
     }
   }
 
-  // Get current user
+  // Get current user (logged-in user info)
   async getCurrentUser(): Promise<User> {
     return await apiClient.get<User>(API_CONFIG.ENDPOINTS.ME);
-  }
-
-  // Get profile
-  async getProfile(): Promise<User> {
-    return await apiClient.get<User>(API_CONFIG.ENDPOINTS.PROFILE);
   }
 
   // Check if authenticated
