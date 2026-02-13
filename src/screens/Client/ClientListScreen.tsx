@@ -37,7 +37,7 @@ export default function ClientListScreen() {
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   // API state
-  const [allClients, setAllClients] = useState<Client[]>([]); // Store all clients
+  const [allClientsFromAPI, setAllClientsFromAPI] = useState<Client[]>([]); // Store all clients from API
   const [loading, setLoading] = useState(true);
 
   // Tracks which row index has the dropdown open
@@ -46,29 +46,58 @@ export default function ClientListScreen() {
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
+  // Client-side filtering
+  const filteredClients = useMemo(() => {
+    if (!searchText.trim()) {
+      return allClientsFromAPI;
+    }
+
+    const searchLower = searchText.toLowerCase().trim();
+    return allClientsFromAPI.filter(client => {
+      // Search in client name
+      if (client.name?.toLowerCase().includes(searchLower)) return true;
+      
+      // Search in email
+      if (client.email?.toLowerCase().includes(searchLower)) return true;
+      
+      // Search in contact number
+      if (client.contact_number?.toLowerCase().includes(searchLower)) return true;
+      
+      // Search in brands
+      if (client.brands && client.brands.length > 0) {
+        return client.brands.some(brand => 
+          brand.name?.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      return false;
+    });
+  }, [allClientsFromAPI, searchText]);
+
   // Calculate pagination on the frontend
-  const totalClients = allClients.length;
+  const totalClients = filteredClients.length;
   const totalPages = Math.ceil(totalClients / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
-  const currentClients = allClients.slice(startIndex, endIndex);
+  const currentClients = filteredClients.slice(startIndex, endIndex);
 
-  // Fetch all clients from API
+  // Fetch all clients from API once on mount
   useEffect(() => {
     fetchClients();
-  }, [searchText]);
+  }, []);
 
-  // Reset to page 1 when entries per page changes
+  // Reset to page 1 when entries per page changes or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [entriesPerPage]);
+  }, [entriesPerPage, searchText]);
 
   const fetchClients = async () => {
     try {
       setLoading(true);
-      // Fetch all clients (use a large number to get all)
-      const response = await clientService.getClients(1, 9999, searchText);
-      setAllClients(response.data);
+      // Fetch all clients without search parameter (backend doesn't support it)
+      const response = await clientService.getClients(1, 9999);
+      console.log('Received clients:', response.data.length);
+      setAllClientsFromAPI(response.data);
     } catch (error) {
       console.error('Error fetching clients:', error);
     } finally {
@@ -103,7 +132,7 @@ export default function ClientListScreen() {
       setActiveDropdownIndex(null);
     } else {
       setActiveDropdownIndex(index);
-      setSelectedClient(clients[index]); 
+      setSelectedClient(currentClients[index]); 
     }
   };
 
@@ -270,6 +299,12 @@ export default function ClientListScreen() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0D253F" />
             <Text style={styles.loadingText}>Loading clients...</Text>
+          </View>
+        ) : filteredClients.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>
+              {searchText.trim() ? 'No clients found matching your search.' : 'No clients available.'}
+            </Text>
           </View>
         ) : (
           <>

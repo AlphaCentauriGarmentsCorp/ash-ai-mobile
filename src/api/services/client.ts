@@ -14,6 +14,7 @@ class ClientService {
       params.search = search;
     }
 
+    console.log('ClientService.getClients params:', params);
     return await apiClient.get<PaginatedResponse<Client>>(API_CONFIG.ENDPOINTS.CLIENTS, { params });
   }
 

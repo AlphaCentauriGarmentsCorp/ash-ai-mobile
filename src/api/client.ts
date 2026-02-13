@@ -30,7 +30,9 @@ class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
         const url = `${config.baseURL || ''}${config.url || ''}`;
-        console.log('API Request:', config.method?.toUpperCase(), url);
+        const params = config.params ? `?${new URLSearchParams(config.params).toString()}` : '';
+        console.log('API Request:', config.method?.toUpperCase(), url + params);
+        console.log('API Request params:', config.params);
         return config;
       },
       (error) => {
