@@ -2,9 +2,9 @@ import { EuphoriaScript_400Regular, useFonts } from '@expo-google-fonts/euphoria
 import { GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import {
-  Poppins_400Regular,
-  Poppins_700Bold,
-  Poppins_800ExtraBold
+    Poppins_400Regular,
+    Poppins_700Bold,
+    Poppins_800ExtraBold
 } from '@expo-google-fonts/poppins';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,29 +12,33 @@ import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 import {
-  Alert,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Image,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../context';
 
 export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const navigation = useNavigation();
+  const { login, isLoading: authLoading, isAuthenticated } = useAuth();
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false, tabBarStyle: { display: 'none' } });
@@ -46,6 +50,13 @@ export default function Index() {
     return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, authLoading]);
+
   const [fontsLoaded] = useFonts({
     GreatVibes_400Regular,
     Inter_400Regular,
@@ -56,19 +67,52 @@ export default function Index() {
     Poppins_800ExtraBold
   });
 
-  const handleLogin = () => {
-    if (username === '' || password === '') {
-      Alert.alert('Error', 'Please fill in both username and password.');
+  const handleLogin = async () => {
+    if (email === '' || password === '') {
+      Alert.alert('Error', 'Please fill in both email and password.');
       return;
     }
-    router.push('/dashboard'); 
+
+    setIsLoggingIn(true);
+    try {
+      await login({ email, password });
+      router.replace('/dashboard');
+    } catch (error: any) {
+      console.log('Login error:', error);
+      
+      let errorMessage = 'Login failed. Please try again.';
+      
+      // Handle validation errors (422)
+      if (error?.response?.status === 422) {
+        const errors = error?.response?.data?.errors;
+        if (errors) {
+          // Combine all validation error messages
+          const errorMessages = Object.values(errors).flat().join('\n');
+          errorMessage = errorMessages || 'Validation failed. Please check your input.';
+        } else {
+          errorMessage = error?.response?.data?.message || 'Validation failed. Please check your input.';
+        }
+      }
+      // Handle other API errors
+      else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      // Handle network errors
+      else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Login Failed', errorMessage);
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const handleForgotPassword = () => {
     router.push('/login/forgot'); 
   };
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || authLoading) return null;
 
   return (
     <LinearGradient
@@ -84,7 +128,6 @@ export default function Index() {
         <View style={[styles.topSection, { paddingTop: insets.top + 30 }]}>
           {!isKeyboardVisible && (
             <Image
-              // FIXED PATH: Removed the extra 'src/'
               source={require('../../assets/images/ash-logo.png')}
               style={styles.logoImage}
             />
@@ -103,15 +146,18 @@ export default function Index() {
               <Text style={styles.welcomeSub}>Manage your tasks and production workflow with ease.</Text>
             </View>
 
-            {/* Username */}
+            {/* Email */}
             <View style={styles.inputBox}>
-              <Ionicons name="person" size={20} color="#999" style={styles.icon} />
+              <Ionicons name="mail" size={20} color="#999" style={styles.icon} />
               <TextInput
-                placeholder="Username"
+                placeholder="Email"
                 placeholderTextColor="#999"
                 style={styles.input}
-                value={username}
-                onChangeText={setUsername}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={!isLoggingIn}
               />
             </View>
 
@@ -125,6 +171,7 @@ export default function Index() {
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
+                editable={!isLoggingIn}
               />
               <Ionicons name="eye-outline" size={20} color="#999" style={{ opacity: 0.7 }} />
             </View>
@@ -134,7 +181,8 @@ export default function Index() {
               <Pressable 
                 style={styles.checkboxWrapper} 
                 onPress={() => setRememberMe(!rememberMe)}
-                hitSlop={10} 
+                hitSlop={10}
+                disabled={isLoggingIn}
               >
                 <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
                   {rememberMe && <Ionicons name="checkmark" size={10} color="#093554" />}
@@ -145,15 +193,24 @@ export default function Index() {
               <TouchableOpacity 
                 onPress={handleForgotPassword}
                 hitSlop={15} 
-                style={{ padding: 5 }} 
+                style={{ padding: 5 }}
+                disabled={isLoggingIn}
               >
                 <Text style={styles.smallLabel}>Forgot password?</Text>
               </TouchableOpacity>
             </View>
 
             {/* Login Button */}
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-              <Text style={styles.loginBtnText}>Login</Text>
+            <TouchableOpacity 
+              style={[styles.loginBtn, isLoggingIn && styles.loginBtnDisabled]} 
+              onPress={handleLogin}
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.loginBtnText}>Login</Text>
+              )}
             </TouchableOpacity>
 
           </View>
@@ -225,7 +282,7 @@ const styles = StyleSheet.create({
   icon: { marginRight: 12 },
   input: {
     flex: 1,
-    fontFamily: 'Poppins_400Regular', // Ensure this matches loaded font name
+    fontFamily: 'Poppins_400Regular',
     fontSize: 13,
     color: '#333',
     height: '120%',
@@ -258,7 +315,7 @@ const styles = StyleSheet.create({
   smallLabel: {
     color: '#000000',
     fontSize: 9,
-    fontFamily: 'Poppins_400Regular', // Ensure this matches loaded font name
+    fontFamily: 'Poppins_400Regular',
     opacity: 0.95,
     marginRight: 10,
   },
@@ -275,6 +332,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     marginBottom: 50,
     marginTop: -5,
+  },
+  loginBtnDisabled: {
+    opacity: 0.6,
   },
   loginBtnText: {
     color: '#FFFFFF',

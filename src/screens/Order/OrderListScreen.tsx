@@ -54,7 +54,7 @@ export default function OrderListScreen() {
   const [selectedPriority, setSelectedPriority] = useState('all');
   
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(15);
   
   const filteredOrders = allOrders.filter(order => {
     if (selectedOrder !== 'all') {
@@ -96,7 +96,7 @@ export default function OrderListScreen() {
     setSelectedTask('all');
     setSelectedPriority('all');
     setCurrentPage(1);
-    setEntriesPerPage(10);
+    setEntriesPerPage(15);
   };
 
   const orderOptions: DropdownOption[] = [

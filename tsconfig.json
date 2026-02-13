@@ -47,11 +47,11 @@
       "@hooks/*": [
         "./src/hooks/*"
       ],
-      "@services": [
-        "./src/services"
+      "@api": [
+        "./src/api"
       ],
-      "@services/*": [
-        "./src/services/*"
+      "@api/*": [
+        "./src/api/*"
       ],
       "@store": [
         "./src/store"
@@ -73,5 +73,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "src/**/*"
-  ]
+, "src/services"  ]
 }

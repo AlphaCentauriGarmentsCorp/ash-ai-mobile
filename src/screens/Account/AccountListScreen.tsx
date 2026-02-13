@@ -1,7 +1,8 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { employeeService, type Account } from '@api';
 import Button from '@components/common/Button';
 import ConfirmModal from '@components/common/ConfirmModal';
 import type { Column } from '@components/common/DataTable';
@@ -25,30 +27,6 @@ import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, FONT_SIZES, SIZES, SPACING } from '@styles';
 
-// Types
-interface Account {
-  id: string;
-  name: string;
-  username: string;
-  role: string;
-  contact: string;
-  email: string;
-  [key: string]: string;
-}
-
-const names = ['Joedemar Rosero', 'Harres Uba', 'Jayvin Andeza'];
-const usernames = ['joedemar', 'harres', 'jayvin'];
-const emails = ['joedemar@gmail.com', 'harres@gmail.com', 'jayvin@gmail.com'];
-
-const DATA: Account[] = Array(15).fill(null).map((_, i) => ({
-  id: `${i + 1}`,
-  name: names[i % 3],
-  username: usernames[i % 3],
-  role: 'developer',
-  contact: '0999-999-9999',
-  email: emails[i % 3],
-}));
-
 export default function AccountListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -56,8 +34,12 @@ export default function AccountListScreen() {
 
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  // API state
+  const [allAccounts, setAllAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Tracks which row index has the dropdown open
   const [activeDropdownIndex, setActiveDropdownIndex] = useState<number | null>(null);
@@ -66,21 +48,51 @@ export default function AccountListScreen() {
   const [activeRoleDropdownIndex, setActiveRoleDropdownIndex] = useState<number | null>(null);
   
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
-  // Role state for each account
-  const [accountRoles, setAccountRoles] = useState<Record<number, string>>(
-    DATA.reduce((acc, _, index) => ({ ...acc, [index]: 'developer' }), {})
-  );
+  // Calculate pagination on the frontend
+  const totalAccounts = allAccounts.length;
+  const totalPages = Math.ceil(totalAccounts / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const endIndex = startIndex + entriesPerPage;
+  const currentAccounts = allAccounts.slice(startIndex, endIndex);
 
-  const indexOfLastEntry = currentPage * entriesPerPage;
-  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentAccounts = DATA.slice(indexOfFirstEntry, indexOfLastEntry);
-  const totalPages = Math.ceil(DATA.length / entriesPerPage);
+  // Fetch all accounts from API
+  useEffect(() => {
+    fetchAccounts();
+  }, [searchText]);
+
+  // Reset to page 1 when entries per page changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [entriesPerPage]);
+
+  const fetchAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await employeeService.getEmployees(1, 9999, searchText);
+      setAllAccounts(response.data);
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!selectedAccount) return;
+    
+    try {
+      await employeeService.deleteEmployee(String(selectedAccount.id));
+      setRemoveModalVisible(false);
+      fetchAccounts();
+    } catch (error) {
+      console.error('Error deleting account:', error);
+    }
+  };
 
   const handleEntriesChange = (value: number) => {
     setEntriesPerPage(value);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
@@ -94,12 +106,8 @@ export default function AccountListScreen() {
       setActiveDropdownIndex(null);
     } else {
       setActiveDropdownIndex(index);
-      setSelectedAccount(index); 
+      setSelectedAccount(currentAccounts[index]); 
     }
-  };
-
-  const handleRoleChange = (index: number, role: string) => {
-    setAccountRoles(prev => ({ ...prev, [index]: role }));
   };
 
   const filterOptions: DropdownOption[] = [
@@ -117,25 +125,60 @@ export default function AccountListScreen() {
 
   // --- OPTIMIZED COLUMNS ---
   const columns: Column[] = useMemo(() => [
-    { key: 'id', header: 'ID', width: 60, sortable: true },
-    { key: 'name', header: 'Name', width: 140, sortable: true },
-    { key: 'username', header: 'Username', width: 120, sortable: true },
+    { 
+      key: 'id', 
+      header: 'ID', 
+      width: 60, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={styles.cellText} numberOfLines={1}>
+          {value || 'N/A'}
+        </Text>
+      )
+    },
+    { 
+      key: 'name', 
+      header: 'Name', 
+      width: 140, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={styles.cellText} numberOfLines={1}>
+          {value || 'N/A'}
+        </Text>
+      )
+    },
+    { 
+      key: 'email', 
+      header: 'Email', 
+      width: 180, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={styles.cellText} numberOfLines={1}>
+          {value || 'N/A'}
+        </Text>
+      )
+    },
     {
       key: 'role',
       header: 'Role',
       width: 140,
       sortable: false,
-      render: (_value: any, _item: any, index: number) => (
-        <RoleDropdown
-          options={roleOptions}
-          selectedValue={accountRoles[index] || 'developer'}
-          onSelect={(role) => handleRoleChange(index, role)}
-          onOpenChange={(isOpen) => setActiveRoleDropdownIndex(isOpen ? index : null)}
-        />
-      ),
+      render: (_value: any, item: Account, index: number) => {
+        const roleValue = item.role || 'developer';
+        return (
+          <RoleDropdown
+            options={roleOptions}
+            selectedValue={roleValue}
+            onSelect={(role) => {
+              employeeService.updateEmployee(String(item.id), { role })
+                .then(() => fetchAccounts())
+                .catch((error) => console.error('Error updating role:', error));
+            }}
+            onOpenChange={(isOpen) => setActiveRoleDropdownIndex(isOpen ? index : null)}
+          />
+        );
+      },
     },
-    { key: 'contact', header: 'Contact Number', width: 140, sortable: true },
-    { key: 'email', header: 'Email', width: 180, sortable: true },
     {
       key: 'action',
       header: '',
@@ -154,7 +197,7 @@ export default function AccountListScreen() {
             <View style={styles.dropdownMenu}>
               <TouchableOpacity style={styles.dropdownItem} onPress={() => {
                  setActiveDropdownIndex(null);
-                 if (selectedAccount !== null) router.push({ pathname: "/Account/edit", params: DATA[selectedAccount] });
+                 if (selectedAccount) router.push({ pathname: "/Account/edit", params: { id: selectedAccount.id } });
               }}>
                 <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
                 <Text style={styles.dropdownItemText}>Edit</Text>
@@ -162,7 +205,7 @@ export default function AccountListScreen() {
 
               <TouchableOpacity style={styles.dropdownItem} onPress={() => {
                  setActiveDropdownIndex(null);
-                 if (selectedAccount !== null) router.push({ pathname: "/Account/view", params: DATA[selectedAccount] });
+                 if (selectedAccount) router.push({ pathname: "/Account/view", params: { id: selectedAccount.id } });
               }}>
                 <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
                 <Text style={styles.dropdownItemText}>View</Text>
@@ -183,7 +226,7 @@ export default function AccountListScreen() {
         </View>
       ),
     },
-  ], [activeDropdownIndex, selectedAccount, accountRoles, activeRoleDropdownIndex]);
+  ], [activeDropdownIndex, selectedAccount, activeRoleDropdownIndex, fetchAccounts]);
 
   if (!fontsLoaded) return null;
 
@@ -247,19 +290,33 @@ export default function AccountListScreen() {
           </View>
         </View>
 
-        <DataTable 
-          columns={columns} 
-          data={currentAccounts} 
-          activeRowIndex={activeRoleDropdownIndex !== null ? activeRoleDropdownIndex : activeDropdownIndex}
-        />
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0D253F" />
+            <Text style={styles.loadingText}>Loading accounts...</Text>
+          </View>
+        ) : currentAccounts.length > 0 ? (
+          <>
+            <DataTable 
+              columns={columns} 
+              data={currentAccounts} 
+              activeRowIndex={activeRoleDropdownIndex !== null ? activeRoleDropdownIndex : activeDropdownIndex}
+            />
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          entriesPerPage={entriesPerPage}
-          onPageChange={handlePageChange}
-          onEntriesChange={handleEntriesChange}
-        />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              entriesPerPage={entriesPerPage}
+              totalEntries={totalAccounts}
+              onPageChange={handlePageChange}
+              onEntriesChange={handleEntriesChange}
+            />
+          </>
+        ) : (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>No accounts found</Text>
+          </View>
+        )}
 
         <View style={{ height: insets.bottom + 40 }} />
       </ScrollView>
@@ -267,6 +324,12 @@ export default function AccountListScreen() {
       <ConfirmModal
         visible={removeModalVisible}
         onClose={() => setRemoveModalVisible(false)}
+        onConfirm={handleDeleteAccount}
+        title="Remove Account?"
+        message={`Are you sure you want to remove ${selectedAccount ? selectedAccount.name : 'this account'}? This action cannot be undone.`}
+        confirmText="Remove Account"
+        highlightText={selectedAccount ? selectedAccount.name : ''}
+      />
         onConfirm={() => {
           console.log("Deleted");
           setRemoveModalVisible(false);
@@ -398,5 +461,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#0D253F',
     fontFamily: 'poppins-regular', 
+  },
+  cellText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.text,
+    fontFamily: 'poppins-regular',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: SPACING.xl * 2,
+  },
+  loadingText: {
+    marginTop: SPACING.base,
+    fontSize: FONT_SIZES.base,
+    fontFamily: 'Poppins_400Regular',
+    color: '#0D253F',
   },
 });

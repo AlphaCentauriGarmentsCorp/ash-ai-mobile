@@ -15,6 +15,7 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   entriesPerPage: number;
+  totalEntries?: number;
   onPageChange: (page: number) => void;
   onEntriesChange: (entries: number) => void;
   entriesOptions?: number[];
@@ -25,9 +26,10 @@ export default function Pagination({
   currentPage,
   totalPages,
   entriesPerPage,
+  totalEntries = 0,
   onPageChange,
   onEntriesChange,
-  entriesOptions = [5, 10, 15],
+  entriesOptions = [10, 15, 20, 25, 50, 100],
   style,
 }: PaginationProps) {
   const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
@@ -40,7 +42,7 @@ export default function Pagination({
   // Helper to generate page numbers
   const renderPageNumbers = () => {
     const pagesToShow = [];
-    const limit = Math.min(totalPages, 7); 
+    const limit = Math.max(1, Math.min(totalPages, 7)); // Always show at least 1 page
     
     for (let i = 1; i <= limit; i++) {
       pagesToShow.push(i);
@@ -68,7 +70,7 @@ export default function Pagination({
         ))}
         
         {/* "Last" Button */}
-        {totalPages > 1 && (
+        {totalPages > 7 && (
              <TouchableOpacity
              style={[styles.pageNum, styles.lastButton]}
              onPress={() => onPageChange(totalPages)}
@@ -85,12 +87,14 @@ export default function Pagination({
       
       {/* TOP ROW: Show Entries (Aligned Right) */}
       <View style={styles.entriesContainer}>
-        <Text style={styles.showText}>Show all</Text>
+        <TouchableOpacity onPress={() => handleEntriesChange(totalEntries || 9999)}>
+          <Text style={[styles.showText, styles.showAllClickable]}>Show all</Text>
+        </TouchableOpacity>
         
         <View style={styles.dropdownWrapperPagination}>
           <TouchableOpacity style={styles.dropdownBox} onPress={() => setShowEntriesDropdown(!showEntriesDropdown)}>
             <Text style={styles.dropdownText}>
-              {entriesPerPage}
+              {entriesPerPage >= (totalEntries || 9999) ? 'All' : entriesPerPage}
             </Text>
             <Ionicons name="chevron-down" size={14} color="#64748B" />
           </TouchableOpacity>
@@ -107,6 +111,12 @@ export default function Pagination({
                   <Text style={styles.dropdownItemText}>{option}</Text>
                 </TouchableOpacity>
               ))}
+              <TouchableOpacity
+                style={[styles.dropdownItemBtn, { borderBottomWidth: 0 }]}
+                onPress={() => handleEntriesChange(totalEntries || 9999)}
+              >
+                <Text style={styles.dropdownItemText}>All</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -175,6 +185,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0B1C36',
     fontFamily: FONT_FAMILY.regular,
+  },
+  showAllClickable: {
+    textDecorationLine: 'underline',
+    color: '#0D6EFD',
   },
   dropdownWrapperPagination: {
     position: 'relative',

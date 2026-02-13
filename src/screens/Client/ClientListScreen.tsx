@@ -1,7 +1,8 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     Image,
     ScrollView,
     StatusBar,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { clientService, type Client } from '@api';
 import Button from '@components/common/Button';
 import ConfirmModal from '@components/common/ConfirmModal';
 import type { Column } from '@components/common/DataTable';
@@ -24,25 +26,6 @@ import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, FONT_SIZES, SIZES, SPACING } from '@styles';
 
-// Types
-interface Client {
-  company: string;
-  name: string;
-  contact: string;
-  email: string;
-  [key: string]: string;
-}
-
-const names = ['Joedemar Rosero', 'Harres Uba', 'Jayvin Andeza'];
-const emails = ['joedemar@gmail.com', 'harres@gmail.com', 'jayvin@gmail.com'];
-
-const DATA: Client[] = Array(12).fill(null).map((_, i) => ({
-  company: 'NIKE',
-  name: names[i % 3],
-  contact: '09123456789',
-  email: emails[i % 3],
-}));
-
 export default function ClientListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -50,23 +33,63 @@ export default function ClientListScreen() {
 
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  // API state
+  const [allClients, setAllClients] = useState<Client[]>([]); // Store all clients
+  const [loading, setLoading] = useState(true);
 
   // Tracks which row index has the dropdown open
   const [activeDropdownIndex, setActiveDropdownIndex] = useState<number | null>(null);
   
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<number | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
-  const indexOfLastEntry = currentPage * entriesPerPage;
-  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentClients = DATA.slice(indexOfFirstEntry, indexOfLastEntry);
-  const totalPages = Math.ceil(DATA.length / entriesPerPage);
+  // Calculate pagination on the frontend
+  const totalClients = allClients.length;
+  const totalPages = Math.ceil(totalClients / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const endIndex = startIndex + entriesPerPage;
+  const currentClients = allClients.slice(startIndex, endIndex);
+
+  // Fetch all clients from API
+  useEffect(() => {
+    fetchClients();
+  }, [searchText]);
+
+  // Reset to page 1 when entries per page changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [entriesPerPage]);
+
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      // Fetch all clients (use a large number to get all)
+      const response = await clientService.getClients(1, 9999, searchText);
+      setAllClients(response.data);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClient = async () => {
+    if (!selectedClient) return;
+    
+    try {
+      await clientService.deleteClient(String(selectedClient.id));
+      setRemoveModalVisible(false);
+      fetchClients(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting client:', error);
+    }
+  };
 
   const handleEntriesChange = (value: number) => {
     setEntriesPerPage(value);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
@@ -77,10 +100,10 @@ export default function ClientListScreen() {
 
   const toggleDropdown = (index: number) => {
     if (activeDropdownIndex === index) {
-      setActiveDropdownIndex(null); // Close if clicking the same one
+      setActiveDropdownIndex(null);
     } else {
-      setActiveDropdownIndex(index); // Open the new one
-      setSelectedClient(index); 
+      setActiveDropdownIndex(index);
+      setSelectedClient(clients[index]); 
     }
   };
 
@@ -92,16 +115,41 @@ export default function ClientListScreen() {
 
   // --- OPTIMIZED COLUMNS ---
   const columns: Column[] = useMemo(() => [
-    { key: 'company', header: 'Clothing/Company', width: 120, sortable: true },
-    { key: 'name', header: 'Name', width: 120, sortable: true },
-    { key: 'contact', header: 'Contact No.', width: 130, sortable: true },
-    { key: 'email', header: 'Email', width: 180, sortable: true },
+    { 
+      key: 'brands', 
+      header: 'Clothing/Company', 
+      width: 120, 
+      sortable: false,
+      render: (value: any, item: Client) => (
+        <Text style={styles.cellText} numberOfLines={1}>
+          {item.brands && item.brands.length > 0 ? item.brands[0].name : 'N/A'}
+        </Text>
+      )
+    },
+    { 
+      key: 'name', 
+      header: 'Name', 
+      width: 120, 
+      sortable: true
+    },
+    { 
+      key: 'contact_number', 
+      header: 'Contact No.', 
+      width: 130, 
+      sortable: true
+    },
+    { 
+      key: 'email', 
+      header: 'Email', 
+      width: 180, 
+      sortable: true 
+    },
     {
       key: 'action',
       header: '',
       width: 60,
       sortable: false,
-      render: (_value: any, _item: any, index: number) => (
+      render: (_value: any, item: Client, index: number) => (
         <View style={{ position: 'relative', zIndex: activeDropdownIndex === index ? 1000 : 1 }}>
           <TouchableOpacity 
             style={styles.actionBtn} 
@@ -114,7 +162,7 @@ export default function ClientListScreen() {
             <View style={styles.dropdownMenu}>
               <TouchableOpacity style={styles.dropdownItem} onPress={() => {
                  setActiveDropdownIndex(null);
-                 if (selectedClient !== null) router.push({ pathname: "/client/edit", params: DATA[selectedClient] });
+                 router.push({ pathname: "/client/edit", params: { id: item.id } });
               }}>
                 <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
                 <Text style={styles.dropdownItemText}>Edit</Text>
@@ -122,7 +170,7 @@ export default function ClientListScreen() {
 
               <TouchableOpacity style={styles.dropdownItem} onPress={() => {
                  setActiveDropdownIndex(null);
-                 if (selectedClient !== null) router.push({ pathname: "/client/view", params: DATA[selectedClient] });
+                 router.push({ pathname: "/client/view", params: { id: item.id } });
               }}>
                 <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
                 <Text style={styles.dropdownItemText}>View</Text>
@@ -218,19 +266,29 @@ export default function ClientListScreen() {
           </View>
         </View>
 
-        <DataTable 
-          columns={columns} 
-          data={currentClients} 
-          activeRowIndex={activeDropdownIndex}
-        />
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0D253F" />
+            <Text style={styles.loadingText}>Loading clients...</Text>
+          </View>
+        ) : (
+          <>
+            <DataTable 
+              columns={columns} 
+              data={currentClients} 
+              activeRowIndex={activeDropdownIndex}
+            />
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          entriesPerPage={entriesPerPage}
-          onPageChange={handlePageChange}
-          onEntriesChange={handleEntriesChange}
-        />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              entriesPerPage={entriesPerPage}
+              totalEntries={totalClients}
+              onPageChange={handlePageChange}
+              onEntriesChange={handleEntriesChange}
+            />
+          </>
+        )}
 
         <View style={{ height: insets.bottom + 40 }} />
       </ScrollView>
@@ -238,14 +296,11 @@ export default function ClientListScreen() {
       <ConfirmModal
         visible={removeModalVisible}
         onClose={() => setRemoveModalVisible(false)}
-        onConfirm={() => {
-          console.log("Deleted");
-          setRemoveModalVisible(false);
-        }}
+        onConfirm={handleDeleteClient}
         title="Remove Client?"
-        message={`Are you sure you want to remove ${selectedClient !== null ? DATA[selectedClient].name : 'this client'}? This action cannot be undone.`}
+        message={`Are you sure you want to remove ${selectedClient ? selectedClient.name : 'this client'}? This action cannot be undone.`}
         confirmText="Remove Client"
-        highlightText={selectedClient !== null ? DATA[selectedClient].name : ''}
+        highlightText={selectedClient ? selectedClient.name : ''}
       />
     </View>
   );
@@ -374,5 +429,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#0D253F',
     fontFamily: 'poppins-regular', 
+  },
+  cellText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.text,
+    fontFamily: 'poppins-regular',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: SPACING.xl * 2,
+  },
+  loadingText: {
+    marginTop: SPACING.base,
+    fontSize: FONT_SIZES.base,
+    fontFamily: 'Poppins_400Regular',
+    color: '#0D253F',
   },
 });
