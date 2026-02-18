@@ -1,12 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '@styles';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  Dimensions,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  ViewStyle,
 } from 'react-native';
 
 export interface DropdownOption {
@@ -39,11 +42,31 @@ export default function Dropdown({
   menuStyle,
   textStyle,
 }: DropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [visible, setVisible] = useState(false);
+  // Store the calculated position for the menu
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0, width: 0 });
+  const buttonRef = useRef<TouchableOpacity>(null);
+
+  const toggleDropdown = () => {
+    if (visible) {
+      setVisible(false);
+    } else {
+      // Measure the button's position on screen to place the modal correctly
+      buttonRef.current?.measure((_fx, _fy, _w, h, px, py) => {
+        const windowWidth = Dimensions.get('window').width;
+        setDropdownPosition({
+          top: py + h + 4, // Button Y pos + Button Height + small margin
+          right: windowWidth - (px + _w), // Calculate distance from right edge
+          width: _w,
+        });
+        setVisible(true);
+      });
+    }
+  };
 
   const handleSelect = (value: string) => {
     onSelect(value);
-    setIsOpen(false);
+    setVisible(false);
   };
 
   const selectedLabel =
@@ -51,44 +74,65 @@ export default function Dropdown({
 
   return (
     <View style={[styles.container, style]}>
+      {/* The Button */}
       <TouchableOpacity
+        ref={buttonRef}
         style={[styles.dropdownBtn, buttonStyle]}
-        onPress={() => setIsOpen(!isOpen)}
+        onPress={toggleDropdown}
       >
         {showIcon && <Ionicons name={iconName} size={14} color="#666" />}
         <Text style={[styles.dropdownText, textStyle]}>{selectedLabel}</Text>
         <Ionicons name="chevron-down" size={14} color="#666" />
       </TouchableOpacity>
 
-      {isOpen && (
-        <View style={[styles.dropdownMenu, menuStyle]}>
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
+      {/* The Menu (Rendered in a Modal to overlay everything) */}
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View
               style={[
-                index === 0 ? styles.dropdownHeaderBtn : styles.dropdownItemBtn,
+                styles.dropdownMenu,
+                menuStyle,
+                {
+                  top: dropdownPosition.top,
+                  right: dropdownPosition.right,
+                  // Ensure a minimum width so it doesn't look squashed
+                  minWidth: Math.max(150, dropdownPosition.width),
+                },
               ]}
-              onPress={() => handleSelect(option.value)}
             >
-              <Text
-                style={
-                  index === 0 ? styles.dropdownHeaderText : styles.dropdownItemText
-                }
-              >
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+              {options.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    index === 0 ? styles.dropdownHeaderBtn : styles.dropdownItemBtn,
+                  ]}
+                  onPress={() => handleSelect(option.value)}
+                >
+                  <Text
+                    style={
+                      index === 0
+                        ? styles.dropdownHeaderText
+                        : styles.dropdownItemText
+                    }
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
-    zIndex: 100,
+    // Relative position is no longer strictly needed for the menu, 
+    // but good for the button layout.
+    zIndex: 100, 
   },
   dropdownBtn: {
     flexDirection: 'row',
@@ -106,23 +150,25 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontFamily: FONT_FAMILY.medium,
   },
+  // Full screen transparent overlay to detect clicks outside the menu
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
   dropdownMenu: {
     position: 'absolute',
-    top: '100%',
-    right: 0,
-    marginTop: 4,
+    // Top and Right are set dynamically in the component
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius.base,
     borderWidth: SIZES.border.thin,
     borderColor: COLORS.border,
     overflow: 'hidden',
-    minWidth: 150,
-    zIndex: 2000,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
-    // elevation: 3,
+    // Shadow for elevation
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
   },
   dropdownHeaderBtn: {
     paddingVertical: 10,

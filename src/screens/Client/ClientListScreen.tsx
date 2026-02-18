@@ -1,8 +1,9 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   Image,
   Modal,
   ScrollView,
@@ -10,6 +11,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +29,89 @@ import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, FONT_SIZES, SIZES, SPACING } from '@styles';
 
+// --- NEW COMPONENT: RowActionMenu ---
+interface RowActionMenuProps {
+  onEdit: () => void;
+  onView: () => void;
+  onDelete: () => void;
+}
+
+const RowActionMenu = ({ onEdit, onView, onDelete }: RowActionMenuProps) => {
+  const [visible, setVisible] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  
+  // FIX 1: Correctly type the useRef for TouchableOpacity
+  const buttonRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+
+  const toggleDropdown = () => {
+    if (visible) {
+      setVisible(false);
+    } else {
+      // FIX 2: Explicitly type the measure callback parameters as numbers
+      buttonRef.current?.measure((_fx: number, _fy: number, _w: number, h: number, px: number, py: number) => {
+        const windowWidth = Dimensions.get('window').width;
+        setDropdownPosition({
+          top: py + h, 
+          right: windowWidth - (px + _w), 
+        });
+        setVisible(true);
+      });
+    }
+  };
+
+  return (
+    <View>
+      <TouchableOpacity 
+        ref={buttonRef}
+        style={styles.actionBtn} 
+        onPress={toggleDropdown}
+      >
+        <Entypo name="chevron-down" size={20} color="#1E3A5F" />
+      </TouchableOpacity>
+
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.floatingMenu,
+                {
+                  top: dropdownPosition.top,
+                  right: dropdownPosition.right,
+                },
+              ]}
+            >
+              <TouchableOpacity 
+                style={styles.dropdownItem} 
+                onPress={() => { setVisible(false); onEdit(); }}
+              >
+                <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>Edit</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.dropdownItem} 
+                onPress={() => { setVisible(false); onView(); }}
+              >
+                <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>View</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
+                onPress={() => { setVisible(false); onDelete(); }}
+              >
+                <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
+  );
+};
+
 export default function ClientListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -37,12 +122,8 @@ export default function ClientListScreen() {
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [selectedFilter, setSelectedFilter] = useState('all');
 
-  // API state
-  const [allClientsFromAPI, setAllClientsFromAPI] = useState<Client[]>([]); // Store all clients from API
+  const [allClientsFromAPI, setAllClientsFromAPI] = useState<Client[]>([]); 
   const [loading, setLoading] = useState(true);
-
-  // Tracks which row index has the dropdown open
-  const [activeDropdownIndex, setActiveDropdownIndex] = useState<number | null>(null);
   
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -57,39 +138,29 @@ export default function ClientListScreen() {
 
     const searchLower = searchText.toLowerCase().trim();
     return allClientsFromAPI.filter(client => {
-      // Search in client name
       if (client.name?.toLowerCase().includes(searchLower)) return true;
-      
-      // Search in email
       if (client.email?.toLowerCase().includes(searchLower)) return true;
-      
-      // Search in contact number
       if (client.contact_number?.toLowerCase().includes(searchLower)) return true;
-      
-      // Search in brands
       if (client.brands && client.brands.length > 0) {
         return client.brands.some(brand => 
           brand.name?.toLowerCase().includes(searchLower)
         );
       }
-      
       return false;
     });
   }, [allClientsFromAPI, searchText]);
 
-  // Calculate pagination on the frontend
+  // Calculate pagination
   const totalClients = filteredClients.length;
   const totalPages = Math.ceil(totalClients / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
   const currentClients = filteredClients.slice(startIndex, endIndex);
 
-  // Fetch all clients from API once on mount
   useEffect(() => {
     fetchClients();
   }, []);
 
-  // Reset to page 1 when entries per page changes or search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [entriesPerPage, searchText]);
@@ -97,9 +168,7 @@ export default function ClientListScreen() {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      // Fetch all clients without search parameter (backend doesn't support it)
       const response = await clientService.getClients(1, 9999);
-      console.log('Received clients:', response.data.length);
       setAllClientsFromAPI(response.data);
     } catch (error) {
       console.error('Error fetching clients:', error);
@@ -110,11 +179,10 @@ export default function ClientListScreen() {
 
   const handleDeleteClient = async () => {
     if (!selectedClient) return;
-    
     try {
       await clientService.deleteClient(String(selectedClient.id));
       setRemoveModalVisible(false);
-      fetchClients(); // Refresh the list
+      fetchClients(); 
     } catch (error) {
       console.error('Error deleting client:', error);
     }
@@ -130,15 +198,6 @@ export default function ClientListScreen() {
     }
   };
 
-  const toggleDropdown = (index: number) => {
-    if (activeDropdownIndex === index) {
-      setActiveDropdownIndex(null);
-    } else {
-      setActiveDropdownIndex(index);
-      setSelectedClient(currentClients[index]); 
-    }
-  };
-
   const handleRowPress = (client: Client, index: number) => {
     setSelectedClientForBrands(client);
     setBrandModalVisible(true);
@@ -150,7 +209,7 @@ export default function ClientListScreen() {
     { label: 'Inactive', value: 'inactive' },
   ];
 
-  // --- OPTIMIZED COLUMNS ---
+  // --- UPDATED COLUMNS ---
   const columns: Column[] = useMemo(() => [
     { 
       key: 'brands', 
@@ -186,58 +245,21 @@ export default function ClientListScreen() {
       header: '',
       width: 60,
       sortable: false,
-      render: (_value: any, item: Client, index: number) => {
-        // Open dropdown upward only if it's the last row AND there are at least 3 rows
-        // Otherwise, always open downward
-        const shouldOpenUpward = index === currentClients.length - 1 && currentClients.length >= 3;
-        
+      render: (_value: any, item: Client) => {
+        // Use the new RowActionMenu component here
         return (
-          <View style={{ position: 'relative' }}>
-            <TouchableOpacity 
-              style={styles.actionBtn} 
-              onPress={() => toggleDropdown(index)}
-            >
-              <Entypo name="chevron-down" size={20} color="#1E3A5F" />
-            </TouchableOpacity>
-
-            {activeDropdownIndex === index && (
-              <View style={[
-                styles.dropdownMenu,
-                shouldOpenUpward && styles.dropdownMenuUp
-              ]}>
-                <TouchableOpacity style={styles.dropdownItem} onPress={() => {
-                   setActiveDropdownIndex(null);
-                   router.push({ pathname: "/client/edit", params: { id: item.id } });
-                }}>
-                  <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                  <Text style={styles.dropdownItemText}>Edit</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.dropdownItem} onPress={() => {
-                   setActiveDropdownIndex(null);
-                   router.push({ pathname: "/client/view", params: { id: item.id } });
-                }}>
-                  <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                  <Text style={styles.dropdownItemText}>View</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
-                  onPress={() => {
-                    setActiveDropdownIndex(null);
-                    setRemoveModalVisible(true);
-                  }}
-                >
-                  <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                  <Text style={styles.dropdownItemText}>Remove</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
+          <RowActionMenu 
+            onEdit={() => router.push({ pathname: "/client/edit", params: { id: item.id } })}
+            onView={() => router.push({ pathname: "/client/view", params: { id: item.id } })}
+            onDelete={() => {
+              setSelectedClient(item);
+              setRemoveModalVisible(true);
+            }}
+          />
         );
       },
     },
-  ], [activeDropdownIndex, selectedClient, currentClients.length]);
+  ], [currentClients.length]);
 
   if (!fontsLoaded) return null;
 
@@ -250,10 +272,7 @@ export default function ClientListScreen() {
         <Header />
       </View>
 
-      {/* --- TITLE BAR START --- */}
       <View style={styles.pageTitleContainer}>
-        
-        {/* LEFT SIDE: Icon + Title */}
         <View style={styles.titleLeftGroup}>
           <View style={styles.iconCircleWrapper}>
              <Image 
@@ -265,13 +284,11 @@ export default function ClientListScreen() {
           <Text style={styles.pageTitleText}>Clients</Text>
         </View>
 
-        {/* RIGHT SIDE: Breadcrumbs (Home / Clients) */}
         <View style={styles.breadcrumbGroup}>
           <Text style={styles.breadcrumbBold}>Home</Text>
           <Text style={styles.breadcrumbNormal}> / Clients</Text>
         </View>
       </View>
-      {/* --- TITLE BAR END --- */}
 
       <ScrollView style={styles.contentContainer}>
         <View style={styles.actionButtonsRow}>
@@ -324,11 +341,10 @@ export default function ClientListScreen() {
             </Text>
           </View>
         ) : (
-          <View style={{ paddingBottom: 150 }}>
+          <View style={{ paddingBottom: 150, zIndex: 1 }}> 
             <DataTable 
               columns={columns} 
               data={currentClients} 
-              activeRowIndex={activeDropdownIndex}
               onRowPress={handleRowPress}
             />
 
@@ -356,7 +372,6 @@ export default function ClientListScreen() {
         highlightText={selectedClient ? selectedClient.name : ''}
       />
 
-      {/* Brand Modal */}
       <Modal
         visible={brandModalVisible}
         transparent={true}
@@ -413,15 +428,13 @@ const styles = StyleSheet.create({
     padding: SPACING.base,
     backgroundColor: COLORS.white 
   },
-  
-  // --- CUSTOM HEADER STYLES ---
   pageTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Pushes Left group and Right group apart
+    justifyContent: 'space-between', 
     paddingHorizontal: SPACING.base, 
     paddingVertical: SPACING.base,
-    backgroundColor: COLORS.white, // White background like the image
+    backgroundColor: COLORS.white, 
   },
   titleLeftGroup: {
     flexDirection: 'row',
@@ -446,8 +459,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: '#0D253F',
   },
-  
-  // Breadcrumb Styles
   breadcrumbGroup: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -460,10 +471,8 @@ const styles = StyleSheet.create({
   breadcrumbNormal: {
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
-    color: '#001C34', // Slate-500 equivalent
+    color: '#001C34', 
   },
-  // -----------------------------
-
   actionButtonsRow: {
     flexDirection: 'row',
     marginBottom: SPACING.lg,
@@ -498,26 +507,24 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs - 2,
     paddingHorizontal: SPACING.xs + 1,
   },
-  
-  // Dropdown Styles
-  dropdownMenu: {
+  // --- UPDATED Styles for Modal Menu ---
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  floatingMenu: {
     position: 'absolute',
-    top: 40,
-    right: 0,
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     width: 150,
     borderWidth: 2,
     borderColor: '#A5B4BF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  dropdownMenuUp: {
-    top: undefined,
-    bottom: 40,
+    shadowRadius: 6,
+    elevation: 8, 
+    overflow: 'visible', 
   },
   dropdownItem: {
     flexDirection: 'row',
@@ -552,15 +559,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#0D253F',
   },
-  
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
+  // Modal Content Styles (For Brand Modal)
   modalContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -571,6 +570,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    margin: 19.5,
+    marginTop: 275,
   },
   modalHeader: {
     flexDirection: 'row',

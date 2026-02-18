@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_SIZES, SIZES } from '@styles';
 import React, { useRef, useState } from 'react';
 import {
-    Animated,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle
 } from 'react-native';
 
 export interface Column {
