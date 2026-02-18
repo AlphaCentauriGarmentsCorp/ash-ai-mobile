@@ -186,49 +186,58 @@ export default function ClientListScreen() {
       header: '',
       width: 60,
       sortable: false,
-      render: (_value: any, item: Client, index: number) => (
-        <View style={{ position: 'relative', zIndex: activeDropdownIndex === index ? 1000 : 1 }}>
-          <TouchableOpacity 
-            style={styles.actionBtn} 
-            onPress={() => toggleDropdown(index)}
-          >
-            <Entypo name="chevron-down" size={20} color="#1E3A5F" />
-          </TouchableOpacity>
+      render: (_value: any, item: Client, index: number) => {
+        // Open dropdown upward only if it's the last row AND there are at least 3 rows
+        // Otherwise, always open downward
+        const shouldOpenUpward = index === currentClients.length - 1 && currentClients.length >= 3;
+        
+        return (
+          <View style={{ position: 'relative' }}>
+            <TouchableOpacity 
+              style={styles.actionBtn} 
+              onPress={() => toggleDropdown(index)}
+            >
+              <Entypo name="chevron-down" size={20} color="#1E3A5F" />
+            </TouchableOpacity>
 
-          {activeDropdownIndex === index && (
-            <View style={styles.dropdownMenu}>
-              <TouchableOpacity style={styles.dropdownItem} onPress={() => {
-                 setActiveDropdownIndex(null);
-                 router.push({ pathname: "/client/edit", params: { id: item.id } });
-              }}>
-                <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                <Text style={styles.dropdownItemText}>Edit</Text>
-              </TouchableOpacity>
+            {activeDropdownIndex === index && (
+              <View style={[
+                styles.dropdownMenu,
+                shouldOpenUpward && styles.dropdownMenuUp
+              ]}>
+                <TouchableOpacity style={styles.dropdownItem} onPress={() => {
+                   setActiveDropdownIndex(null);
+                   router.push({ pathname: "/client/edit", params: { id: item.id } });
+                }}>
+                  <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                  <Text style={styles.dropdownItemText}>Edit</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity style={styles.dropdownItem} onPress={() => {
-                 setActiveDropdownIndex(null);
-                 router.push({ pathname: "/client/view", params: { id: item.id } });
-              }}>
-                <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                <Text style={styles.dropdownItemText}>View</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
-                onPress={() => {
-                  setActiveDropdownIndex(null);
-                  setRemoveModalVisible(true);
-                }}
-              >
-                <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                <Text style={styles.dropdownItemText}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      ),
+                <TouchableOpacity style={styles.dropdownItem} onPress={() => {
+                   setActiveDropdownIndex(null);
+                   router.push({ pathname: "/client/view", params: { id: item.id } });
+                }}>
+                  <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                  <Text style={styles.dropdownItemText}>View</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
+                  onPress={() => {
+                    setActiveDropdownIndex(null);
+                    setRemoveModalVisible(true);
+                  }}
+                >
+                  <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                  <Text style={styles.dropdownItemText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        );
+      },
     },
-  ], [activeDropdownIndex, selectedClient]);
+  ], [activeDropdownIndex, selectedClient, currentClients.length]);
 
   if (!fontsLoaded) return null;
 
@@ -315,7 +324,7 @@ export default function ClientListScreen() {
             </Text>
           </View>
         ) : (
-          <>
+          <View style={{ paddingBottom: 150 }}>
             <DataTable 
               columns={columns} 
               data={currentClients} 
@@ -331,7 +340,7 @@ export default function ClientListScreen() {
               onPageChange={handlePageChange}
               onEntriesChange={handleEntriesChange}
             />
-          </>
+          </View>
         )}
 
         <View style={{ height: insets.bottom + 40 }} />
@@ -500,7 +509,15 @@ const styles = StyleSheet.create({
     width: 150,
     borderWidth: 2,
     borderColor: '#A5B4BF',
-    zIndex: 9999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  dropdownMenuUp: {
+    top: undefined,
+    bottom: 40,
   },
   dropdownItem: {
     flexDirection: 'row',

@@ -30,7 +30,7 @@ const API_CONFIG = {
 
     // Client endpoints
     CLIENTS: '/clients',
-    CLIENT_BY_ID: (id: number) => `/clients/${id}`,
+    CLIENT_BY_ID: (id: number) => `/client/${id}`,
 
     // Order endpoints
     ORDERS: '/orders',

@@ -104,7 +104,6 @@ export interface CreateClientRequest {
 }
 
 export interface UpdateClientRequest extends Partial<CreateClientRequest> {
-  id: string;
 }
 
 // Account Types (Employee)

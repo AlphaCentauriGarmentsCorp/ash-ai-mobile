@@ -1,18 +1,23 @@
+import type { ClientBrandInput } from '@api/types';
 import Button from '@components/common/Button';
-import { Ionicons } from '@expo/vector-icons';
 import { usePoppinsFonts } from '@hooks';
+import { PageHeader } from '@layouts';
+import clientService from '@services/client';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,248 +26,506 @@ export default function EditClientScreen() {
   const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
 
-  // Initialize state
-  const initialFirstName = params.name ? params.name.toString().split(' ')[0] : 'Morgan';
-  const initialLastName = params.name ? params.name.toString().split(' ').slice(1).join(' ') : 'Lee';
+  // Get client ID from params
+  const clientId = params.id?.toString();
 
-  const [firstName, setFirstName] = useState(initialFirstName);
-  const [lastName, setLastName] = useState(initialLastName);
-  const [email, setEmail] = useState(params.email?.toString() || 'sample@gmail.com');
-  const [contact, setContact] = useState(params.contact?.toString() || '0999123456');
-  
-  // This is the input next to the "+ Add Brand" button
-  const [company, setCompany] = useState(params.company?.toString() || 'Adidas');
-  
-  // Extra fields
-  const [street, setStreet] = useState('Blk. 1, Lot 2, Mother Ignacia');
-  const [city, setCity] = useState('Quezon City');
-  const [province, setProvince] = useState('Province');
-  const [postal, setPostal] = useState('2042');
+  // Form state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [barangay, setBarangay] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [courier, setCourier] = useState('');
+  const [method, setMethod] = useState('');
   const [notes, setNotes] = useState('');
+  
+  // Brand management
+  const [brands, setBrands] = useState<ClientBrandInput[]>([{ name: '', logo: null }]);
+  
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // --- Additional Brands State ---
-  const [additionalBrands, setAdditionalBrands] = useState([
-    { id: 1, name: 'Brand # 1', logo: 'logo.png' } 
-  ]);
+  // Fetch client data on mount
+  useEffect(() => {
+    if (clientId) {
+      fetchClientData();
+    } else {
+      Alert.alert('Error', 'Client ID is missing');
+      router.back();
+    }
+  }, [clientId]);
 
-  const handleAddBrand = () => {
-    if (!company.trim()) return;
-
-    const newBrand = { 
-      id: Date.now(),
-      name: company,
-      logo: '' 
-    };
-
-    setAdditionalBrands([...additionalBrands, newBrand]);
+  const fetchClientData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await clientService.getClientById(clientId!);
+      
+      console.log('Client data received:', response);
+      
+      // Extract client data from response (handle both direct and nested data)
+      const client = response.data || response;
+      
+      console.log('Parsed client:', client);
+      
+      // Parse name into first and last name (handle if name doesn't exist)
+      if (client.name) {
+        const nameParts = client.name.split(' ');
+        setFirstName(nameParts[0] || '');
+        setLastName(nameParts.slice(1).join(' ') || '');
+      }
+      
+      setEmail(client.email || '');
+      setContactNumber(client.contact_number || '');
+      
+      // Parse address if available (it's a comma-separated string)
+      if (client.address) {
+        const addressParts = client.address.split(', ');
+        setStreetAddress(addressParts[0] || '');
+        setCity(addressParts[1] || '');
+        setProvince(addressParts[2] || '');
+        setBarangay(addressParts[3] || '');
+        setPostalCode(addressParts[4] || '');
+      }
+      
+      setNotes(client.notes || '');
+      
+      // Set brands - check if brands exist in response
+      if (client.brands && Array.isArray(client.brands) && client.brands.length > 0) {
+        const clientBrands = client.brands.map(brand => ({
+          name: brand.name,
+          logo: brand.logo ? { uri: brand.logo, name: brand.logo.split('/').pop() } : null,
+        }));
+        setBrands(clientBrands);
+        console.log('Brands loaded:', clientBrands);
+      } else {
+        // If no brands in response, keep at least one empty brand for the form
+        console.log('No brands in response, using default empty brand');
+        setBrands([{ name: '', logo: null }]);
+      }
+      
+      console.log('Client data loaded successfully');
+    } catch (error: any) {
+      console.error('Error fetching client:', error);
+      Alert.alert('Error', 'Failed to load client data');
+      router.back();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRemoveBrand = (id: number) => {
-    setAdditionalBrands(additionalBrands.filter(brand => brand.id !== id));
+  const handleAddBrand = () => {
+    setBrands([...brands, { name: '', logo: null }]);
+  };
+
+  const handleBrandNameChange = (index: number, name: string) => {
+    const updatedBrands = [...brands];
+    updatedBrands[index].name = name;
+    setBrands(updatedBrands);
+  };
+
+  const handlePickLogo = async (index: number) => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant permission to access photos');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+        const updatedBrands = [...brands];
+        
+        const uri = asset.uri;
+        const fileName = asset.fileName || uri.split('/').pop() || `brand_logo_${index}.jpg`;
+        const fileExtension = fileName.split('.').pop()?.toLowerCase();
+        
+        let mimeType = 'image/jpeg';
+        if (fileExtension === 'png') {
+          mimeType = 'image/png';
+        } else if (fileExtension === 'jpg' || fileExtension === 'jpeg') {
+          mimeType = 'image/jpeg';
+        } else if (fileExtension === 'webp') {
+          mimeType = 'image/webp';
+        }
+        
+        const file = {
+          uri: uri,
+          type: mimeType,
+          name: fileName,
+        };
+        
+        console.log('Selected file:', file);
+        updatedBrands[index].logo = file;
+        setBrands(updatedBrands);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const handleRemoveBrand = (index: number) => {
+    if (brands.length === 1) {
+      Alert.alert('Error', 'At least one brand is required');
+      return;
+    }
+    const updatedBrands = brands.filter((_, i) => i !== index);
+    setBrands(updatedBrands);
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!firstName.trim()) newErrors.first_name = 'First name is required';
+    if (!lastName.trim()) newErrors.last_name = 'Last name is required';
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email format';
+    if (!contactNumber.trim()) newErrors.contact_number = 'Contact number is required';
+    else if (contactNumber.length < 10) newErrors.contact_number = 'Contact number must be at least 10 digits';
+    
+    // Validate brands
+    const validBrands = brands.filter(b => b.name.trim());
+    if (validBrands.length === 0) {
+      newErrors.brands = 'At least one brand is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      Alert.alert('Validation Error', 'Please fill in all required fields');
+      return;
+    }
+
+    if (!clientId) {
+      Alert.alert('Error', 'Client ID is missing');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      // Filter out empty brands
+      const validBrands = brands.filter(b => b.name.trim());
+
+      const clientData = {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: email.trim(),
+        contact_number: contactNumber.trim(),
+        street_address: streetAddress.trim() || '',
+        city: city.trim() || '',
+        province: province.trim() || '',
+        barangay: barangay.trim() || '',
+        postal_code: postalCode.trim() || '',
+        courier: courier.trim() || '',
+        method: method.trim() || '',
+        notes: notes.trim() || '',
+        brands: validBrands,
+      };
+
+      console.log('Updating client with ID:', clientId);
+      console.log('Updating client data:', {
+        ...clientData,
+        brands: clientData.brands.map(b => ({
+          name: b.name,
+          hasLogo: !!b.logo,
+          logoUri: b.logo?.uri
+        }))
+      });
+      
+      const response = await clientService.updateClient(clientId, clientData);
+      
+      console.log('Client updated successfully:', response);
+      Alert.alert('Success', 'Client updated successfully', [
+        {
+          text: 'OK',
+          onPress: () => router.back(),
+        },
+      ]);
+    } catch (error: any) {
+      console.error('Error updating client:', error);
+      console.error('Error response:', error.response?.data);
+      
+      // Handle validation errors from API
+      if (error.response?.data?.errors) {
+        const apiErrors = error.response.data.errors;
+        setErrors(apiErrors);
+        
+        // Show first error message
+        const firstError = Object.values(apiErrors)[0];
+        Alert.alert('Validation Error', Array.isArray(firstError) ? firstError[0] : String(firstError));
+      } else {
+        const errorMessage = error.response?.data?.message || error.message || 'Failed to update client';
+        Alert.alert('Error', errorMessage);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClearAll = () => {
     setFirstName('');
     setLastName('');
     setEmail('');
-    setContact('');
-    setCompany('');
-    setStreet('');
+    setContactNumber('');
+    setStreetAddress('');
     setCity('');
     setProvince('');
-    setPostal('');
+    setBarangay('');
+    setPostalCode('');
+    setCourier('');
+    setMethod('');
     setNotes('');
-    setAdditionalBrands([]);
+    setBrands([{ name: '', logo: null }]);
+    setErrors({});
   };
 
-  const handleSubmit = () => {
-    console.log('Submit edit');
-  };
-
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <PageHeader 
+          title="Edit Client" 
+          breadcrumbBold="Home" 
+          breadcrumbNormal=" / Edit Client"
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0D253F" />
+          <Text style={styles.loadingText}>Loading client data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
       <Stack.Screen options={{ headerShown: false }} />
       
-      {/* --- Header --- */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#FFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Client</Text>
-       <View style={styles.breadcrumbGroup}>
-                 <Text style={styles.breadcrumbBold}>Home</Text>
-                 <Text style={styles.breadcrumbNormal}> / View Clients</Text>
-               </View>
-      </View>
+      <PageHeader 
+        title="Edit Client" 
+        breadcrumbBold="Home" 
+        breadcrumbNormal=" / Edit Client"
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           
-          {/* Client Information */}
-          <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
-             <Text style={styles.sectionTitle}>Client Information</Text>
-          </View>
+          {/* Section: Client Information */}
+          <Text style={styles.sectionTitle}>Client Information</Text>
           <View style={styles.divider} />
           
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>First Name</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
+              <TextInput 
+                style={[styles.input, errors.first_name && styles.inputError]} 
+                placeholder="Enter first name"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+              {errors.first_name && (
+                <Text style={styles.errorText}>{errors.first_name}</Text>
+              )}
             </View>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Last Name</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={lastName} onChangeText={setLastName} />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
+              <TextInput 
+                style={[styles.input, errors.last_name && styles.inputError]} 
+                placeholder="Enter last name"
+                value={lastName}
+                onChangeText={setLastName}
+              />
+              {errors.last_name && (
+                <Text style={styles.errorText}>{errors.last_name}</Text>
+              )}
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Email</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
+              <TextInput 
+                style={[styles.input, errors.email && styles.inputError]} 
+                placeholder="Enter email" 
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+              {errors.email && (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              )}
             </View>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Contact Number</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={contact} onChangeText={setContact} keyboardType="phone-pad" />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
+              <TextInput 
+                style={[styles.input, errors.contact_number && styles.inputError]} 
+                placeholder="Enter contact number" 
+                keyboardType="phone-pad"
+                value={contactNumber}
+                onChangeText={setContactNumber}
+              />
+              {errors.contact_number && (
+                <Text style={styles.errorText}>{errors.contact_number}</Text>
+              )}
             </View>
           </View>
 
-          {/* --- Clothing/Company Section --- */}
-          <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Clothing/Company</Text>
+          {/* Section: Clothing/Company */}
+          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Clothing/Company</Text>
           <View style={styles.divider} />
-          
-          {/* Main Brand Input */}
-          <View style={styles.brandRow}>
-            <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
-               <TextInput 
-                 style={styles.input} 
-                 value={company} 
-                 onChangeText={setCompany}
-                 placeholder="Enter brand name here..."
-                 onSubmitEditing={handleAddBrand} 
-                 returnKeyType="done"
-               />
-               <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-            </View>
-            <TouchableOpacity style={styles.addBrandBtn} onPress={handleAddBrand}>
-              <Text style={styles.addBrandText}>+ Add brand</Text>
-            </TouchableOpacity>
-          </View>
 
-          {/* Helper Text */}
+          {errors.brands && (
+            <Text style={styles.errorText}>{errors.brands}</Text>
+          )}
+
+          {brands.map((brand, index) => (
+            <View key={index} style={styles.brandContainer}>
+              <View style={styles.brandHeader}>
+                <Text style={styles.brandLabel}>Brand {index + 1}</Text>
+                {brands.length > 1 && (
+                  <TouchableOpacity onPress={() => handleRemoveBrand(index)}>
+                    <Text style={styles.removeBrandText}>Remove</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <Text style={styles.label}>Brand Name</Text>
+              <TextInput 
+                style={[styles.input, errors[`brands.${index}.name`] && styles.inputError]} 
+                placeholder="Enter brand name"
+                value={brand.name}
+                onChangeText={(text) => handleBrandNameChange(index, text)}
+              />
+              {errors[`brands.${index}.name`] && (
+                <Text style={styles.errorText}>{errors[`brands.${index}.name`]}</Text>
+              )}
+
+              <Text style={[styles.label, { marginTop: hp(1.2) }]}>Logo</Text>
+              <View style={styles.fileInputContainer}>
+                <TouchableOpacity 
+                  style={styles.chooseFileBtn}
+                  onPress={() => handlePickLogo(index)}
+                >
+                  <Text style={styles.chooseFileText}>Choose file</Text>
+                </TouchableOpacity>
+                <Text style={styles.noFileText}>
+                  {brand.logo ? (brand.logo.name || 'File selected') : 'No file chosen'}
+                </Text>
+              </View>
+              {brand.logo && brand.logo.uri && (
+                <View style={styles.imagePreviewContainer}>
+                  <Image 
+                    source={{ uri: brand.logo.uri }} 
+                    style={styles.imagePreview}
+                    contentFit="contain"
+                  />
+                  <TouchableOpacity 
+                    style={styles.removeImageBtn}
+                    onPress={() => {
+                      const updatedBrands = [...brands];
+                      updatedBrands[index].logo = null;
+                      setBrands(updatedBrands);
+                    }}
+                  >
+                    <Text style={styles.removeImageText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {errors[`brands.${index}.logo`] && (
+                <Text style={styles.errorText}>{errors[`brands.${index}.logo`]}</Text>
+              )}
+            </View>
+          ))}
+
+          <TouchableOpacity style={styles.addBrandBtn} onPress={handleAddBrand}>
+            <Text style={styles.addBrandText}>+ Add another brand</Text>
+          </TouchableOpacity>
+
           <View style={styles.helperTextContainer}>
-             <Text style={styles.helperText}>* Press <Text style={{fontWeight:'bold', color:'#F87171'}}>enter</Text> to confirm the brand name</Text>
-             <Text style={[styles.helperText, {textAlign:'right'}]}>* Press <Text style={{fontWeight:'bold', color:'#F87171'}}>add brand</Text> button if company has{'\n'}additional brands</Text>
+            <Text style={styles.helperText}>* Fill in brand name and optionally upload a logo</Text>
+            <Text style={styles.helperText}>* Click <Text style={{fontWeight:'bold'}}>Add another brand</Text> if company has multiple brands</Text>
           </View>
 
-          {/* Main Logo Row */}
-          <View style={styles.logoRow}>
-            <Text style={[styles.label, {width: 40, marginTop:0, marginBottom:0}]}>Logo</Text>
-            <TouchableOpacity style={styles.chooseFileBtn}>
-               <Text style={styles.chooseFileText}>Choose files</Text>
-            </TouchableOpacity>
-            <Text style={styles.fileNameText}>logo.png</Text>
-            
-            <View style={{flex:1}}/>
-            
-            <TouchableOpacity style={{marginRight: 10}}>
-                <Ionicons name="globe-outline" size={18} color="#666" />
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Ionicons name="remove-circle" size={18} color="#0D253F" />
-            </TouchableOpacity>
-          </View>
-
-          {/* --- Additional Brands List --- */}
-          <View style={styles.additionalBrandsContainer}>
-            <Text style={[styles.label, {fontSize: 10, color:'#888', marginBottom: 5}]}>Additional brands</Text>
-            
-            {additionalBrands.map((brand, index) => (
-              <View key={brand.id} style={styles.additionalBrandRow}>
-                {/* Brand Name Input */}
-                <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
-                    <TextInput 
-                      style={styles.input} 
-                      value={brand.name}
-                      onChangeText={(text) => {
-                        const newBrands = [...additionalBrands];
-                        newBrands[index].name = text;
-                        setAdditionalBrands(newBrands);
-                      }}
-                    />
-                    <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-                </View>
-
-                {/* File Display */}
-                <View style={styles.fileDisplay}>
-                    <Ionicons name="document-text-outline" size={14} color="#666" style={{marginRight: 5}}/>
-                    <Text style={{fontSize: 12, color:'#333'}}>{brand.logo || 'logo.png'}</Text>
-                </View>
-
-                {/* Actions */}
-                <TouchableOpacity style={{marginHorizontal: 8}}>
-                    <Ionicons name="globe-outline" size={18} color="#666" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleRemoveBrand(brand.id)}>
-                    <Ionicons name="remove-circle" size={18} color="#0D253F" />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-
-          {/* Address */}
-          <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Address</Text>
+          {/* Section: Address */}
+          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Address</Text>
           <View style={styles.divider} />
+
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Street Address</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={street} onChangeText={setStreet} />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter street address"
+                value={streetAddress}
+                onChangeText={setStreetAddress}
+              />
             </View>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>City</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={city} onChangeText={setCity} />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
-            </View>
-          </View>
-          
-          <View style={styles.row}>
-             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Province</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={province} onChangeText={setProvince} />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
-            </View>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Postal Code</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput style={styles.input} value={postal} onChangeText={setPostal} />
-                <Ionicons name="pencil" size={14} color="#666" style={styles.inputIcon} />
-              </View>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter city"
+                value={city}
+                onChangeText={setCity}
+              />
             </View>
           </View>
 
-          {/* Notes */}
-          <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Notes</Text>
+          <View style={styles.row}>
+            <View style={styles.halfInputContainer}>
+              <Text style={styles.label}>Province</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter province"
+                value={province}
+                onChangeText={setProvince}
+              />
+            </View>
+            <View style={styles.halfInputContainer}>
+              <Text style={styles.label}>Barangay</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter barangay"
+                value={barangay}
+                onChangeText={setBarangay}
+              />
+            </View>
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.halfInputContainer}>
+              <Text style={styles.label}>Postal Code</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter postal code"
+                value={postalCode}
+                onChangeText={setPostalCode}
+              />
+            </View>
+            <View style={styles.halfInputContainer}>
+              {/* Empty space for layout */}
+            </View>
+          </View>
+
+          {/* Section: Notes */}
+          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Notes</Text>
           <View style={styles.divider} />
           <TextInput 
             style={[styles.input, styles.textArea]} 
@@ -273,33 +536,36 @@ export default function EditClientScreen() {
             value={notes}
             onChangeText={setNotes}
           />
+
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
           <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClearAll}>
-             <Text style={styles.clearText}>Clear all fields</Text>
+            <Text style={styles.clearText}>Clear all fields</Text>
           </TouchableOpacity>
+          
           <View style={styles.actionButtons}>
-             <Button
-               title="Cancel"
-               onPress={() => router.back()}
-               variant="outline"
-               size="base"
-               style={styles.cancelBtn}
-               textStyle={styles.cancelText}
-             />
-             <Button
-               title="Submit"
-               onPress={handleSubmit}
-               variant="primary"
-               size="base"
-               style={styles.submitBtn}
-             />
+            <Button
+              title="Cancel"
+              onPress={() => router.back()}
+              variant="outline"
+              size="base"
+              style={styles.cancelBtn}
+              textStyle={styles.cancelText}
+              disabled={isSubmitting}
+            />
+            
+            <Button
+              title={isSubmitting ? "Updating..." : "Update"}
+              onPress={handleSubmit}
+              variant="primary"
+              size="base"
+              style={styles.submitBtn}
+              disabled={isSubmitting}
+            />
           </View>
         </View>
-        
-        <View style={{height: 40}} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -308,105 +574,106 @@ export default function EditClientScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff'
+    backgroundColor: COLORS.white,
   },
-  header: {
-    backgroundColor: '#0D253F',
-    height: 60,
-    flexDirection: 'row',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: wp(4),
-    justifyContent: 'space-between'
+    padding: wp(4),
   },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.lg,
-    fontFamily: FONT_FAMILY.bold,
-    marginLeft: wp(2.7),
-    flex: 1
-  },
-  backButton: {
-    padding: wp(1.3)
-  },
- breadcrumbGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  breadcrumbBold: {
-    fontSize: 10,
-    fontFamily: 'Poppins_700Bold',
-    color: '#ffffff',
-  },
-  breadcrumbNormal: {
-    fontSize: 10,
-    fontFamily: 'Poppins_300',
-    color: '#ffffff', // Slate-500 equivalent
+  loadingText: {
+    marginTop: hp(2),
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
   },
   scrollContent: {
-    padding: wp(4)
+    padding: wp(4),
   },
   card: {
-    backgroundColor: '#F5F9FF',
+    backgroundColor: '#EBF6FF',
     borderRadius: 10,
     padding: wp(5.3),
     borderWidth: 1,
-    borderColor: '#D1D5DB'
+    borderColor: '#D1D5DB',
   },
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.text,
+    marginBottom: hp(1.2),
   },
   divider: {
     height: 1,
     backgroundColor: '#e0e0e0',
-    marginVertical: hp(1.2),
-    marginBottom: hp(1.9)
+    marginBottom: hp(1.9),
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: hp(1.9)
+    marginBottom: hp(1.9),
   },
   halfInputContainer: {
-    width: '48%'
+    width: '48%',
   },
   label: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.text,
-    marginBottom: hp(0.6)
+    marginBottom: hp(0.6),
   },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  input: {
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 5,
-    backgroundColor: COLORS.white,
-    paddingRight: wp(2.7)
-  },
-  input: {
-    flex: 1,
     paddingHorizontal: wp(2.7),
     paddingVertical: hp(1),
     fontSize: FONT_SIZES.sm,
+    backgroundColor: COLORS.white,
     fontFamily: FONT_FAMILY.regular,
     color: COLORS.text,
-    height: hp(4.8),
   },
-  inputIcon: {
-    marginLeft: wp(1.3)
+  inputError: {
+    borderColor: '#F87171',
   },
-  brandRow: {
+  errorText: {
+    fontSize: FONT_SIZES.xs,
+    color: '#F87171',
+    marginTop: hp(0.3),
+    fontFamily: FONT_FAMILY.regular,
+  },
+  brandContainer: {
+    marginBottom: hp(2),
+    padding: wp(3),
+    backgroundColor: COLORS.white,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  brandHeader: {
     flexDirection: 'row',
-    alignItems: 'center'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: hp(1),
+  },
+  brandLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.semiBold,
+    color: COLORS.text,
+  },
+  removeBrandText: {
+    fontSize: FONT_SIZES.xs,
+    color: '#F87171',
+    fontFamily: FONT_FAMILY.medium,
   },
   addBrandBtn: {
     backgroundColor: '#1E3A5F',
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(4),
-    borderRadius: 5
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    marginBottom: hp(1),
   },
   addBrandText: {
     color: COLORS.white,
@@ -417,76 +684,82 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: hp(0.6),
-    marginBottom: hp(1.9)
+    marginBottom: hp(1.9),
   },
   helperText: {
     fontSize: FONT_SIZES.xs,
     color: '#F87171',
     flex: 1,
     marginRight: wp(1.3),
-    lineHeight: hp(1.5),
     fontFamily: FONT_FAMILY.regular,
   },
-  logoRow: {
+  fileInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: hp(1.2)
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginTop: hp(0.6),
+    backgroundColor: '#fff',
   },
   chooseFileBtn: {
-    borderWidth: 1,
-    borderColor: '#CCC',
-    paddingVertical: hp(0.5),
-    paddingHorizontal: wp(2.7),
-    borderRadius: 3,
-    marginRight: wp(2.7)
+    backgroundColor: '#E5E7EB',
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(4),
+    borderRightWidth: 1,
+    borderRightColor: '#D1D5DB',
   },
   chooseFileText: {
     fontSize: FONT_SIZES.xs,
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.text,
   },
-  fileNameText: {
+  noFileText: {
+    marginLeft: wp(2.7),
     fontSize: FONT_SIZES.xs,
-    color: '#888',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
-    paddingHorizontal: wp(1.3),
+    color: '#666',
     fontFamily: FONT_FAMILY.regular,
   },
-  additionalBrandsContainer: {
-    marginTop: hp(0.6)
+  imagePreviewContainer: {
+    marginTop: hp(1.2),
+    position: 'relative',
+    alignSelf: 'flex-start',
   },
-  additionalBrandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: hp(1.2)
-  },
-  fileDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  imagePreview: {
+    width: wp(30),
+    height: hp(15),
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 5,
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(2.7),
-    marginRight: wp(1.3),
-    width: wp(26.7),
-    height: hp(4.8)
+    backgroundColor: '#F9FAFB',
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#F87171',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeImageText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   textArea: {
     height: hp(12.5),
-    borderWidth: 1,
-    backgroundColor: COLORS.white,
-    borderColor: '#B9CDDF',
-    borderRadius: 5
   },
   footer: {
     marginTop: hp(3.1),
-    marginBottom: hp(2.5)
+    marginBottom: hp(2.5),
   },
   clearButtonContainer: {
     alignItems: 'flex-end',
-    marginBottom: hp(2.5)
+    marginBottom: hp(2.5),
   },
   clearText: {
     color: '#4B5563',
@@ -507,6 +780,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: '#1F2937',
+    fontWeight: '700',
   },
   submitBtn: {
     backgroundColor: '#0D253F',

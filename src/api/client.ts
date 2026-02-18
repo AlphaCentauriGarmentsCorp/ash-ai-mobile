@@ -116,10 +116,13 @@ class ApiClient {
   }
 
   // File upload with FormData
-  async uploadFile<T = any>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+  async uploadFile<T = any>(url: string, formData: FormData, method: 'POST' | 'PUT' = 'POST', onUploadProgress?: (progressEvent: any) => void): Promise<T> {
     // For React Native FormData, we need to remove the default Content-Type
     // and let axios set it automatically with the correct boundary
-    const response: AxiosResponse<T> = await this.api.post(url, formData, {
+    const response: AxiosResponse<T> = await this.api.request({
+      method,
+      url,
+      data: formData,
       headers: {
         'Content-Type': 'multipart/form-data',
       },

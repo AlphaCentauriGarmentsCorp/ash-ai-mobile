@@ -1,18 +1,22 @@
 import Button from '@components/common/Button';
 import { Ionicons } from '@expo/vector-icons';
 import { usePoppinsFonts } from '@hooks';
+import { PageHeader } from '@layouts';
+import clientService from '@services/client';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
+import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
+    Alert,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,43 +25,111 @@ export default function ViewClientScreen() {
   const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
 
-  // Initialize state with passed parameters
-  const initialFirstName = params.name ? params.name.toString().split(' ')[0] : 'Morgan';
-  const initialLastName = params.name ? params.name.toString().split(' ').slice(1).join(' ') : 'Lee';
+  // Get client ID from params
+  const clientId = params.id?.toString();
 
-  const [firstName] = useState(initialFirstName);
-  const [lastName] = useState(initialLastName);
-  const [email] = useState(params.email?.toString() || 'sample@gmail.com');
-  const [contact] = useState(params.contact?.toString() || '0999123456');
-  const [company] = useState(params.company?.toString() || 'Adidas');
+  // State for client data
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [barangay, setBarangay] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [notes, setNotes] = useState('');
+  const [brands, setBrands] = useState<Array<{ name: string; logo?: string }>>([]);
   
-  // Address & Notes
-  const [street] = useState('Blk. 1, Lot 2, Mother Ignacia');
-  const [city] = useState('Quezon City');
-  const [province] = useState('Province');
-  const [postal] = useState('2042');
-  const [notes] = useState('Do not do unto others what you don\'t want to do to you');
+  // Loading state
+  const [isLoading, setIsLoading] = useState(true);
 
-  // --- Additional Brands State (Read-Only) ---
-  const [additionalBrands] = useState([
-    { id: 1, name: 'Brand # 1', logo: 'logo1.png' } 
-  ]);
+  // Fetch client data on mount
+  useEffect(() => {
+    if (clientId) {
+      fetchClientData();
+    } else {
+      Alert.alert('Error', 'Client ID is missing');
+      router.back();
+    }
+  }, [clientId]);
 
-  if (!fontsLoaded) return null;
+  const fetchClientData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await clientService.getClientById(clientId!);
+      
+      console.log('Client data received:', response);
+      
+      // Extract client data from response (API returns {data: client})
+      const client = (response as any).data || response;
+      
+      console.log('Parsed client:', client);
+      
+      // Parse name into first and last name
+      if (client.name) {
+        const nameParts = client.name.split(' ');
+        setFirstName(nameParts[0] || '');
+        setLastName(nameParts.slice(1).join(' ') || '');
+      }
+      
+      setEmail(client.email || '');
+      setContactNumber(client.contact_number || '');
+      
+      // Parse address if available
+      if (client.address) {
+        const addressParts = client.address.split(', ');
+        setStreetAddress(addressParts[0] || '');
+        setCity(addressParts[1] || '');
+        setProvince(addressParts[2] || '');
+        setBarangay(addressParts[3] || '');
+        setPostalCode(addressParts[4] || '');
+      }
+      
+      setNotes(client.notes || '');
+      
+      // Set brands if available
+      if (client.brands && Array.isArray(client.brands) && client.brands.length > 0) {
+        setBrands(client.brands);
+        console.log('Brands loaded:', client.brands);
+      }
+      
+      console.log('Client data loaded successfully');
+    } catch (error: any) {
+      console.error('Error fetching client:', error);
+      Alert.alert('Error', 'Failed to load client data');
+      router.back();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!fontsLoaded || isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <PageHeader 
+          title="View Client" 
+          breadcrumbBold="Home" 
+          breadcrumbNormal=" / View Client"
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0D253F" />
+          <Text style={styles.loadingText}>Loading client data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0D253F" />
       <Stack.Screen options={{ headerShown: false }} />
       
-      {/* --- Header --- */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#FFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{company}</Text>
-        <Text style={styles.breadCrumb}>Home / View Clients</Text>
-      </View>
+      <PageHeader 
+        title="View Client" 
+        breadcrumbBold="Home" 
+        breadcrumbNormal=" / View Client"
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
@@ -67,7 +139,7 @@ export default function ViewClientScreen() {
              <Text style={styles.sectionTitle}>Client Information</Text>
              <TouchableOpacity 
                 style={styles.innerEditBtn}
-                onPress={() => router.push({ pathname: "/client/edit", params: params })}
+                onPress={() => router.push({ pathname: "/client/edit", params: { id: clientId } })}
              >
                 <Ionicons name="pencil" size={12} color="#333" style={{marginRight:5}}/>
                 <Text style={styles.innerEditText}>Edit</Text>
@@ -93,59 +165,43 @@ export default function ViewClientScreen() {
             </View>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Contact Number</Text>
-              <TextInput style={styles.input} value={contact} editable={false} />
+              <TextInput style={styles.input} value={contactNumber} editable={false} />
             </View>
           </View>
 
-          {/* Company Section */}
-          <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Clothing/Company</Text>
-          <View style={styles.divider} />
-          <View style={styles.row}>
-             <View style={{flex:1}}>
-                <TextInput style={styles.input} value={company} editable={false} />
-             </View>
-          </View>
+          {/* Brands Section */}
+          {brands.length > 0 && (
+            <>
+              <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Clothing/Company</Text>
+              <View style={styles.divider} />
+              
+              {brands.map((brand, index) => (
+                <View key={index} style={styles.brandContainer}>
+                  <Text style={styles.brandLabel}>Brand {index + 1}</Text>
+                  
+                  <Text style={styles.label}>Brand Name</Text>
+                  <TextInput 
+                    style={styles.input} 
+                    value={brand.name}
+                    editable={false}
+                  />
 
-          {/* Main Logo Row */}
-          <View style={styles.logoRow}>
-            <Text style={[styles.label, {width: 40, marginTop:0, marginBottom:0}]}>Logo</Text>
-            <View style={styles.disabledFileBtn}>
-               <Text style={styles.chooseFileText}>Choose Files</Text>
-            </View>
-            <Text style={styles.fileNameText}>Logo.png</Text>
-            <TouchableOpacity style={{marginLeft: 10}}>
-                <Ionicons name="eye-outline" size={18} color="#666" />
-            </TouchableOpacity>
-          </View>
-
-          {/* --- Additional Brands Section --- */}
-          <View style={styles.additionalBrandsContainer}>
-            <Text style={styles.smallLabel}>Additional brands</Text>
-            
-            {additionalBrands.map((brand) => (
-              <View key={brand.id} style={styles.additionalBrandRow}>
-                {/* Brand Name Input */}
-                <View style={{ flex: 1, marginRight: 10 }}>
-                    <TextInput 
-                      style={styles.input} 
-                      value={brand.name}
-                      editable={false}
-                    />
+                  {brand.logo && (
+                    <>
+                      <Text style={[styles.label, { marginTop: hp(1.2) }]}>Logo</Text>
+                      <View style={styles.logoPreviewContainer}>
+                        <Image 
+                          source={{ uri: brand.logo }} 
+                          style={styles.logoPreview}
+                          contentFit="contain"
+                        />
+                      </View>
+                    </>
+                  )}
                 </View>
-
-                {/* File Display */}
-                <View style={styles.fileDisplay}>
-                    <Ionicons name="document-text-outline" size={14} color="#666" style={{marginRight: 5}}/>
-                    <Text style={{fontSize: 12, color:'#333'}}>{brand.logo}</Text>
-                </View>
-
-                {/* View Icon Only */}
-                <TouchableOpacity style={{marginLeft: 10}}>
-                    <Ionicons name="eye-outline" size={18} color="#666" />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
+              ))}
+            </>
+          )}
 
           {/* Address */}
           <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Address</Text>
@@ -153,7 +209,7 @@ export default function ViewClientScreen() {
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Street Address</Text>
-              <TextInput style={styles.input} value={street} editable={false} />
+              <TextInput style={styles.input} value={streetAddress} editable={false} />
             </View>
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>City</Text>
@@ -167,25 +223,39 @@ export default function ViewClientScreen() {
               <TextInput style={styles.input} value={province} editable={false} />
             </View>
             <View style={styles.halfInputContainer}>
+              <Text style={styles.label}>Barangay</Text>
+              <TextInput style={styles.input} value={barangay} editable={false} />
+            </View>
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Postal Code</Text>
-              <TextInput style={styles.input} value={postal} editable={false} />
+              <TextInput style={styles.input} value={postalCode} editable={false} />
+            </View>
+            <View style={styles.halfInputContainer}>
+              {/* Empty space for layout */}
             </View>
           </View>
 
           {/* Notes */}
-          <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Notes</Text>
-          <View style={styles.divider} />
-          <TextInput 
-            style={[styles.input, styles.textArea]} 
-            multiline={true}
-            numberOfLines={4}
-            textAlignVertical="top"
-            value={notes}
-            editable={false}
-          />
+          {notes && (
+            <>
+              <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Notes</Text>
+              <View style={styles.divider} />
+              <TextInput 
+                style={[styles.input, styles.textArea]} 
+                multiline={true}
+                numberOfLines={4}
+                textAlignVertical="top"
+                value={notes}
+                editable={false}
+              />
+            </>
+          )}
         </View>
 
-        {/* --- UPDATED FOOTER: DONE BUTTON REDIRECTS TO INDEX --- */}
+        {/* Footer */}
         <View style={styles.footer}>
           <Button
             title="Done"
@@ -195,8 +265,6 @@ export default function ViewClientScreen() {
             style={styles.doneBtn}
           />
         </View>
-        
-        <View style={{height: 40}} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -205,42 +273,30 @@ export default function ViewClientScreen() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#F5F9FF' 
+    backgroundColor: COLORS.white,
   },
-  header: {
-    backgroundColor: '#0D253F',
-    height: 60,
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingHorizontal: wp(4), 
-    justifyContent: 'space-between',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: wp(4),
   },
-  headerTitle: { 
-    color: COLORS.white, 
-    fontSize: FONT_SIZES.lg, 
-    fontFamily: FONT_FAMILY.bold, 
-    marginLeft: wp(2.7), 
-    flex: 1 
-  },
-  backButton: { 
-    padding: wp(1.3) 
-  },
-  breadCrumb: { 
-    color: '#A0A0A0', 
-    fontSize: FONT_SIZES.xs,
+  loadingText: {
+    marginTop: hp(2),
+    fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
   },
   scrollContent: { 
     padding: wp(4) 
   },
   card: { 
-    backgroundColor: COLORS.white, 
+    backgroundColor: '#EBF6FF', 
     borderRadius: 10, 
     padding: wp(5.3), 
     borderWidth: 1, 
     borderColor: '#D1D5DB' 
   },
-  
   sectionHeaderRow: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
@@ -265,7 +321,6 @@ const styles = StyleSheet.create({
     color: COLORS.text, 
     fontFamily: FONT_FAMILY.semiBold,
   },
-
   divider: { 
     height: 1, 
     backgroundColor: '#e0e0e0', 
@@ -286,7 +341,6 @@ const styles = StyleSheet.create({
     color: COLORS.text, 
     marginBottom: hp(0.6) 
   },
-  
   input: { 
     borderWidth: 1, 
     borderColor: '#D1D5DB', 
@@ -295,78 +349,39 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1), 
     fontSize: FONT_SIZES.sm, 
     fontFamily: FONT_FAMILY.regular,
-    backgroundColor: COLORS.white, 
+    backgroundColor: '#F9FAFB',
     color: COLORS.text,
-    height: hp(4.8),
   },
-  
-  // Logo Section
-  logoRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginBottom: hp(1.2) 
-  },
-  disabledFileBtn: { 
-      borderWidth: 1, 
-      borderColor: '#CCC', 
-      backgroundColor: '#F3F4F6', 
-      paddingVertical: hp(0.5), 
-      paddingHorizontal: wp(2.7), 
-      borderRadius: 3, 
-      marginRight: 0 
-  },
-  chooseFileText: { 
-    fontSize: FONT_SIZES.xs, 
-    fontFamily: FONT_FAMILY.medium,
-    color: '#888' 
-  },
-  fileNameText: { 
-      fontSize: FONT_SIZES.xs, 
-      fontFamily: FONT_FAMILY.regular,
-      color: '#888', 
-      borderWidth: 1,
-      borderLeftWidth: 0,
-      borderColor: '#CCC',
-      paddingVertical: hp(0.5),
-      paddingHorizontal: wp(2.7),
-      borderTopRightRadius: 3,
-      borderBottomRightRadius: 3,
-  },
-
-  // Additional Brands Styles
-  additionalBrandsContainer: { 
-    marginTop: hp(0.6), 
-    marginBottom: hp(1.2) 
-  },
-  smallLabel: { 
-    fontSize: FONT_SIZES.xs, 
-    fontFamily: FONT_FAMILY.regular,
-    color: '#888', 
-    marginBottom: hp(0.6) 
-  },
-  additionalBrandRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginBottom: hp(1.2) 
-  },
-  fileDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  brandContainer: {
+    marginBottom: hp(2),
+    padding: wp(3),
+    backgroundColor: COLORS.white,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#D1D5DB',
+  },
+  brandLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.semiBold,
+    color: COLORS.text,
+    marginBottom: hp(1),
+  },
+  logoPreviewContainer: {
+    marginTop: hp(0.6),
+    alignSelf: 'flex-start',
+  },
+  logoPreview: {
+    width: wp(30),
+    height: hp(15),
     borderRadius: 5,
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(2.7),
-    width: wp(26.7), 
-    height: hp(4.8),
-    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    backgroundColor: '#F9FAFB',
   },
-
   textArea: { 
-    height: hp(12.5) 
+    height: hp(12.5),
+    textAlignVertical: 'top',
   },
-  
-  // Footer
   footer: { 
       marginTop: hp(3.1), 
       marginBottom: hp(2.5), 
