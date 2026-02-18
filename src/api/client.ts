@@ -32,7 +32,11 @@ class ApiClient {
         const url = `${config.baseURL || ''}${config.url || ''}`;
         const params = config.params ? `?${new URLSearchParams(config.params).toString()}` : '';
         console.log('API Request:', config.method?.toUpperCase(), url + params);
-        console.log('API Request params:', config.params);
+        console.log('API Request headers:', config.headers);
+        console.log('API Request data type:', config.data?.constructor?.name);
+        if (config.data instanceof FormData) {
+          console.log('FormData parts:', (config.data as any)._parts);
+        }
         return config;
       },
       (error) => {
@@ -113,6 +117,8 @@ class ApiClient {
 
   // File upload with FormData
   async uploadFile<T = any>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+    // For React Native FormData, we need to remove the default Content-Type
+    // and let axios set it automatically with the correct boundary
     const response: AxiosResponse<T> = await this.api.post(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

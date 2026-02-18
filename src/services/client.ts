@@ -25,7 +25,51 @@ class ClientService {
 
   // Create new client
   async createClient(data: CreateClientRequest): Promise<Client> {
-    return await apiClient.post<Client>(API_CONFIG.ENDPOINTS.CLIENTS, data);
+    // Check if any brand has a logo (file upload required)
+    const hasFiles = data.brands.some(brand => brand.logo);
+
+    if (hasFiles) {
+      // Use FormData for file uploads
+      const formData = new FormData();
+      
+      // Add basic fields
+      formData.append('first_name', data.first_name);
+      formData.append('last_name', data.last_name);
+      formData.append('email', data.email);
+      formData.append('contact_number', data.contact_number);
+      
+      // Add optional address fields (always send them, even if empty)
+      formData.append('street_address', data.street_address || '');
+      formData.append('city', data.city || '');
+      formData.append('province', data.province || '');
+      formData.append('barangay', data.barangay || '');
+      formData.append('postal_code', data.postal_code || '');
+      formData.append('courier', data.courier || '');
+      formData.append('method', data.method || '');
+      formData.append('notes', data.notes || '');
+      
+      // Add brands
+      data.brands.forEach((brand, index) => {
+        formData.append(`brands[${index}][name]`, brand.name);
+        if (brand.logo) {
+          // React Native FormData requires specific format
+          const file: any = {
+            uri: brand.logo.uri,
+            type: brand.logo.type || 'image/jpeg',
+            name: brand.logo.name || `brand_logo_${index}.jpg`,
+          };
+          console.log(`Appending file for brand ${index}:`, file);
+          formData.append(`brands[${index}][logo]`, file as any);
+        }
+      });
+
+      console.log('Uploading with FormData - parts count:', (formData as any)._parts?.length);
+      return await apiClient.uploadFile<Client>(API_CONFIG.ENDPOINTS.CLIENTS, formData);
+    } else {
+      // Use JSON for requests without files
+      console.log('Submitting without files (JSON)');
+      return await apiClient.post<Client>(API_CONFIG.ENDPOINTS.CLIENTS, data);
+    }
   }
 
   // Update client
