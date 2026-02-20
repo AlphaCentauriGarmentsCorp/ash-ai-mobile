@@ -129,7 +129,7 @@ class ClientService {
 
   // Delete client
   async deleteClient(id: string): Promise<void> {
-    await apiClient.delete(API_CONFIG.ENDPOINTS.CLIENT_BY_ID(Number(id)));
+    await apiClient.delete(API_CONFIG.ENDPOINTS.CLIENT_DELETE(Number(id)));
   }
 }
 

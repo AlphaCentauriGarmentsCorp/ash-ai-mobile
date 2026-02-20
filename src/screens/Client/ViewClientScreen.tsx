@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Modal,
     ScrollView,
     StyleSheet,
     Text,
@@ -43,6 +44,10 @@ export default function ViewClientScreen() {
   
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Logo preview state
+  const [logoPreviewVisible, setLogoPreviewVisible] = useState(false);
+  const [selectedLogoUrl, setSelectedLogoUrl] = useState<string | null>(null);
 
   // Fetch client data on mount
   useEffect(() => {
@@ -102,6 +107,11 @@ export default function ViewClientScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLogoPress = (logoUrl: string) => {
+    setSelectedLogoUrl(logoUrl);
+    setLogoPreviewVisible(true);
   };
 
   if (!fontsLoaded || isLoading) {
@@ -189,13 +199,20 @@ export default function ViewClientScreen() {
                   {brand.logo && (
                     <>
                       <Text style={[styles.label, { marginTop: hp(1.2) }]}>Logo</Text>
-                      <View style={styles.logoPreviewContainer}>
+                      <TouchableOpacity 
+                        style={styles.logoPreviewContainer}
+                        onPress={() => handleLogoPress(brand.logo!)}
+                        activeOpacity={0.7}
+                      >
                         <Image 
                           source={{ uri: brand.logo }} 
                           style={styles.logoPreview}
                           contentFit="contain"
                         />
-                      </View>
+                        <View style={styles.logoOverlay}>
+                          <Ionicons name="expand-outline" size={24} color="#FFFFFF" />
+                        </View>
+                      </TouchableOpacity>
                     </>
                   )}
                 </View>
@@ -266,6 +283,36 @@ export default function ViewClientScreen() {
           />
         </View>
       </ScrollView>
+
+      <Modal
+        visible={logoPreviewVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setLogoPreviewVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.logoPreviewOverlay}
+          activeOpacity={1}
+          onPress={() => setLogoPreviewVisible(false)}
+        >
+          <View style={styles.logoPreviewModalContainer}>
+            <TouchableOpacity 
+              style={styles.closeLogoButton}
+              onPress={() => setLogoPreviewVisible(false)}
+            >
+              <Ionicons name="close" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+            
+            {selectedLogoUrl && (
+              <Image 
+                source={{ uri: selectedLogoUrl }} 
+                style={styles.logoPreviewImage}
+                contentFit="contain"
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -369,6 +416,7 @@ const styles = StyleSheet.create({
   logoPreviewContainer: {
     marginTop: hp(0.6),
     alignSelf: 'flex-start',
+    position: 'relative',
   },
   logoPreview: {
     width: wp(30),
@@ -377,6 +425,44 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D1D5DB',
     backgroundColor: '#F9FAFB',
+  },
+  logoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.8,
+  },
+  logoPreviewOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoPreviewModalContainer: {
+    width: '90%',
+    height: '70%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  closeLogoButton: {
+    position: 'absolute',
+    top: -40,
+    right: 10,
+    zIndex: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  logoPreviewImage: {
+    width: '100%',
+    height: '100%',
   },
   textArea: { 
     height: hp(12.5),

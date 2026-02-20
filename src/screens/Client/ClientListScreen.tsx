@@ -2,17 +2,19 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Dimensions,
-  Image,
-  Modal,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    Image,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -124,6 +126,7 @@ export default function ClientListScreen() {
 
   const [allClientsFromAPI, setAllClientsFromAPI] = useState<Client[]>([]); 
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -132,6 +135,11 @@ export default function ClientListScreen() {
 
   // Client-side filtering
   const filteredClients = useMemo(() => {
+    // Ensure allClientsFromAPI is an array
+    if (!Array.isArray(allClientsFromAPI)) {
+      return [];
+    }
+    
     if (!searchText.trim()) {
       return allClientsFromAPI;
     }
@@ -169,22 +177,81 @@ export default function ClientListScreen() {
     try {
       setLoading(true);
       const response = await clientService.getClients(1, 9999);
-      setAllClientsFromAPI(response.data);
+      console.log('Clients response:', response);
+      console.log('Clients data:', response.data);
+      console.log('Is array?', Array.isArray(response.data));
+      
+      // Handle different response structures
+      let clientsArray: Client[] = [];
+      
+      if (Array.isArray(response.data)) {
+        // Standard case: response.data is an array
+        clientsArray = response.data;
+      } else if (Array.isArray(response)) {
+        // Alternative case: response itself is an array
+        clientsArray = response;
+      } else if (response.data && typeof response.data === 'object') {
+        // Edge case: response.data is a single object (backend error)
+        console.warn('API returned a single object instead of array. This is likely a backend issue.');
+        clientsArray = [];
+      } else {
+        console.error('Unexpected response structure:', response);
+        clientsArray = [];
+      }
+      
+      console.log('Setting clients array with', clientsArray.length, 'items');
+      setAllClientsFromAPI(clientsArray);
     } catch (error) {
       console.error('Error fetching clients:', error);
+      setAllClientsFromAPI([]);
+      Alert.alert('Error', 'Failed to load clients. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const response = await clientService.getClients(1, 9999);
+      
+      // Handle different response structures
+      let clientsArray: Client[] = [];
+      
+      if (Array.isArray(response.data)) {
+        clientsArray = response.data;
+      } else if (Array.isArray(response)) {
+        clientsArray = response;
+      } else if (response.data && typeof response.data === 'object') {
+        console.warn('API returned a single object instead of array during refresh.');
+        clientsArray = [];
+      } else {
+        clientsArray = [];
+      }
+      
+      setAllClientsFromAPI(clientsArray);
+    } catch (error) {
+      console.error('Error refreshing clients:', error);
+      Alert.alert('Error', 'Failed to refresh clients');
+      setAllClientsFromAPI([]);
+    } finally {
+      setRefreshing(false);
     }
   };
 
   const handleDeleteClient = async () => {
     if (!selectedClient) return;
     try {
+      console.log('Deleting client:', selectedClient.id);
       await clientService.deleteClient(String(selectedClient.id));
       setRemoveModalVisible(false);
+      setSelectedClient(null);
+      Alert.alert('Success', 'Client deleted successfully');
       fetchClients(); 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting client:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete client';
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -290,7 +357,17 @@ export default function ClientListScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.contentContainer}>
+      <ScrollView 
+        style={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#0D253F']}
+            tintColor="#0D253F"
+          />
+        }
+      >
         <View style={styles.actionButtonsRow}>
           <Button
             title="New client"

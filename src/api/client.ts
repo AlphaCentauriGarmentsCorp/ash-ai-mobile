@@ -49,6 +49,22 @@ class ApiClient {
     this.api.interceptors.response.use(
       (response) => {
         console.log('API Response:', response.status, response.config.url);
+        
+        // Handle responses that are strings with HTML warnings + JSON
+        if (typeof response.data === 'string' && response.data.includes('<br />')) {
+          console.log('Response contains HTML warnings, extracting JSON...');
+          // Find the JSON part (starts with { or [ and ends with } or ])
+          const jsonMatch = response.data.match(/[\{\[].*[\}\]]/s);
+          if (jsonMatch) {
+            try {
+              response.data = JSON.parse(jsonMatch[0]);
+              console.log('Successfully parsed JSON from response');
+            } catch (e) {
+              console.error('Failed to parse JSON from response:', e);
+            }
+          }
+        }
+        
         return response;
       },
       async (error: AxiosError) => {
