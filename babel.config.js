@@ -18,6 +18,8 @@ module.exports = function (api) {
             '@services': './src/services',
             '@store': './src/store',
             '@assets': './src/assets',
+            '@context': './src/context',
+            '@api': './src/api',
           },
         },
       ],

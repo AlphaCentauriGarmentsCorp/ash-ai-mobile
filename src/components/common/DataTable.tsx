@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_SIZES, SIZES } from '@styles';
 import React, { useRef, useState } from 'react';
 import {
-  Animated,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle
+    Animated,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewStyle
 } from 'react-native';
 
 export interface Column {
@@ -174,7 +174,7 @@ export default function DataTable({
       </ScrollView>
 
       <View style={styles.customScrollContainer}>
-        <View style={[styles.scrollTrack, { width: trackWidth }]}>
+        <View style={[styles.scrollTrack, { width: visibleWidth > 0 ? visibleWidth - 32 : trackWidth }]}>
           <Animated.View
             style={[
               styles.scrollThumb,
@@ -237,8 +237,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   customScrollContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     paddingTop: 10,
+    paddingBottom: 10,
   },
   scrollTrack: {
     height: 6,

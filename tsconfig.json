@@ -64,6 +64,12 @@
       ],
       "@assets/*": [
         "./src/assets/*"
+      ],
+      "@context": [
+        "./src/context"
+      ],
+      "@context/*": [
+        "./src/context/*"
       ]
     }
   },

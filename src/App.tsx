@@ -6,6 +6,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './context';
 import { usePoppinsFonts } from './hooks';
 
+// Import network diagnostics (auto-runs in development)
+import './utils/networkDiagnostics';
+
 export default function RootLayout() {
   usePoppinsFonts();
 

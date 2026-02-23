@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
   expo: {
     name: "Ash-Ai",
@@ -56,8 +58,8 @@ module.exports = {
         projectId: "d59d1caa-d04a-4386-8446-168f6f1633f4"
       },
       // Load from environment variables
-      API_URL: process.env.API_URL,
-      STORAGE_BASE_URL: process.env.API_BASE_URL
+      API_URL: process.env.API_URL || 'http://127.0.0.1:8000/api/v2',
+      STORAGE_BASE_URL: process.env.API_BASE_URL || 'http://127.0.0.1:8000'
     }
   }
 };

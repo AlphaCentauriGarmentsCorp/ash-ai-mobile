@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import FormDropdown, { FormDropdownOption } from '../../../components/common/FormDropdown';
+import { useAccountForm } from '../../../context/AccountFormContext';
 
 interface AccountPersonalDataProps {
   readOnly?: boolean;
@@ -11,16 +13,8 @@ interface AccountPersonalDataProps {
 }
 
 export default function AccountPersonalData({ readOnly = false, onEdit }: AccountPersonalDataProps) {
-  const [firstName, setFirstName] = useState('');
-  const [middleName, setMiddleName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [birthdate, setBirthdate] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [gender, setGender] = useState('');
-  const [civilStatus, setCivilStatus] = useState('');
+  const { formData, updateFormData } = useAccountForm();
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const genderOptions: FormDropdownOption[] = [
     { label: 'Male', value: 'male' },
@@ -34,6 +28,25 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
     { label: 'Divorced', value: 'divorced' },
     { label: 'Widowed', value: 'widowed' },
   ];
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    
+    if (selectedDate) {
+      const formattedDate = selectedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      updateFormData({ birthdate: formattedDate });
+    }
+  };
+
+  const openDatePicker = () => {
+    if (!readOnly) {
+      setShowDatePicker(true);
+    }
+  };
 
   return (
     <View style={styles.card}>
@@ -69,8 +82,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
           <TextInput 
             style={styles.input} 
             placeholder="Enter first name"
-            value={firstName}
-            onChangeText={setFirstName}
+            value={formData.firstName}
+            onChangeText={(text) => updateFormData({ firstName: text })}
             editable={!readOnly}
           />
         </View>
@@ -79,8 +92,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
           <TextInput 
             style={styles.input} 
             placeholder="Enter email"
-            value={email}
-            onChangeText={setEmail}
+            value={formData.email}
+            onChangeText={(text) => updateFormData({ email: text })}
             editable={!readOnly}
             keyboardType="email-address"
           />
@@ -93,8 +106,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
           <TextInput 
             style={styles.input} 
             placeholder="Enter middle name"
-            value={middleName}
-            onChangeText={setMiddleName}
+            value={formData.middleName}
+            onChangeText={(text) => updateFormData({ middleName: text })}
             editable={!readOnly}
           />
         </View>
@@ -103,8 +116,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
           <TextInput 
             style={styles.input} 
             placeholder="Enter contact number"
-            value={contactNumber}
-            onChangeText={setContactNumber}
+            value={formData.contactNumber}
+            onChangeText={(text) => updateFormData({ contactNumber: text })}
             editable={!readOnly}
             keyboardType="phone-pad"
           />
@@ -117,8 +130,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
           <TextInput 
             style={styles.input} 
             placeholder="Enter last name"
-            value={lastName}
-            onChangeText={setLastName}
+            value={formData.lastName}
+            onChangeText={(text) => updateFormData({ lastName: text })}
             editable={!readOnly}
           />
         </View>
@@ -126,8 +139,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
           <Text style={styles.label}>Gender</Text>
           <FormDropdown
             options={genderOptions}
-            selectedValue={gender}
-            onSelect={setGender}
+            selectedValue={formData.gender}
+            onSelect={(value) => updateFormData({ gender: value })}
             placeholder="Select gender"
           />
         </View>
@@ -136,35 +149,49 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
       <View style={styles.row}>
         <View style={styles.halfInputContainer}>
           <Text style={styles.label}>Birthdate</Text>
-          <View style={styles.dropdownContainer}>
+          <TouchableOpacity 
+            style={styles.dropdownContainer} 
+            onPress={openDatePicker}
+            disabled={readOnly}
+          >
             <TextInput 
               style={styles.input} 
               placeholder="Select birthdate"
-              value={birthdate}
-              onChangeText={setBirthdate}
+              value={formData.birthdate}
               editable={false}
+              pointerEvents="none"
             />
             <Ionicons name="calendar-outline" size={16} color="#666" style={styles.calendarIcon} />
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.halfInputContainer}>
           <Text style={styles.label}>Civil Status</Text>
           <FormDropdown
             options={civilStatusOptions}
-            selectedValue={civilStatus}
-            onSelect={setCivilStatus}
+            selectedValue={formData.civilStatus}
+            onSelect={(value) => updateFormData({ civilStatus: value })}
             placeholder="Select civil status"
           />
         </View>
       </View>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={formData.birthdate ? new Date(formData.birthdate) : new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDateChange}
+          maximumDate={new Date()}
+        />
+      )}
 
       <View style={styles.fullInputContainer}>
         <Text style={styles.label}>Username</Text>
         <TextInput 
           style={styles.input} 
           placeholder="Enter username"
-          value={username}
-          onChangeText={setUsername}
+          value={formData.username}
+          onChangeText={(text) => updateFormData({ username: text })}
           editable={!readOnly}
         />
       </View>
@@ -174,8 +201,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
         <TextInput 
           style={styles.input} 
           placeholder="Enter password"
-          value={password}
-          onChangeText={setPassword}
+          value={formData.password}
+          onChangeText={(text) => updateFormData({ password: text })}
           editable={!readOnly}
           secureTextEntry
         />

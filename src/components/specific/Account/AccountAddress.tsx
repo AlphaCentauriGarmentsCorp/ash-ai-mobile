@@ -1,7 +1,9 @@
 import Checkbox from '@components/common/Checkbox';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { useAccountForm } from '../../../context/AccountFormContext';
 
 interface AccountAddressProps {
   readOnly?: boolean;
@@ -9,19 +11,7 @@ interface AccountAddressProps {
 }
 
 export default function AccountAddress({ readOnly = false, onEdit }: AccountAddressProps) {
-  const [currentStreet, setCurrentStreet] = useState('');
-  const [currentProvince, setCurrentProvince] = useState('');
-  const [currentBarangay, setCurrentBarangay] = useState('');
-  const [currentCity, setCurrentCity] = useState('');
-  const [currentPostalCode, setCurrentPostalCode] = useState('');
-  
-  const [permanentStreet, setPermanentStreet] = useState('');
-  const [permanentProvince, setPermanentProvince] = useState('');
-  const [permanentBarangay, setPermanentBarangay] = useState('');
-  const [permanentCity, setPermanentCity] = useState('');
-  const [permanentPostalCode, setPermanentPostalCode] = useState('');
-  
-  const [sameAddress, setSameAddress] = useState(false);
+  const { formData, updateFormData } = useAccountForm();
 
   return (
     <View style={styles.card}>
@@ -31,8 +21,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
           <Text style={styles.sectionTitle}>Current Address</Text>
           <View style={styles.checkboxContainer}>
             <Checkbox
-              checked={sameAddress}
-              onPress={() => setSameAddress(!sameAddress)}
+              checked={formData.sameAddress}
+              onPress={() => updateFormData({ sameAddress: !formData.sameAddress })}
               size={16}
               checkedColor="#0D253F"
               borderColor="#ccc"
@@ -46,8 +36,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
           <TextInput 
             style={styles.input} 
             placeholder="Enter street"
-            value={currentStreet}
-            onChangeText={setCurrentStreet}
+            value={formData.currentStreet}
+            onChangeText={(text) => updateFormData({ currentStreet: text })}
           />
         </View>
 
@@ -57,8 +47,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="Enter Province"
-              value={currentProvince}
-              onChangeText={setCurrentProvince}
+              value={formData.currentProvince}
+              onChangeText={(text) => updateFormData({ currentProvince: text })}
             />
           </View>
           <View style={styles.halfInputContainer}>
@@ -66,8 +56,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="Enter barangay"
-              value={currentBarangay}
-              onChangeText={setCurrentBarangay}
+              value={formData.currentBarangay}
+              onChangeText={(text) => updateFormData({ currentBarangay: text })}
             />
           </View>
         </View>
@@ -78,8 +68,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="City"
-              value={currentCity}
-              onChangeText={setCurrentCity}
+              value={formData.currentCity}
+              onChangeText={(text) => updateFormData({ currentCity: text })}
             />
           </View>
           <View style={styles.halfInputContainer}>
@@ -87,8 +77,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="Enter postal code"
-              value={currentPostalCode}
-              onChangeText={setCurrentPostalCode}
+              value={formData.currentPostalCode}
+              onChangeText={(text) => updateFormData({ currentPostalCode: text })}
               keyboardType="numeric"
             />
           </View>
@@ -104,8 +94,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
           <TextInput 
             style={styles.input} 
             placeholder="Enter street"
-            value={permanentStreet}
-            onChangeText={setPermanentStreet}
+            value={formData.permanentStreet}
+            onChangeText={(text) => updateFormData({ permanentStreet: text })}
           />
         </View>
 
@@ -115,8 +105,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="Enter Province"
-              value={permanentProvince}
-              onChangeText={setPermanentProvince}
+              value={formData.permanentProvince}
+              onChangeText={(text) => updateFormData({ permanentProvince: text })}
             />
           </View>
           <View style={styles.halfInputContainer}>
@@ -124,8 +114,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="Enter barangay"
-              value={permanentBarangay}
-              onChangeText={setPermanentBarangay}
+              value={formData.permanentBarangay}
+              onChangeText={(text) => updateFormData({ permanentBarangay: text })}
             />
           </View>
         </View>
@@ -136,8 +126,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="City"
-              value={permanentCity}
-              onChangeText={setPermanentCity}
+              value={formData.permanentCity}
+              onChangeText={(text) => updateFormData({ permanentCity: text })}
             />
           </View>
           <View style={styles.halfInputContainer}>
@@ -145,8 +135,8 @@ export default function AccountAddress({ readOnly = false, onEdit }: AccountAddr
             <TextInput 
               style={styles.input} 
               placeholder="Enter postal code"
-              value={permanentPostalCode}
-              onChangeText={setPermanentPostalCode}
+              value={formData.permanentPostalCode}
+              onChangeText={(text) => updateFormData({ permanentPostalCode: text })}
               keyboardType="numeric"
             />
           </View>

@@ -72,7 +72,14 @@ class ApiClient {
         if (error.response) {
           console.error('API Error Response:', error.response.status, error.response.data);
         } else if (error.request) {
-          console.error('API Network Error:', error.message);
+          console.error('❌ API Network Error:', error.message);
+          console.error('📍 Trying to reach:', this.api.defaults.baseURL);
+          console.error('');
+          console.error('Troubleshooting steps:');
+          console.error('1. Is backend running? Start with: php artisan serve --host=0.0.0.0 --port=8000');
+          console.error('2. Android emulator? URL should use 10.0.2.2 (not 127.0.0.1)');
+          console.error('3. Physical device? Use your computer\'s IP (e.g., 192.168.1.x)');
+          console.error('4. Check if you can access the URL in a browser');
         } else {
           console.error('API Error:', error.message);
         }

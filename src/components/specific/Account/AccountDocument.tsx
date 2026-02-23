@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import { useAccountForm } from '../../../context/AccountFormContext';
 
 interface AccountDocumentProps {
   readOnly?: boolean;
@@ -9,19 +11,20 @@ interface AccountDocumentProps {
 }
 
 export default function AccountDocument({ readOnly = false, onEdit }: AccountDocumentProps) {
-  const [pagIbigNo, setPagIbigNo] = useState('');
-  const [sssNo, setSssNo] = useState('');
-  const [philhealthNo, setPhilhealthNo] = useState('');
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const { formData, updateFormData } = useAccountForm();
 
   const handleFileUpload = () => {
     console.log('Open file picker');
     // Simulate file upload
-    setUploadedFiles([...uploadedFiles, 'document.pdf']);
+    updateFormData({
+      uploadedFiles: [...formData.uploadedFiles, 'document.pdf']
+    });
   };
 
   const removeFile = (index: number) => {
-    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
+    updateFormData({
+      uploadedFiles: formData.uploadedFiles.filter((_, i) => i !== index)
+    });
   };
 
   return (
@@ -34,8 +37,8 @@ export default function AccountDocument({ readOnly = false, onEdit }: AccountDoc
         <TextInput 
           style={styles.input} 
           placeholder="Enter pag-ibig number"
-          value={pagIbigNo}
-          onChangeText={setPagIbigNo}
+          value={formData.pagIbigNo}
+          onChangeText={(text) => updateFormData({ pagIbigNo: text })}
           keyboardType="numeric"
         />
       </View>
@@ -45,8 +48,8 @@ export default function AccountDocument({ readOnly = false, onEdit }: AccountDoc
         <TextInput 
           style={styles.input} 
           placeholder="Enter SSS number"
-          value={sssNo}
-          onChangeText={setSssNo}
+          value={formData.sssNo}
+          onChangeText={(text) => updateFormData({ sssNo: text })}
           keyboardType="numeric"
         />
       </View>
@@ -56,8 +59,8 @@ export default function AccountDocument({ readOnly = false, onEdit }: AccountDoc
         <TextInput 
           style={styles.input} 
           placeholder="Enter philhealth number"
-          value={philhealthNo}
-          onChangeText={setPhilhealthNo}
+          value={formData.philhealthNo}
+          onChangeText={(text) => updateFormData({ philhealthNo: text })}
           keyboardType="numeric"
         />
       </View>
@@ -71,10 +74,10 @@ export default function AccountDocument({ readOnly = false, onEdit }: AccountDoc
         </TouchableOpacity>
       </View>
 
-      {uploadedFiles.length > 0 && (
+      {formData.uploadedFiles.length > 0 && (
         <View style={styles.uploadedFilesContainer}>
           <Text style={styles.uploadedFilesLabel}>Uploaded files</Text>
-          {uploadedFiles.map((file, index) => (
+          {formData.uploadedFiles.map((file, index) => (
             <View key={index} style={styles.fileItem}>
               <Text style={styles.fileName}>{file}</Text>
               <TouchableOpacity onPress={() => removeFile(index)}>
