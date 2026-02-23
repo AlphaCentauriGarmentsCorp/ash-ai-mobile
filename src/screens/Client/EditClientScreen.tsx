@@ -26,38 +26,34 @@ export default function EditClientScreen() {
   const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
 
-  // Get client ID from params
   const clientId = params.id?.toString();
 
   // Form state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [streetAddress, setStreetAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [province, setProvince] = useState('');
-  const [barangay, setBarangay] = useState('');
-  const [postalCode, setPostalCode] = useState('');
+  const [firstName, setFirstName] = useState('Andrew');
+  const [lastName, setLastName] = useState('Egido');
+  const [email, setEmail] = useState('egidoandrew19@gmail.com');
+  const [contactNumber, setContactNumber] = useState('09123456789');
+  const [streetAddress, setStreetAddress] = useState('123 Main St');
+  const [city, setCity] = useState('Quezon City');
+  const [province, setProvince] = useState('Metro Manila');
+  const [barangay, setBarangay] = useState('Barangay 1');
+  const [postalCode, setPostalCode] = useState('1100');
   const [courier, setCourier] = useState('');
   const [method, setMethod] = useState('');
   const [notes, setNotes] = useState('');
   
   // Brand management
-  const [brands, setBrands] = useState<ClientBrandInput[]>([{ name: '', logo: null }]);
+  const [brands, setBrands] = useState<ClientBrandInput[]>([{ name: 'LAPIS DE BLANKO', logo: null }]);
   
-  // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch client data on mount
   useEffect(() => {
     if (clientId) {
       fetchClientData();
     } else {
-      Alert.alert('Error', 'Client ID is missing');
-      router.back();
+      setIsLoading(false);
     }
   }, [clientId]);
 
@@ -65,25 +61,16 @@ export default function EditClientScreen() {
     try {
       setIsLoading(true);
       const response = await clientService.getClientById(clientId!);
-      
-      console.log('Client data received:', response);
-      
-      // Extract client data from response (handle both direct and nested data)
       const client = response.data || response;
       
-      console.log('Parsed client:', client);
-      
-      // Parse name into first and last name (handle if name doesn't exist)
       if (client.name) {
         const nameParts = client.name.split(' ');
         setFirstName(nameParts[0] || '');
         setLastName(nameParts.slice(1).join(' ') || '');
       }
-      
       setEmail(client.email || '');
       setContactNumber(client.contact_number || '');
       
-      // Parse address if available (it's a comma-separated string)
       if (client.address) {
         const addressParts = client.address.split(', ');
         setStreetAddress(addressParts[0] || '');
@@ -92,28 +79,17 @@ export default function EditClientScreen() {
         setBarangay(addressParts[3] || '');
         setPostalCode(addressParts[4] || '');
       }
-      
       setNotes(client.notes || '');
       
-      // Set brands - check if brands exist in response
       if (client.brands && Array.isArray(client.brands) && client.brands.length > 0) {
-        const clientBrands = client.brands.map(brand => ({
+        const clientBrands = client.brands.map((brand: any) => ({
           name: brand.name,
           logo: brand.logo ? { uri: brand.logo, name: brand.logo.split('/').pop() } : null,
         }));
         setBrands(clientBrands);
-        console.log('Brands loaded:', clientBrands);
-      } else {
-        // If no brands in response, keep at least one empty brand for the form
-        console.log('No brands in response, using default empty brand');
-        setBrands([{ name: '', logo: null }]);
       }
-      
-      console.log('Client data loaded successfully');
     } catch (error: any) {
       console.error('Error fetching client:', error);
-      Alert.alert('Error', 'Failed to load client data');
-      router.back();
     } finally {
       setIsLoading(false);
     }
@@ -136,38 +112,23 @@ export default function EditClientScreen() {
         Alert.alert('Permission Required', 'Please grant permission to access photos');
         return;
       }
-
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
         quality: 0.8,
       });
-
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
         const updatedBrands = [...brands];
-        
         const uri = asset.uri;
         const fileName = asset.fileName || uri.split('/').pop() || `brand_logo_${index}.jpg`;
         const fileExtension = fileName.split('.').pop()?.toLowerCase();
-        
         let mimeType = 'image/jpeg';
-        if (fileExtension === 'png') {
-          mimeType = 'image/png';
-        } else if (fileExtension === 'jpg' || fileExtension === 'jpeg') {
-          mimeType = 'image/jpeg';
-        } else if (fileExtension === 'webp') {
-          mimeType = 'image/webp';
-        }
+        if (fileExtension === 'png') mimeType = 'image/png';
+        else if (fileExtension === 'webp') mimeType = 'image/webp';
         
-        const file = {
-          uri: uri,
-          type: mimeType,
-          name: fileName,
-        };
-        
-        console.log('Selected file:', file);
-        updatedBrands[index].logo = file;
+        const file = { uri: uri, type: mimeType, name: fileName };
+        updatedBrands[index].logo = file as any;
         setBrands(updatedBrands);
       }
     } catch (error) {
@@ -187,7 +148,6 @@ export default function EditClientScreen() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     if (!firstName.trim()) newErrors.first_name = 'First name is required';
     if (!lastName.trim()) newErrors.last_name = 'Last name is required';
     if (!email.trim()) newErrors.email = 'Email is required';
@@ -195,12 +155,10 @@ export default function EditClientScreen() {
     if (!contactNumber.trim()) newErrors.contact_number = 'Contact number is required';
     else if (contactNumber.length < 10) newErrors.contact_number = 'Contact number must be at least 10 digits';
     
-    // Validate brands
     const validBrands = brands.filter(b => b.name.trim());
     if (validBrands.length === 0) {
       newErrors.brands = 'At least one brand is required';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -210,19 +168,10 @@ export default function EditClientScreen() {
       Alert.alert('Validation Error', 'Please fill in all required fields');
       return;
     }
-
-    if (!clientId) {
-      Alert.alert('Error', 'Client ID is missing');
-      return;
-    }
-
     setIsSubmitting(true);
     setErrors({});
-
     try {
-      // Filter out empty brands
       const validBrands = brands.filter(b => b.name.trim());
-
       const clientData = {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
@@ -238,36 +187,19 @@ export default function EditClientScreen() {
         notes: notes.trim() || '',
         brands: validBrands,
       };
-
-      console.log('Updating client with ID:', clientId);
-      console.log('Updating client data:', {
-        ...clientData,
-        brands: clientData.brands.map(b => ({
-          name: b.name,
-          hasLogo: !!b.logo,
-          logoUri: b.logo?.uri
-        }))
-      });
       
-      const response = await clientService.updateClient(clientId, clientData);
+      if (clientId) {
+        await clientService.updateClient(clientId, clientData);
+      }
       
-      console.log('Client updated successfully:', response);
       Alert.alert('Success', 'Client updated successfully', [
-        {
-          text: 'OK',
-          onPress: () => router.back(),
-        },
+        { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (error: any) {
       console.error('Error updating client:', error);
-      console.error('Error response:', error.response?.data);
-      
-      // Handle validation errors from API
       if (error.response?.data?.errors) {
         const apiErrors = error.response.data.errors;
         setErrors(apiErrors);
-        
-        // Show first error message
         const firstError = Object.values(apiErrors)[0];
         Alert.alert('Validation Error', Array.isArray(firstError) ? firstError[0] : String(firstError));
       } else {
@@ -277,23 +209,6 @@ export default function EditClientScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleClearAll = () => {
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setContactNumber('');
-    setStreetAddress('');
-    setCity('');
-    setProvince('');
-    setBarangay('');
-    setPostalCode('');
-    setCourier('');
-    setMethod('');
-    setNotes('');
-    setBrands([{ name: '', logo: null }]);
-    setErrors({});
   };
 
   if (!fontsLoaded || isLoading) {
@@ -323,7 +238,7 @@ export default function EditClientScreen() {
         breadcrumbNormal=" / Edit Client"
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           
           {/* Section: Client Information */}
@@ -397,19 +312,11 @@ export default function EditClientScreen() {
 
           {brands.map((brand, index) => (
             <View key={index} style={styles.brandContainer}>
-              <View style={styles.brandHeader}>
-                <Text style={styles.brandLabel}>Brand {index + 1}</Text>
-                {brands.length > 1 && (
-                  <TouchableOpacity onPress={() => handleRemoveBrand(index)}>
-                    <Text style={styles.removeBrandText}>Remove</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
+              
               <Text style={styles.label}>Brand Name</Text>
               <TextInput 
-                style={[styles.input, errors[`brands.${index}.name`] && styles.inputError]} 
-                placeholder="Enter brand name"
+                style={[styles.input, { marginBottom: hp(1.5) }, errors[`brands.${index}.name`] && styles.inputError]} 
+                placeholder="Enter brand name here..."
                 value={brand.name}
                 onChangeText={(text) => handleBrandNameChange(index, text)}
               />
@@ -417,18 +324,43 @@ export default function EditClientScreen() {
                 <Text style={styles.errorText}>{errors[`brands.${index}.name`]}</Text>
               )}
 
-              <Text style={[styles.label, { marginTop: hp(1.2) }]}>Logo</Text>
-              <View style={styles.fileInputContainer}>
-                <TouchableOpacity 
-                  style={styles.chooseFileBtn}
-                  onPress={() => handlePickLogo(index)}
-                >
-                  <Text style={styles.chooseFileText}>Choose file</Text>
-                </TouchableOpacity>
-                <Text style={styles.noFileText}>
-                  {brand.logo ? (brand.logo.name || 'File selected') : 'No file chosen'}
-                </Text>
+              {/* Logo Section */}
+              <View style={styles.logoRow}>
+                <Text style={styles.logoLabel}>Logo</Text>
+                
+                {/* Full Width File Input */}
+                <View style={styles.fileInputWrapper}>
+                  <TouchableOpacity 
+                    style={styles.chooseFileBtn}
+                    onPress={() => handlePickLogo(index)}
+                  >
+                    <Text style={styles.chooseFileText}>Choose Files</Text>
+                  </TouchableOpacity>
+                  
+                  <View style={styles.fileNameContainer}>
+                    <Text style={styles.noFileText} numberOfLines={1} ellipsizeMode="tail">
+                      {brand.logo ? brand.logo.name || 'File selected' : 'No file chosen'}
+                    </Text>
+                  </View>
+                </View>
               </View>
+
+              {/* Add/Remove Brand Button Below File Input */}
+              <View style={styles.brandActionWrapper}>
+                {index === 0 ? (
+                  <>
+                    <TouchableOpacity style={styles.addBrandBtn} onPress={handleAddBrand}>
+                      <Text style={styles.addBrandText}>+ Add brand</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.helperText}>* Press if client have additional brands</Text>
+                  </>
+                ) : (
+                  <TouchableOpacity style={styles.removeBrandBtn} onPress={() => handleRemoveBrand(index)}>
+                    <Text style={styles.addBrandText}>- Remove</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
               {brand.logo && brand.logo.uri && (
                 <View style={styles.imagePreviewContainer}>
                   <Image 
@@ -448,20 +380,8 @@ export default function EditClientScreen() {
                   </TouchableOpacity>
                 </View>
               )}
-              {errors[`brands.${index}.logo`] && (
-                <Text style={styles.errorText}>{errors[`brands.${index}.logo`]}</Text>
-              )}
             </View>
           ))}
-
-          <TouchableOpacity style={styles.addBrandBtn} onPress={handleAddBrand}>
-            <Text style={styles.addBrandText}>+ Add another brand</Text>
-          </TouchableOpacity>
-
-          <View style={styles.helperTextContainer}>
-            <Text style={styles.helperText}>* Fill in brand name and optionally upload a logo</Text>
-            <Text style={styles.helperText}>* Click <Text style={{fontWeight:'bold'}}>Add another brand</Text> if company has multiple brands</Text>
-          </View>
 
           {/* Section: Address */}
           <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Address</Text>
@@ -529,7 +449,7 @@ export default function EditClientScreen() {
           <View style={styles.divider} />
           <TextInput 
             style={[styles.input, styles.textArea]} 
-            placeholder="Additional notes about this brand" 
+            placeholder="Additional notes about this client..." 
             multiline={true}
             numberOfLines={4}
             textAlignVertical="top"
@@ -541,10 +461,6 @@ export default function EditClientScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClearAll}>
-            <Text style={styles.clearText}>Clear all fields</Text>
-          </TouchableOpacity>
-          
           <View style={styles.actionButtons}>
             <Button
               title="Cancel"
@@ -601,12 +517,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
     fontFamily: FONT_FAMILY.bold,
-    color: COLORS.text,
+    color: '#111827',
     marginBottom: hp(1.2),
   },
   divider: {
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#CFE0EE',
     marginBottom: hp(1.9),
   },
   row: {
@@ -619,8 +535,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.medium,
-    color: COLORS.text,
+    fontFamily: FONT_FAMILY.bold,
+    color: '#111827',
     marginBottom: hp(0.6),
   },
   input: {
@@ -628,11 +544,11 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
     borderRadius: 5,
     paddingHorizontal: wp(2.7),
-    paddingVertical: hp(1),
+    paddingVertical: hp(1.2),
     fontSize: FONT_SIZES.sm,
     backgroundColor: COLORS.white,
     fontFamily: FONT_FAMILY.regular,
-    color: COLORS.text,
+    color: '#1F2937',
   },
   inputError: {
     borderColor: '#F87171',
@@ -643,84 +559,90 @@ const styles = StyleSheet.create({
     marginTop: hp(0.3),
     fontFamily: FONT_FAMILY.regular,
   },
+  
+  // --- BRAND & LOGO STYLES ---
   brandContainer: {
-    marginBottom: hp(2),
-    padding: wp(3),
-    backgroundColor: COLORS.white,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+    marginBottom: 20,
   },
-  brandHeader: {
+  logoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(1),
+    marginBottom: 10,
   },
-  brandLabel: {
+  logoLabel: {
     fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.semiBold,
-    color: COLORS.text,
+    fontFamily: FONT_FAMILY.bold,
+    color: '#111827',
+    width: 50, // Fixed width so input stays aligned
   },
-  removeBrandText: {
-    fontSize: FONT_SIZES.xs,
-    color: '#F87171',
-    fontFamily: FONT_FAMILY.medium,
-  },
-  addBrandBtn: {
-    backgroundColor: '#1E3A5F',
-    paddingVertical: hp(1.2),
-    paddingHorizontal: wp(4),
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-    marginBottom: hp(1),
-  },
-  addBrandText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.semiBold,
-  },
-  helperTextContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp(0.6),
-    marginBottom: hp(1.9),
-  },
-  helperText: {
-    fontSize: FONT_SIZES.xs,
-    color: '#F87171',
-    flex: 1,
-    marginRight: wp(1.3),
-    fontFamily: FONT_FAMILY.regular,
-  },
-  fileInputContainer: {
+  fileInputWrapper: {
+    flex: 1, // Takes up the remaining full width of the row
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 5,
-    overflow: 'hidden',
-    marginTop: hp(0.6),
     backgroundColor: '#fff',
+    height: 38,
   },
   chooseFileBtn: {
-    backgroundColor: '#E5E7EB',
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(4),
+    backgroundColor: '#F3F4F6', // Light gray background
+    paddingHorizontal: 12,
+    height: '100%',
+    justifyContent: 'center',
     borderRightWidth: 1,
     borderRightColor: '#D1D5DB',
   },
   chooseFileText: {
     fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.medium,
-    color: COLORS.text,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#4B5563',
+  },
+  fileNameContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   noFileText: {
-    marginLeft: wp(2.7),
     fontSize: FONT_SIZES.xs,
-    color: '#666',
+    color: '#9CA3AF',
     fontFamily: FONT_FAMILY.regular,
   },
+  brandActionWrapper: {
+    alignItems: 'flex-end', // Aligns the button and text to the right
+  },
+  addBrandBtn: {
+    backgroundColor: '#264660', // Dark navy blue
+    paddingHorizontal: 20,
+    height: 38,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 120,
+  },
+  removeBrandBtn: {
+    backgroundColor: '#F87171', // Red for remove
+    paddingHorizontal: 20,
+    height: 38,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 120,
+  },
+  addBrandText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.bold,
+  },
+  helperText: {
+    fontSize: 9, 
+    color: '#F87171',
+    fontFamily: FONT_FAMILY.regular,
+    marginTop: 4,
+    textAlign: 'right',
+  },
+  // -------------------------
+
   imagePreviewContainer: {
     marginTop: hp(1.2),
     position: 'relative',
@@ -751,21 +673,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   textArea: {
-    height: hp(12.5),
+    height: hp(15), 
   },
   footer: {
     marginTop: hp(3.1),
     marginBottom: hp(2.5),
-  },
-  clearButtonContainer: {
-    alignItems: 'flex-end',
-    marginBottom: hp(2.5),
-  },
-  clearText: {
-    color: '#4B5563',
-    textDecorationLine: 'underline',
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.regular,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -774,13 +686,13 @@ const styles = StyleSheet.create({
     gap: wp(4),
   },
   cancelBtn: {
-    backgroundColor: '#E5E7EB',
-    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D1D5DB',
     minWidth: wp(26.7),
   },
   cancelText: {
     color: '#1F2937',
-    fontWeight: '700',
+    fontFamily: FONT_FAMILY.bold,
   },
   submitBtn: {
     backgroundColor: '#0D253F',

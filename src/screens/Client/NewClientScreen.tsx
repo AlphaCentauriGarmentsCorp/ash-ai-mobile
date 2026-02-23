@@ -297,20 +297,12 @@ export default function NewClientScreen() {
           )}
 
           {brands.map((brand, index) => (
-            <View key={index} style={styles.brandContainer}>
-              <View style={styles.brandHeader}>
-                <Text style={styles.brandLabel}>Brand {index + 1}</Text>
-                {brands.length > 1 && (
-                  <TouchableOpacity onPress={() => handleRemoveBrand(index)}>
-                    <Text style={styles.removeBrandText}>Remove</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              <Text style={styles.label}>Brand Name</Text>
+            <View key={index} style={styles.brandItemContainer}>
+              
               <TextInput 
-                style={[styles.input, errors[`brands.${index}.name`] && styles.inputError]} 
-                placeholder="Enter brand name"
+                style={[styles.input, errors[`brands.${index}.name`] && styles.inputError, { marginBottom: hp(1.5) }]} 
+                placeholder="Enter brand name here..."
+                placeholderTextColor="#9CA3AF"
                 value={brand.name}
                 onChangeText={(text) => handleBrandNameChange(index, text)}
               />
@@ -318,18 +310,43 @@ export default function NewClientScreen() {
                 <Text style={styles.errorText}>{errors[`brands.${index}.name`]}</Text>
               )}
 
-              <Text style={[styles.label, { marginTop: hp(1.2) }]}>Logo</Text>
-              <View style={styles.fileInputContainer}>
-                <TouchableOpacity 
-                  style={styles.chooseFileBtn}
-                  onPress={() => handlePickLogo(index)}
-                >
-                  <Text style={styles.chooseFileText}>Choose file</Text>
-                </TouchableOpacity>
-                <Text style={styles.noFileText}>
-                  {brand.logo ? brand.logo.name || 'File selected' : 'No file chosen'}
-                </Text>
+              {/* Logo and Add Button Row */}
+              <View>
+                {/* Left: Logo File Picker */}
+                <View style={styles.logoSection}>
+                  <Text style={styles.logoLabelText}>Logo</Text>
+                  <View style={styles.filePickerWrapper}>
+                    <TouchableOpacity 
+                      style={styles.chooseFileButton}
+                      onPress={() => handlePickLogo(index)}
+                    >
+                      <Text style={styles.chooseFileBtnText}>Choose Files</Text>
+                    </TouchableOpacity>
+                    <View style={styles.noFileBox}>
+                      <Text style={styles.noFileBoxText} numberOfLines={1} ellipsizeMode="tail">
+                        {brand.logo ? brand.logo.name || 'File selected' : 'No file chosen'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Right: Add Brand Button or Remove Button */}
+                <View style={styles.actionSection}>
+                  {index === brands.length - 1 ? (
+                    <View style={styles.addBrandWrapper}>
+                      <TouchableOpacity style={styles.addBrandBtnNew} onPress={handleAddBrand}>
+                        <Text style={styles.addBrandTextNew}>+ Add brand</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.helperTextRed}>* Press if client have additional brands</Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity style={styles.removeBrandBtnNew} onPress={() => handleRemoveBrand(index)}>
+                      <Text style={styles.removeBrandTextNew}>Remove</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
+
               {brand.logo && brand.logo.uri && (
                 <View style={styles.imagePreviewContainer}>
                   <Image 
@@ -354,15 +371,6 @@ export default function NewClientScreen() {
               )}
             </View>
           ))}
-
-          <TouchableOpacity style={styles.addBrandBtn} onPress={handleAddBrand}>
-            <Text style={styles.addBrandText}>+ Add another brand</Text>
-          </TouchableOpacity>
-
-          <View style={styles.helperTextContainer}>
-            <Text style={styles.helperText}>* Fill in brand name and optionally upload a logo</Text>
-            <Text style={styles.helperText}>* Click <Text style={{fontWeight:'bold'}}>Add another brand</Text> if company has multiple brands</Text>
-          </View>
 
           {/* Section: Address */}
           <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Address</Text>
@@ -400,18 +408,6 @@ export default function NewClientScreen() {
               />
             </View>
             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Barangay</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="Enter barangay"
-                value={barangay}
-                onChangeText={setBarangay}
-              />
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Postal Code</Text>
               <TextInput 
                 style={styles.input} 
@@ -419,9 +415,6 @@ export default function NewClientScreen() {
                 value={postalCode}
                 onChangeText={setPostalCode}
               />
-            </View>
-            <View style={styles.halfInputContainer}>
-              {/* Empty space for layout */}
             </View>
           </View>
 
@@ -489,8 +482,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
-    fontFamily: FONT_FAMILY.bold,
-    color: COLORS.text,
+    fontFamily: "Poppins_700Bold",
+    color: '#001C34', // Adjusted to match the deep blue headers in the image
     marginBottom: hp(1.2),
   },
   divider: {
@@ -508,8 +501,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.medium,
-    color: COLORS.text,
+    fontFamily: "Poppins_600SemiBold",
+    color: '#001C34',
     marginBottom: hp(0.6),
   },
   input: {
@@ -532,84 +525,108 @@ const styles = StyleSheet.create({
     marginTop: hp(0.3),
     fontFamily: FONT_FAMILY.regular,
   },
-  brandContainer: {
+  
+  // --- NEW STYLES FOR CLOTHING/COMPANY MATCHING IMAGE 1 ---
+  brandItemContainer: {
     marginBottom: hp(2),
-    padding: wp(3),
-    backgroundColor: COLORS.white,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
   },
-  brandHeader: {
+  // logoAddRow: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   alignItems: 'flex-start',
+  // },
+  logoSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(1),
-  },
-  brandLabel: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.semiBold,
-    color: COLORS.text,
-  },
-  removeBrandText: {
-    fontSize: FONT_SIZES.xs,
-    color: '#F87171',
-    fontFamily: FONT_FAMILY.medium,
-  },
-  addBrandBtn: {
-    backgroundColor: '#1E3A5F',
-    paddingVertical: hp(1.2),
-    paddingHorizontal: wp(4),
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-    marginBottom: hp(1),
-  },
-  addBrandText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.semiBold,
-  },
-  helperTextContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp(0.6),
-    marginBottom: hp(1.9),
-  },
-  helperText: {
-    fontSize: FONT_SIZES.xs,
-    color: '#F87171',
     flex: 1,
-    marginRight: wp(1.3),
-    fontFamily: FONT_FAMILY.regular,
+    marginRight: wp(2),
   },
-  fileInputContainer: {
+  logoLabelText: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: "Poppins_700Bold",
+    color: '#001C34',
+    marginRight: wp(2),
+  },
+  filePickerWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 5,
+    borderRadius: 4,
     overflow: 'hidden',
-    marginTop: hp(0.6),
-    backgroundColor: '#fff',
+    height: hp(4),
+    flex: 1,
+    backgroundColor: COLORS.white,
   },
-  chooseFileBtn: {
-    backgroundColor: '#E5E7EB',
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(4),
+  chooseFileButton: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: wp(3),
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
     borderRightWidth: 1,
     borderRightColor: '#D1D5DB',
   },
-  chooseFileText: {
-    fontSize: FONT_SIZES.xs,
+  chooseFileBtnText: {
+    fontSize: 10,
     fontFamily: FONT_FAMILY.medium,
-    color: COLORS.text,
+    color: '#4B5563',
   },
-  noFileText: {
-    marginLeft: wp(2.7),
-    fontSize: FONT_SIZES.xs,
-    color: '#666',
+  noFileBox: {
+    paddingHorizontal: wp(2),
+    justifyContent: 'center',
+    flex: 1,
+  },
+  noFileBoxText: {
+    fontSize: 11,
+    color: '#9CA3AF',
     fontFamily: FONT_FAMILY.regular,
   },
+  actionSection: {
+    alignItems: 'flex-end',
+    minWidth: wp(25),
+  },
+  addBrandWrapper: {
+    alignItems: 'center',
+  },
+  addBrandBtnNew: {
+    backgroundColor: '#1E3A5F', // Dark blue match
+    paddingVertical: hp(0.8),
+    paddingHorizontal: wp(4),
+    borderRadius: 6,
+    width: '100%',
+    marginLeft: wp(11),
+    marginTop: hp(1.5),
+  
+    alignItems: 'center'
+  },
+  addBrandTextNew: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontFamily: "Poppins_600SemiBold",
+  },
+  helperTextRed: {
+    color: '#EF4444',
+    fontSize: 8, 
+    fontFamily: FONT_FAMILY.regular,
+    marginTop: hp(0.5),
+    textAlign: 'center',
+  },
+  removeBrandBtnNew: {
+    backgroundColor: '#F87171',
+    paddingVertical: hp(0.8),
+    paddingHorizontal: wp(4),
+    borderRadius: 6,
+    marginTop: hp(1.9),
+    marginRight: wp(2),
+  },
+  removeBrandTextNew: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.xs,
+    fontFamily: "Poppins_600SemiBold",
+  },
+  
+  // --- IMAGE PREVIEW ---
   imagePreviewContainer: {
     marginTop: hp(1.2),
     position: 'relative',
@@ -633,6 +650,7 @@ const styles = StyleSheet.create({
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   removeImageText: {
     color: COLORS.white,
