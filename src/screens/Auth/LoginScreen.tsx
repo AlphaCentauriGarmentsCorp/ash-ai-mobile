@@ -2,9 +2,9 @@ import { EuphoriaScript_400Regular, useFonts } from '@expo-google-fonts/euphoria
 import { GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import {
-    Poppins_400Regular,
-    Poppins_700Bold,
-    Poppins_800ExtraBold
+  Poppins_400Regular,
+  Poppins_700Bold,
+  Poppins_800ExtraBold
 } from '@expo-google-fonts/poppins';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,18 +12,18 @@ import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context';
@@ -36,6 +36,9 @@ export default function Index() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // ADDED: State to toggle password visibility
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  
   const [rememberMe, setRememberMe] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -167,13 +170,22 @@ export default function Index() {
               <TextInput
                 placeholder="Password"
                 placeholderTextColor="#999"
-                secureTextEntry
+                // MODIFIED: Toggle secureTextEntry based on state
+                secureTextEntry={!isPasswordVisible}
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
                 editable={!isLoggingIn}
               />
-              <Ionicons name="eye-outline" size={20} color="#999" style={{ opacity: 0.7 }} />
+              {/* MODIFIED: Wrapped icon in TouchableOpacity for interaction */}
+              <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+                <Ionicons 
+                  name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
+                  size={20} 
+                  color="#999" 
+                  style={{ opacity: 0.7 }} 
+                />
+              </TouchableOpacity>
             </View>
           
             {/* Checkbox & Forgot Password Row */}

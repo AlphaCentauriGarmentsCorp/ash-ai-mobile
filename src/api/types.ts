@@ -82,22 +82,28 @@ export interface Client {
   updated_at: string;
 }
 
+export interface ClientBrandInput {
+  name: string;
+  logo?: any; // File or URI for React Native
+}
+
 export interface CreateClientRequest {
   first_name: string;
   last_name: string;
   email: string;
   contact_number: string;
-  brand_name: string;
-  logo?: File | null;
-  street_address: string;
-  city: string;
-  province: string;
-  postal_code: string;
+  street_address?: string;
+  city?: string;
+  province?: string;
+  barangay?: string;
+  postal_code?: string;
+  courier?: string;
+  method?: string;
   notes?: string;
+  brands: ClientBrandInput[];
 }
 
 export interface UpdateClientRequest extends Partial<CreateClientRequest> {
-  id: string;
 }
 
 // Account Types (Employee)

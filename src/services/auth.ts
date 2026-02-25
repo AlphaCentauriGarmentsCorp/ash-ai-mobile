@@ -5,15 +5,31 @@ import { LoginRequest, LoginResponse, RegisterRequest, User, VerifyOtpRequest } 
 class AuthService {
   // Main login (for Ash AI admin)
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await apiClient.post<LoginResponse>(
+    const response = await apiClient.post<any>(
       API_CONFIG.ENDPOINTS.LOGIN,
       credentials
     );
 
-    // Store token (Sanctum uses single token)
-    await apiClient.setToken(response.token);
+    console.log('Login response:', response);
 
-    return response;
+    // Handle response structure - backend might wrap in 'data'
+    const loginData = response.data || response;
+    const token = loginData.token || loginData.access_token;
+    const user = loginData.user;
+
+    if (!token) {
+      console.error('No token in login response:', loginData);
+      throw new Error('No authentication token received');
+    }
+
+    // Store token (Sanctum uses single token)
+    await apiClient.setToken(token);
+
+    return {
+      token,
+      user,
+      message: loginData.message
+    };
   }
 
   // Reefer customer login

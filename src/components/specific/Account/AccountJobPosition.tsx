@@ -1,7 +1,9 @@
 import Checkbox from '@components/common/Checkbox';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { useAccountForm } from '../../../context/AccountFormContext';
 
 interface AccountJobPositionProps {
   readOnly?: boolean;
@@ -9,30 +11,15 @@ interface AccountJobPositionProps {
 }
 
 export default function AccountJobPosition({ readOnly = false, onEdit }: AccountJobPositionProps) {
-  const [jobPosition, setJobPosition] = useState('');
-  const [department, setDepartment] = useState('');
+  const { formData, updateFormData } = useAccountForm();
 
-  const [roleAccess, setRoleAccess] = useState({
-    admin: false,
-    generalManager: false,
-    csr: false,
-    graphicArtist: false,
-    finance: false,
-    purchasing: false,
-    sewer: false,
-    driver: false,
-    printer: false,
-    warehouseManager: false,
-    screenMaker: false,
-    qa: false,
-    packer: false,
-    cutter: false,
-    sampleMaker: false,
-    subordinate: false,
-  });
-
-  const toggleRole = (role: keyof typeof roleAccess) => {
-    setRoleAccess(prev => ({ ...prev, [role]: !prev[role] }));
+  const toggleRole = (role: keyof typeof formData.roleAccess) => {
+    updateFormData({
+      roleAccess: {
+        ...formData.roleAccess,
+        [role]: !formData.roleAccess[role]
+      }
+    });
   };
 
   return (
@@ -45,8 +32,8 @@ export default function AccountJobPosition({ readOnly = false, onEdit }: Account
         <TextInput 
           style={styles.input} 
           placeholder="Enter job position"
-          value={jobPosition}
-          onChangeText={setJobPosition}
+          value={formData.jobPosition}
+          onChangeText={(text) => updateFormData({ jobPosition: text })}
         />
       </View>
 
@@ -55,8 +42,8 @@ export default function AccountJobPosition({ readOnly = false, onEdit }: Account
         <TextInput 
           style={styles.input} 
           placeholder="Enter department"
-          value={department}
-          onChangeText={setDepartment}
+          value={formData.department}
+          onChangeText={(text) => updateFormData({ department: text })}
         />
       </View>
 
@@ -65,76 +52,76 @@ export default function AccountJobPosition({ readOnly = false, onEdit }: Account
         <View style={styles.rolesGrid}>
           <View style={styles.roleColumn}>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.admin} onPress={() => toggleRole('admin')} />
+              <Checkbox checked={formData.roleAccess.admin} onPress={() => toggleRole('admin')} />
               <Text style={styles.roleLabel}>Admin</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.generalManager} onPress={() => toggleRole('generalManager')} />
+              <Checkbox checked={formData.roleAccess.generalManager} onPress={() => toggleRole('generalManager')} />
               <Text style={styles.roleLabel}>General Manager</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.csr} onPress={() => toggleRole('csr')} />
+              <Checkbox checked={formData.roleAccess.csr} onPress={() => toggleRole('csr')} />
               <Text style={styles.roleLabel}>CSR</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.graphicArtist} onPress={() => toggleRole('graphicArtist')} />
+              <Checkbox checked={formData.roleAccess.graphicArtist} onPress={() => toggleRole('graphicArtist')} />
               <Text style={styles.roleLabel}>Graphic Artist</Text>
             </View>
           </View>
 
           <View style={styles.roleColumn}>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.finance} onPress={() => toggleRole('finance')} />
+              <Checkbox checked={formData.roleAccess.finance} onPress={() => toggleRole('finance')} />
               <Text style={styles.roleLabel}>Finance</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.purchasing} onPress={() => toggleRole('purchasing')} />
+              <Checkbox checked={formData.roleAccess.purchasing} onPress={() => toggleRole('purchasing')} />
               <Text style={styles.roleLabel}>Purchasing</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.sewer} onPress={() => toggleRole('sewer')} />
+              <Checkbox checked={formData.roleAccess.sewer} onPress={() => toggleRole('sewer')} />
               <Text style={styles.roleLabel}>Sewer</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.driver} onPress={() => toggleRole('driver')} />
+              <Checkbox checked={formData.roleAccess.driver} onPress={() => toggleRole('driver')} />
               <Text style={styles.roleLabel}>Driver</Text>
             </View>
           </View>
 
           <View style={styles.roleColumn}>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.printer} onPress={() => toggleRole('printer')} />
+              <Checkbox checked={formData.roleAccess.printer} onPress={() => toggleRole('printer')} />
               <Text style={styles.roleLabel}>Printer</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.warehouseManager} onPress={() => toggleRole('warehouseManager')} />
+              <Checkbox checked={formData.roleAccess.warehouseManager} onPress={() => toggleRole('warehouseManager')} />
               <Text style={styles.roleLabel}>Warehouse Manager</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.screenMaker} onPress={() => toggleRole('screenMaker')} />
+              <Checkbox checked={formData.roleAccess.screenMaker} onPress={() => toggleRole('screenMaker')} />
               <Text style={styles.roleLabel}>Screen Maker</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.packer} onPress={() => toggleRole('packer')} />
+              <Checkbox checked={formData.roleAccess.packer} onPress={() => toggleRole('packer')} />
               <Text style={styles.roleLabel}>Packer</Text>
             </View>
           </View>
 
           <View style={styles.roleColumn}>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.cutter} onPress={() => toggleRole('cutter')} />
+              <Checkbox checked={formData.roleAccess.cutter} onPress={() => toggleRole('cutter')} />
               <Text style={styles.roleLabel}>Cutter</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.qa} onPress={() => toggleRole('qa')} />
+              <Checkbox checked={formData.roleAccess.qa} onPress={() => toggleRole('qa')} />
               <Text style={styles.roleLabel}>QA</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.sampleMaker} onPress={() => toggleRole('sampleMaker')} />
+              <Checkbox checked={formData.roleAccess.sampleMaker} onPress={() => toggleRole('sampleMaker')} />
               <Text style={styles.roleLabel}>Sample Maker</Text>
             </View>
             <View style={styles.checkboxRow}>
-              <Checkbox checked={roleAccess.subordinate} onPress={() => toggleRole('subordinate')} />
+              <Checkbox checked={formData.roleAccess.subordinate} onPress={() => toggleRole('subordinate')} />
               <Text style={styles.roleLabel}>Subordinate</Text>
             </View>
           </View>

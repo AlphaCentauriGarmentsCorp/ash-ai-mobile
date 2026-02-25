@@ -15,13 +15,14 @@ import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
 import { COLORS } from '@styles';
 import { hp, ms, wp } from "@utils/responsive";
+import { AccountFormProvider } from '../../context/AccountFormContext';
 
 import AccountAddress from '../../components/specific/Account/AccountAddress';
 import AccountDocument from '../../components/specific/Account/AccountDocument';
 import AccountJobPosition from '../../components/specific/Account/AccountJobPosition';
 import AccountPersonalData from '../../components/specific/Account/AccountPersonalData';
 
-export default function ViewAccountScreen() {
+function ViewAccountScreenContent() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
@@ -120,6 +121,14 @@ export default function ViewAccountScreen() {
         </ScrollView>
       </View>
     </>
+  );
+}
+
+export default function ViewAccountScreen() {
+  return (
+    <AccountFormProvider>
+      <ViewAccountScreenContent />
+    </AccountFormProvider>
   );
 }
 

@@ -141,7 +141,7 @@ export default function DataTable({
                 style={[
                   styles.tableRow,
                   rowIndex % 2 === 0 ? styles.rowEven : styles.rowOdd,
-                  { zIndex: activeRowIndex === rowIndex ? 1000 : 1 },
+                  { zIndex: activeRowIndex === rowIndex ? 9999 : 1, elevation: activeRowIndex === rowIndex ? 9999 : 1 },
                 ]}
                 onPress={onRowPress ? () => onRowPress(item, rowIndex) : undefined}
                 activeOpacity={onRowPress ? 0.7 : 1}
@@ -174,7 +174,7 @@ export default function DataTable({
       </ScrollView>
 
       <View style={styles.customScrollContainer}>
-        <View style={[styles.scrollTrack, { width: trackWidth }]}>
+        <View style={[styles.scrollTrack, { width: visibleWidth > 0 ? visibleWidth - 32 : trackWidth }]}>
           <Animated.View
             style={[
               styles.scrollThumb,
@@ -191,7 +191,6 @@ const styles = StyleSheet.create({
  tableWrapper: {
     borderWidth: 2,           // Thicker stroke (matches image)
     borderColor: '#A5B4BF',   // Blue-grey color (Slate-400)         // Keeps the rounded corners
-    overflow: 'hidden',
     marginBottom: 16,
   },
   tableHeader: {
@@ -238,8 +237,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   customScrollContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     paddingTop: 10,
+    paddingBottom: 10,
   },
   scrollTrack: {
     height: 6,

@@ -1,15 +1,18 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { employeeService } from '@api';
 import Button from '@components/common/Button';
 import type { Step } from '@components/common/Stepper';
 import Stepper from '@components/common/Stepper';
@@ -17,17 +20,79 @@ import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
 import { COLORS, FONT_FAMILY } from '@styles';
 import { hp, ms, rfs, wp } from "@utils/responsive";
+import { AccountFormProvider, useAccountForm } from '../../context/AccountFormContext';
 
 import AccountAddress from '../../components/specific/Account/AccountAddress';
 import AccountDocument from '../../components/specific/Account/AccountDocument';
 import AccountJobPosition from '../../components/specific/Account/AccountJobPosition';
 import AccountPersonalData from '../../components/specific/Account/AccountPersonalData';
 
-export default function EditAccountScreen() {
+function EditAccountScreenContent() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
   const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { formData, updateFormData, clearFormData } = useAccountForm();
+
+  const accountId = params.id as string;
+
+  useEffect(() => {
+    if (accountId) {
+      fetchAccountData();
+    }
+  }, [accountId]);
+
+  const fetchAccountData = async () => {
+    try {
+      setLoading(true);
+      console.log('Fetching account with ID:', accountId);
+      console.log('Endpoint:', `/employee/${accountId}`);
+      const account = await employeeService.getEmployeeById(accountId);
+      console.log('Account data received:', account);
+      
+      // Parse the name into first, middle, last
+      const nameParts = account.name?.split(' ') || [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+      const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+
+      // Populate form with account data
+      updateFormData({
+        firstName,
+        middleName,
+        lastName,
+        email: account.email || '',
+        // Add other fields as they come from the API
+        // Note: You may need to adjust based on what fields the API returns
+      });
+    } catch (error: any) {
+      console.error('Error fetching account:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Full URL attempted:', error.config?.url);
+      
+      let errorMessage = 'Failed to load account data. ';
+      
+      if (error.response?.status === 404) {
+        errorMessage += 'The account does not exist.';
+      } else if (error.response?.status === 401) {
+        errorMessage += 'You are not authorized. Please log in again.';
+      } else if (error.response?.status === 500) {
+        errorMessage += 'Server error. Check your Laravel backend logs.';
+      } else if (error.message === 'Network Error') {
+        errorMessage += 'Cannot connect to server. Check if backend is running.';
+      } else {
+        errorMessage += error.response?.data?.message || 'The endpoint may not be available.';
+      }
+      
+      Alert.alert('Error', errorMessage);
+      router.back();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const steps: Step[] = [
     { title: 'Personal Data', id: 0 },
@@ -46,15 +111,67 @@ export default function EditAccountScreen() {
   };
 
   const handleClear = () => {
-    console.log('Clear all fields');
+    clearFormData();
   };
 
-  const handleSave = () => {
-    console.log('Save account');
-    router.back();
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      // Validate required fields
+      if (!formData.firstName || !formData.lastName || !formData.email) {
+        Alert.alert('Validation Error', 'Please fill in all required fields');
+        setSaving(false);
+        return;
+      }
+
+      // Get selected roles as an array
+      const selectedRoles = Object.entries(formData.roleAccess)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([role, _]) => role);
+
+      // Prepare data for API
+      const accountData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        username: formData.username,
+        contact_number: formData.contactNumber || '',
+        birthdate: formData.birthdate || '',
+        gender: formData.gender || '',
+        civil_status: formData.civilStatus || '',
+        position: formData.jobPosition || '',
+        department: formData.department || '',
+        roles: selectedRoles.length > 0 ? selectedRoles : ['developer'],
+        middle_name: formData.middleName || '',
+      };
+
+      console.log('Updating account with data:', accountData);
+      
+      await employeeService.updateEmployee(accountId, accountData);
+      
+      Alert.alert('Success', 'Account updated successfully!', [
+        {
+          text: 'OK',
+          onPress: () => router.back()
+        }
+      ]);
+    } catch (error: any) {
+      console.error('Error updating account:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to update account. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#0D253F" />
+        <Text style={{ marginTop: 10, color: COLORS.white }}>Loading account...</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -120,13 +237,15 @@ export default function EditAccountScreen() {
                     size="base"
                     style={StyleSheet.flatten([styles.navBtn, styles.backBtn])}
                     textStyle={styles.backBtnText}
+                    disabled={saving}
                   />
                   <Button
-                    title="Save"
+                    title={saving ? "Saving..." : "Save"}
                     onPress={handleSave}
                     variant="primary"
                     size="base"
                     style={styles.navBtn}
+                    disabled={saving}
                   />
                 </>
               )}
@@ -135,6 +254,14 @@ export default function EditAccountScreen() {
         </ScrollView>
       </View>
     </>
+  );
+}
+
+export default function EditAccountScreen() {
+  return (
+    <AccountFormProvider>
+      <EditAccountScreenContent />
+    </AccountFormProvider>
   );
 }
 

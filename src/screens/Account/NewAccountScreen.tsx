@@ -1,18 +1,22 @@
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { employeeService } from '@api';
 import Button from '@components/common/Button';
 import type { Step } from '@components/common/Stepper';
 import Stepper from '@components/common/Stepper';
+import { AccountFormProvider, useAccountForm } from '@context/AccountFormContext';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
 import { COLORS, FONT_FAMILY } from '@styles';
@@ -23,10 +27,12 @@ import AccountDocument from '../../components/specific/Account/AccountDocument';
 import AccountJobPosition from '../../components/specific/Account/AccountJobPosition';
 import AccountPersonalData from '../../components/specific/Account/AccountPersonalData';
 
-export default function NewAccountScreen() {
+function NewAccountScreenContent() {
   const router = useRouter();
   const fontsLoaded = usePoppinsFonts();
   const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const { formData, clearFormData } = useAccountForm();
 
   const steps: Step[] = [
     { title: 'Personal Data', id: 0 },
@@ -45,12 +51,75 @@ export default function NewAccountScreen() {
   };
 
   const handleClear = () => {
-    console.log('Clear all fields');
+    clearFormData();
   };
 
-  const handleSave = () => {
-    console.log('Save account');
-    router.back();
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+
+      // Validate required fields
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.username) {
+        Alert.alert('Validation Error', 'Please fill in all required fields');
+        setLoading(false);
+        return;
+      }
+
+      // Get selected roles as an array
+      const selectedRoles = Object.entries(formData.roleAccess)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([role, _]) => role);
+
+      // Prepare data for API with all required fields
+      const accountData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        username: formData.username,
+        contact_number: formData.contactNumber || '',
+        birthdate: formData.birthdate || '',
+        gender: formData.gender || '',
+        civil_status: formData.civilStatus || '',
+        position: formData.jobPosition || '',
+        department: formData.department || '',
+        roles: selectedRoles.length > 0 ? selectedRoles : ['developer'],
+        // Optional fields
+        middle_name: formData.middleName || '',
+        current_street: formData.currentStreet || '',
+        current_province: formData.currentProvince || '',
+        current_barangay: formData.currentBarangay || '',
+        current_city: formData.currentCity || '',
+        current_postal_code: formData.currentPostalCode || '',
+        permanent_street: formData.permanentStreet || '',
+        permanent_province: formData.permanentProvince || '',
+        permanent_barangay: formData.permanentBarangay || '',
+        permanent_city: formData.permanentCity || '',
+        permanent_postal_code: formData.permanentPostalCode || '',
+        pag_ibig_no: formData.pagIbigNo || '',
+        sss_no: formData.sssNo || '',
+        philhealth_no: formData.philhealthNo || '',
+      };
+
+      console.log('Creating account with data:', accountData);
+      
+      await employeeService.createEmployee(accountData);
+      
+      Alert.alert('Success', 'Account created successfully!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            clearFormData();
+            router.back();
+          }
+        }
+      ]);
+    } catch (error: any) {
+      console.error('Error creating account:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!fontsLoaded) return null;
@@ -119,21 +188,38 @@ export default function NewAccountScreen() {
                     size="base"
                     style={StyleSheet.flatten([styles.navBtn, styles.backBtn])}
                     textStyle={styles.backBtnText}
+                    disabled={loading}
                   />
                   <Button
-                    title="Save"
+                    title={loading ? "Saving..." : "Save"}
                     onPress={handleSave}
                     variant="primary"
                     size="base"
                     style={styles.navBtn}
+                    disabled={loading}
                   />
                 </>
               )}
             </View>
           </View>
         </ScrollView>
+
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#0D253F" />
+            <Text style={styles.loadingText}>Creating account...</Text>
+          </View>
+        )}
       </View>
     </>
+  );
+}
+
+export default function NewAccountScreen() {
+  return (
+    <AccountFormProvider>
+      <NewAccountScreenContent />
+    </AccountFormProvider>
   );
 }
 
@@ -183,5 +269,22 @@ const styles = StyleSheet.create({
   },
   backBtnText: {
     color: '#1F2937',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingText: {
+    marginTop: hp(1),
+    fontSize: rfs(14),
+    color: COLORS.white,
+    fontFamily: FONT_FAMILY.medium,
   },
 });

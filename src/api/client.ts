@@ -32,7 +32,11 @@ class ApiClient {
         const url = `${config.baseURL || ''}${config.url || ''}`;
         const params = config.params ? `?${new URLSearchParams(config.params).toString()}` : '';
         console.log('API Request:', config.method?.toUpperCase(), url + params);
-        console.log('API Request params:', config.params);
+        console.log('API Request headers:', config.headers);
+        console.log('API Request data type:', config.data?.constructor?.name);
+        if (config.data instanceof FormData) {
+          console.log('FormData parts:', (config.data as any)._parts);
+        }
         return config;
       },
       (error) => {
@@ -45,6 +49,22 @@ class ApiClient {
     this.api.interceptors.response.use(
       (response) => {
         console.log('API Response:', response.status, response.config.url);
+        
+        // Handle responses that are strings with HTML warnings + JSON
+        if (typeof response.data === 'string' && response.data.includes('<br />')) {
+          console.log('Response contains HTML warnings, extracting JSON...');
+          // Find the JSON part (starts with { or [ and ends with } or ])
+          const jsonMatch = response.data.match(/[\{\[].*[\}\]]/s);
+          if (jsonMatch) {
+            try {
+              response.data = JSON.parse(jsonMatch[0]);
+              console.log('Successfully parsed JSON from response');
+            } catch (e) {
+              console.error('Failed to parse JSON from response:', e);
+            }
+          }
+        }
+        
         return response;
       },
       async (error: AxiosError) => {
@@ -52,7 +72,14 @@ class ApiClient {
         if (error.response) {
           console.error('API Error Response:', error.response.status, error.response.data);
         } else if (error.request) {
-          console.error('API Network Error:', error.message);
+          console.error('❌ API Network Error:', error.message);
+          console.error('📍 Trying to reach:', this.api.defaults.baseURL);
+          console.error('');
+          console.error('Troubleshooting steps:');
+          console.error('1. Is backend running? Start with: php artisan serve --host=0.0.0.0 --port=8000');
+          console.error('2. Android emulator? URL should use 10.0.2.2 (not 127.0.0.1)');
+          console.error('3. Physical device? Use your computer\'s IP (e.g., 192.168.1.x)');
+          console.error('4. Check if you can access the URL in a browser');
         } else {
           console.error('API Error:', error.message);
         }
@@ -112,8 +139,13 @@ class ApiClient {
   }
 
   // File upload with FormData
-  async uploadFile<T = any>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.post(url, formData, {
+  async uploadFile<T = any>(url: string, formData: FormData, method: 'POST' | 'PUT' = 'POST', onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+    // For React Native FormData, we need to remove the default Content-Type
+    // and let axios set it automatically with the correct boundary
+    const response: AxiosResponse<T> = await this.api.request({
+      method,
+      url,
+      data: formData,
       headers: {
         'Content-Type': 'multipart/form-data',
       },

@@ -1,13 +1,16 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    Dimensions,
+    Modal,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +30,86 @@ import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, FONT_SIZES, SIZES, SPACING } from '@styles';
 
+// --- NEW COMPONENT: RowActionMenu ---
+interface RowActionMenuProps {
+  onEdit: () => void;
+  onView: () => void;
+  onDelete: () => void;
+}
+
+const RowActionMenu = ({ onEdit, onView, onDelete }: RowActionMenuProps) => {
+  const [visible, setVisible] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+
+  const toggleDropdown = () => {
+    if (visible) {
+      setVisible(false);
+    } else {
+      buttonRef.current?.measure((_fx: number, _fy: number, _w: number, h: number, px: number, py: number) => {
+        const windowWidth = Dimensions.get('window').width;
+        setDropdownPosition({
+          top: py + h, 
+          right: windowWidth - (px + _w), 
+        });
+        setVisible(true);
+      });
+    }
+  };
+
+  return (
+    <View>
+      <TouchableOpacity 
+        ref={buttonRef}
+        style={styles.actionBtn} 
+        onPress={toggleDropdown}
+      >
+        <Entypo name="chevron-down" size={20} color="#1E3A5F" />
+      </TouchableOpacity>
+
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.floatingMenu,
+                {
+                  top: dropdownPosition.top,
+                  right: dropdownPosition.right,
+                },
+              ]}
+            >
+              <TouchableOpacity 
+                style={styles.dropdownItem} 
+                onPress={() => { setVisible(false); onEdit(); }}
+              >
+                <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>Edit</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.dropdownItem} 
+                onPress={() => { setVisible(false); onView(); }}
+              >
+                <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>View</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
+                onPress={() => { setVisible(false); onDelete(); }}
+              >
+                <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
+                <Text style={styles.dropdownItemText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
+  );
+};
+
 export default function AccountListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -40,9 +123,6 @@ export default function AccountListScreen() {
   // API state
   const [allAccounts, setAllAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Tracks which row index has the dropdown open
-  const [activeDropdownIndex, setActiveDropdownIndex] = useState<number | null>(null);
   
   // Tracks which row has role dropdown open
   const [activeRoleDropdownIndex, setActiveRoleDropdownIndex] = useState<number | null>(null);
@@ -61,6 +141,13 @@ export default function AccountListScreen() {
   useEffect(() => {
     fetchAccounts();
   }, [searchText]);
+
+  // Refresh accounts when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchAccounts();
+    }, [])
+  );
 
   // Reset to page 1 when entries per page changes
   useEffect(() => {
@@ -83,11 +170,16 @@ export default function AccountListScreen() {
     if (!selectedAccount) return;
     
     try {
+      console.log('Deleting account:', selectedAccount.id);
       await employeeService.deleteEmployee(String(selectedAccount.id));
       setRemoveModalVisible(false);
+      setSelectedAccount(null);
+      Alert.alert('Success', 'Account deleted successfully');
       fetchAccounts();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting account:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete account';
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -98,15 +190,6 @@ export default function AccountListScreen() {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-    }
-  };
-
-  const toggleDropdown = (index: number) => {
-    if (activeDropdownIndex === index) {
-      setActiveDropdownIndex(null);
-    } else {
-      setActiveDropdownIndex(index);
-      setSelectedAccount(currentAccounts[index]); 
     }
   };
 
@@ -184,49 +267,20 @@ export default function AccountListScreen() {
       header: '',
       width: 60,
       sortable: false,
-      render: (_value: any, _item: any, index: number) => (
-        <View style={{ position: 'relative', zIndex: activeDropdownIndex === index ? 1000 : 1 }}>
-          <TouchableOpacity 
-            style={styles.actionBtn} 
-            onPress={() => toggleDropdown(index)}
-          >
-            <Entypo name="chevron-down" size={20} color="#1E3A5F" />
-          </TouchableOpacity>
-
-          {activeDropdownIndex === index && (
-            <View style={styles.dropdownMenu}>
-              <TouchableOpacity style={styles.dropdownItem} onPress={() => {
-                 setActiveDropdownIndex(null);
-                 if (selectedAccount) router.push({ pathname: "/Account/edit", params: { id: selectedAccount.id } });
-              }}>
-                <Ionicons name="pencil" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                <Text style={styles.dropdownItemText}>Edit</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.dropdownItem} onPress={() => {
-                 setActiveDropdownIndex(null);
-                 if (selectedAccount) router.push({ pathname: "/Account/view", params: { id: selectedAccount.id } });
-              }}>
-                <Ionicons name="eye" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                <Text style={styles.dropdownItemText}>View</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.dropdownItem, { borderBottomWidth: 0 }]} 
-                onPress={() => {
-                  setActiveDropdownIndex(null);
-                  setRemoveModalVisible(true);
-                }}
-              >
-                <Ionicons name="trash" size={16} color="#0D253F" style={styles.dropdownIcon} />
-                <Text style={styles.dropdownItemText}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      ),
+      render: (_value: any, item: Account) => {
+        return (
+          <RowActionMenu 
+            onEdit={() => router.push({ pathname: "/Account/edit", params: { id: item.id } })}
+            onView={() => router.push({ pathname: "/Account/view", params: { id: item.id } })}
+            onDelete={() => {
+              setSelectedAccount(item);
+              setRemoveModalVisible(true);
+            }}
+          />
+        );
+      },
     },
-  ], [activeDropdownIndex, selectedAccount, activeRoleDropdownIndex, fetchAccounts]);
+  ], [activeRoleDropdownIndex, fetchAccounts]);
 
   if (!fontsLoaded) return null;
 
@@ -296,11 +350,11 @@ export default function AccountListScreen() {
             <Text style={styles.loadingText}>Loading accounts...</Text>
           </View>
         ) : currentAccounts.length > 0 ? (
-          <>
+          <View style={{ paddingBottom: 150, zIndex: 1 }}>
             <DataTable 
               columns={columns} 
               data={currentAccounts} 
-              activeRowIndex={activeRoleDropdownIndex !== null ? activeRoleDropdownIndex : activeDropdownIndex}
+              activeRowIndex={activeRoleDropdownIndex}
             />
 
             <Pagination
@@ -311,7 +365,7 @@ export default function AccountListScreen() {
               onPageChange={handlePageChange}
               onEntriesChange={handleEntriesChange}
             />
-          </>
+          </View>
         ) : (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>No accounts found</Text>
@@ -329,15 +383,6 @@ export default function AccountListScreen() {
         message={`Are you sure you want to remove ${selectedAccount ? selectedAccount.name : 'this account'}? This action cannot be undone.`}
         confirmText="Remove Account"
         highlightText={selectedAccount ? selectedAccount.name : ''}
-      />
-        onConfirm={() => {
-          console.log("Deleted");
-          setRemoveModalVisible(false);
-        }}
-        title="Remove Account?"
-        message={`Are you sure you want to remove ${selectedAccount !== null ? DATA[selectedAccount].name : 'this account'}? This action cannot be undone.`}
-        confirmText="Remove Account"
-        highlightText={selectedAccount !== null ? DATA[selectedAccount].name : ''}
       />
     </View>
   );
@@ -434,17 +479,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xs + 1,
   },
   
-  // Dropdown Styles
-  dropdownMenu: {
+  // Modal Dropdown Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  floatingMenu: {
     position: 'absolute',
-    top: 40,
-    right: 0,
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     width: 150,
     borderWidth: 2,
     borderColor: '#A5B4BF',
-    zIndex: 9999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 8, 
+    overflow: 'visible', 
   },
   dropdownItem: {
     flexDirection: 'row',
