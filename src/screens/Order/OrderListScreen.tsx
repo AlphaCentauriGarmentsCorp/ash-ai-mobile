@@ -1,15 +1,16 @@
+import { Ionicons } from '@expo/vector-icons'; // Imported for the custom buttons
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    View
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Button from '@components/common/Button';
 import type { Column } from '@components/common/DataTable';
 import DataTable from '@components/common/DataTable';
 import type { DropdownOption } from '@components/common/Dropdown';
@@ -158,37 +159,40 @@ export default function OrderListScreen() {
       <View style={styles.contentContainer}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           
-          <View style={styles.actionRow}>
-            <Button
-              title="New Order"
-              onPress={() => router.push('/order/add')}
-              variant="primary"
-              size="base"
-              icon="add"
-              iconPosition="left"
-            />
+          {/* CUSTOM ACTION BUTTONS */}
+          <View style={styles.actionButtonsContainer}>
+            
+            {/* Left Group: New Order & Refresh */}
+            <View style={styles.leftButtonsGroup}>
+              <TouchableOpacity 
+                style={styles.primaryPillBtn} 
+                onPress={() => router.push('/order/add')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="add" size={18} color="#FFFFFF" style={styles.btnIcon} />
+                <Text style={styles.primaryPillText}>New Order</Text>
+              </TouchableOpacity>
 
-            <Button
-              title="Refresh"
-              onPress={handleRefresh}
-              variant="outline"
-              size="base"
-              icon="refresh"
-              iconPosition="left"
-              style={styles.secondaryButton}
-              textStyle={styles.secondaryButtonText}
-            />
+              <TouchableOpacity 
+                style={styles.secondaryPillBtn} 
+                onPress={handleRefresh}
+                activeOpacity={0.6}
+              >
+                <Ionicons name="refresh-outline" size={16} color="#0D253F" style={styles.btnIcon} />
+                <Text style={styles.secondaryPillText}>Refresh</Text>
+              </TouchableOpacity>
+            </View>
 
-            <Button
-              title="Order History"
+            {/* Right Group: Order History */}
+            <TouchableOpacity 
+              style={styles.tertiaryPillBtn} 
               onPress={() => console.log('Order history')}
-              variant="outline"
-              size="base"
-              icon="time-outline"
-              iconPosition="left"
-              style={styles.secondaryButton}
-              textStyle={styles.secondaryButtonText}
-            />
+              activeOpacity={0.6}
+            >
+              <Ionicons name="time-outline" size={16} color="#0D253F" style={styles.btnIcon} />
+              <Text style={styles.tertiaryPillText}>Order History</Text>
+            </TouchableOpacity>
+            
           </View>
 
           <SearchBar
@@ -204,21 +208,18 @@ export default function OrderListScreen() {
               selectedValue={selectedOrder}
               onSelect={setSelectedOrder}
               showIcon={true}
-              buttonStyle={styles.filterBtn}
             />
             
             <Dropdown
               options={taskOptions}
               selectedValue={selectedTask}
               onSelect={setSelectedTask}
-              buttonStyle={styles.filterBtn}
             />
 
             <Dropdown
               options={priorityOptions}
               selectedValue={selectedPriority}
               onSelect={setSelectedPriority}
-              buttonStyle={styles.filterBtn}
             />
           </FilterBar>
 
@@ -245,7 +246,6 @@ export default function OrderListScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   mainContainer: { 
     flex: 1, 
@@ -260,35 +260,92 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4.3), 
     paddingTop: hp(2) 
   },
-  actionRow: { 
-    flexDirection: 'row', 
-    marginBottom: hp(2), 
-    gap: wp(2.1),
-    flexWrap: 'wrap',
+
+  // --- CUSTOM ACTION BUTTON STYLES (Fixed to match Image 1 exactly) ---
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Pushes left group to the left, history to the right
+    alignItems: 'center',
+    marginBottom: hp(2),
+    width: '100%',
   },
-  secondaryButton: { 
-    borderColor: '#0B1C36',
-    backgroundColor: COLORS.white,
+  leftButtonsGroup: {
+    
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12, // Gap between New Order and Refresh
   },
-  secondaryButtonText: { 
-    color: '#0B1C36',
+  primaryPillBtn: {
+    width:110,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0D253F', // Deep Navy background
+    borderRadius: 50, // Pill shape
+    height: 42,
+    paddingHorizontal: 20, // Defines width dynamically based on text
   },
+  secondaryPillBtn: {
+    width:100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#0D253F', // Deep Navy border
+    borderRadius: 50, // Pill shape
+    height: 42,
+    paddingHorizontal: 20, // Defines width dynamically based on text
+  },
+   tertiaryPillBtn: {
+    width:100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#0D253F', // Deep Navy border
+    borderRadius: 50, // Pill shape
+    height: 35,
+    paddingHorizontal: 20, // Defines width dynamically based on text
+  },
+
+  primaryPillText: {
+    fontFamily: 'Poppins_500Medium', // Matching bold font
+    fontSize: 12,
+    color: '#FFFFFF',
+    marginRight: 5,
+    marginLeft: -5,
+    marginTop: 2,
+  },
+  secondaryPillText: {
+     fontFamily: 'Poppins_600SemiBold',
+    fontSize: 12,
+    marginRight: 5,
+    marginLeft: -5,
+    marginTop: 2,
+    color: '#001C34', // Dark Navy text
+  },
+  tertiaryPillText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 8,
+    marginRight: 5,
+    marginLeft: -5,
+    marginTop: 2,
+    color: '#001C34', // Dark Navy text
+  },
+  btnIcon: {
+    marginRight: 8,
+  },
+  // ------------------------------------------------------------------
+
   searchContainer: { 
     marginBottom: hp(2) 
   },
-  filterBtn: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    borderWidth: SIZES.border.thin, 
-    borderColor: COLORS.border, 
-    borderRadius: SIZES.radius.sm, 
-    paddingHorizontal: wp(2.1), 
-    paddingVertical: hp(0.6),
-    backgroundColor: COLORS.white
-  },
+
   statusDot: { 
     width: ms(8), 
-    height: ms(8), 
+    height: ms(8),  
     borderRadius: SIZES.radius.xs, 
     marginRight: wp(2.1) 
   },
