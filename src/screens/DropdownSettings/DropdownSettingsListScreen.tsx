@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -44,7 +44,6 @@ export default function DropdownSettingsListScreen() {
   const [entriesPerPage, setEntriesPerPage] = useState(15);
 
   const category = params.category as string || 'Dropdown Settings';
-  const page = params.page as string || '';
 
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
@@ -74,7 +73,7 @@ export default function DropdownSettingsListScreen() {
       render: (_value: any, item: any) => (
         <TouchableOpacity 
           style={styles.editBtn}
-          onPress={() => router.push({ pathname: "/dropdown-settings/edit", params: item })}
+          onPress={() => router.push({ pathname: `/dropdown-settings/${category}/edit/${item.id}`, params: item })}
         >
           <Ionicons name="pencil" size={16} color="#0D253F" />
         </TouchableOpacity>
@@ -111,7 +110,7 @@ export default function DropdownSettingsListScreen() {
         <View style={styles.actionButtonsRow}>
           <Button
             title={`Add ${category}`}
-            onPress={() => router.push(`/dropdown-settings/${category}/${page}/add` as any)}
+            onPress={() => router.push(`/dropdown-settings/${category}/add` as any)}
             variant="primary"
             size="base"
             icon="add-circle-outline"
