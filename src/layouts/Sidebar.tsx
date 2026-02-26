@@ -99,78 +99,14 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
       title: 'Dropdown Settings', 
       icon: 'settings-outline',
       subItems: [
-        {
-          id: 'pattern-type',
-          title: 'Pattern Type',
-          subItems: [
-            { id: 'pattern-client', title: 'Client', route: '/dropdown-settings/Pattern Type/Client' },
-            { id: 'pattern-order', title: 'Order', route: '/dropdown-settings/Pattern Type/Order' },
-            { id: 'pattern-accounts', title: 'Accounts', route: '/dropdown-settings/Pattern Type/Accounts' },
-          ]
-        },
-        {
-          id: 'apparel-type',
-          title: 'Apparel Type',
-          subItems: [
-            { id: 'apparel-client', title: 'Client', route: '/dropdown-settings/Apparel Type/Client' },
-            { id: 'apparel-order', title: 'Order', route: '/dropdown-settings/Apparel Type/Order' },
-            { id: 'apparel-accounts', title: 'Accounts', route: '/dropdown-settings/Apparel Type/Accounts' },
-          ]
-        },
-        {
-          id: 'service-type',
-          title: 'Service Type',
-          subItems: [
-            { id: 'service-client', title: 'Client', route: '/dropdown-settings/Service Type/Client' },
-            { id: 'service-order', title: 'Order', route: '/dropdown-settings/Service Type/Order' },
-            { id: 'service-accounts', title: 'Accounts', route: '/dropdown-settings/Service Type/Accounts' },
-          ]
-        },
-        {
-          id: 'fabric-type',
-          title: 'Fabric Type',
-          subItems: [
-            { id: 'fabric-client', title: 'Client', route: '/dropdown-settings/Fabric Type/Client' },
-            { id: 'fabric-order', title: 'Order', route: '/dropdown-settings/Fabric Type/Order' },
-            { id: 'fabric-accounts', title: 'Accounts', route: '/dropdown-settings/Fabric Type/Accounts' },
-          ]
-        },
-        {
-          id: 'color',
-          title: 'Color',
-          subItems: [
-            { id: 'color-client', title: 'Client', route: '/dropdown-settings/Color/Client' },
-            { id: 'color-order', title: 'Order', route: '/dropdown-settings/Color/Order' },
-            { id: 'color-accounts', title: 'Accounts', route: '/dropdown-settings/Color/Accounts' },
-          ]
-        },
-        {
-          id: 'size',
-          title: 'Size',
-          subItems: [
-            { id: 'size-client', title: 'Client', route: '/dropdown-settings/Size/Client' },
-            { id: 'size-order', title: 'Order', route: '/dropdown-settings/Size/Order' },
-            { id: 'size-accounts', title: 'Accounts', route: '/dropdown-settings/Size/Accounts' },
-          ]
-        },
-        {
-          id: 'print-label',
-          title: 'Print Label',
-          subItems: [
-            { id: 'label-client', title: 'Client', route: '/dropdown-settings/Print Label/Client' },
-            { id: 'label-order', title: 'Order', route: '/dropdown-settings/Print Label/Order' },
-            { id: 'label-accounts', title: 'Accounts', route: '/dropdown-settings/Print Label/Accounts' },
-          ]
-        },
-        {
-          id: 'print-method',
-          title: 'Print Method',
-          subItems: [
-            { id: 'method-client', title: 'Client', route: '/dropdown-settings/Print Method/Client' },
-            { id: 'method-order', title: 'Order', route: '/dropdown-settings/Print Method/Order' },
-            { id: 'method-accounts', title: 'Accounts', route: '/dropdown-settings/Print Method/Accounts' },
-          ]
-        },
+        { id: 'pattern-type', title: 'Pattern Type', route: '/dropdown-settings/Pattern Type' },
+        { id: 'apparel-type', title: 'Apparel Type', route: '/dropdown-settings/Apparel Type' },
+        { id: 'service-type', title: 'Service Type', route: '/dropdown-settings/Service Type' },
+        { id: 'fabric-type', title: 'Fabric Type', route: '/dropdown-settings/Fabric Type' },
+        { id: 'color', title: 'Color', route: '/dropdown-settings/Color' },
+        { id: 'size', title: 'Size', route: '/dropdown-settings/Size' },
+        { id: 'print-label', title: 'Print Label', route: '/dropdown-settings/Print Label' },
+        { id: 'print-method', title: 'Print Method', route: '/dropdown-settings/Print Method' },
       ]
     },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
@@ -189,20 +125,6 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const toggleExpand = (itemId: string, parentId?: string) => {
     setExpandedItems((prev: Record<string, boolean>) => {
       const newState = { ...prev };
-      
-      // If this is a category under dropdown-settings, close other categories
-      if (parentId === 'dropdown-settings') {
-        // Close all other categories under dropdown-settings
-        const categoryIds = [
-          'pattern-type', 'apparel-type', 'service-type', 
-          'fabric-type', 'color', 'size', 'print-label', 'print-method'
-        ];
-        categoryIds.forEach(catId => {
-          if (catId !== itemId) {
-            newState[catId] = false;
-          }
-        });
-      }
       
       // Toggle the clicked item
       newState[itemId] = !prev[itemId];

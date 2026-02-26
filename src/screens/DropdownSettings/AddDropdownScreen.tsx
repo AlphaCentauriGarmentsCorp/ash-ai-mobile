@@ -25,7 +25,6 @@ export default function AddDropdownScreen() {
   const [description, setDescription] = useState('');
 
   const category = params.category as string || '';
-  const page = params.page as string || '';
 
   const handleClear = () => {
     setDropdownTitle('');
@@ -33,7 +32,7 @@ export default function AddDropdownScreen() {
   };
 
   const handleSave = () => {
-    console.log('Save dropdown:', { category, page, dropdownTitle, description });
+    console.log('Save dropdown:', { category, dropdownTitle, description });
     router.back();
   };
 
@@ -53,7 +52,7 @@ export default function AddDropdownScreen() {
         <PageHeader 
           title="Add Option"
           breadcrumbBold={`Home / ${category}`}
-          breadcrumbNormal={` / ${page} / Add`}
+          breadcrumbNormal=" / Add"
         />
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
