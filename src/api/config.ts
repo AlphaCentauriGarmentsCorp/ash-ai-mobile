@@ -64,9 +64,9 @@ const API_CONFIG = {
 
     // Client endpoints
     CLIENTS: '/clients',
-    CLIENT_BY_ID: (id: number) => `/client/${id}`, // Singular for fetching single client
-    CLIENT_UPDATE: (id: number) => `/client/${id}`, // For updating client
-    CLIENT_DELETE: (id: number) => `/client/${id}`, // For deleting client
+    CLIENT_BY_ID: (id: number) => `/clients/${id}`, // Singular for fetching single client
+    CLIENT_UPDATE: (id: number) => `/clients/${id}`, // For updating client
+    CLIENT_DELETE: (id: number) => `/clients/${id}`, // For deleting client
 
     // Order endpoints
     ORDERS: '/orders',
