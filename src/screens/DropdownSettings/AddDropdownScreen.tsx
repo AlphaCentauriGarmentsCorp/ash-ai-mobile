@@ -1,12 +1,12 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    View
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,11 +25,7 @@ export default function AddDropdownScreen() {
   const [description, setDescription] = useState('');
 
   const category = params.category as string || '';
-
-  const handleClear = () => {
-    setDropdownTitle('');
-    setDescription('');
-  };
+  const formattedCategory = category.charAt(0).toUpperCase() + category.slice(1);
 
   const handleSave = () => {
     console.log('Save dropdown:', { category, dropdownTitle, description });
@@ -50,23 +46,23 @@ export default function AddDropdownScreen() {
         <Stack.Screen options={{ headerShown: false }} />
         
         <PageHeader 
-          title="Add Option"
-          breadcrumbBold={`Home / ${category}`}
+          title={`Add ${formattedCategory}`}
+          breadcrumbBold={`Home / ${formattedCategory}`}
           breadcrumbNormal=" / Add"
         />
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.card}>
             
-            {/* Section: Dropdown Details */}
-            <Text style={styles.sectionTitle}>Dropdown Details</Text>
+            <Text style={styles.sectionTitle}>{formattedCategory}</Text>
             <View style={styles.divider} />
             
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Option Name</Text>
+              <Text style={styles.label}>Label</Text>
               <TextInput 
                 style={styles.input} 
-                placeholder={`Enter ${category.toLowerCase()} option name`}
+                placeholder="Placeholder"
+                placeholderTextColor="#9CA3AF"
                 value={dropdownTitle}
                 onChangeText={setDropdownTitle}
               />
@@ -77,6 +73,7 @@ export default function AddDropdownScreen() {
               <TextInput 
                 style={[styles.input, styles.textArea]} 
                 placeholder="Enter description here..."
+                placeholderTextColor="#9CA3AF"
                 multiline={true}
                 numberOfLines={6}
                 textAlignVertical="top"
@@ -136,12 +133,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
     fontFamily: FONT_FAMILY.bold,
-    color: COLORS.text,
+    color: '#0D253F',
     marginBottom: hp(1.2),
   },
   divider: {
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#D1D5DB',
     marginBottom: hp(1.9),
   },
   inputContainer: {
@@ -150,7 +147,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.medium,
-    color: COLORS.text,
+    color: '#0D253F',
     marginBottom: hp(0.6),
   },
   input: {
@@ -158,19 +155,15 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
     borderRadius: 5,
     paddingHorizontal: wp(2.7),
-    paddingVertical: hp(1),
+    paddingVertical: hp(1.2),
     fontSize: FONT_SIZES.sm,
     backgroundColor: COLORS.white,
     fontFamily: FONT_FAMILY.regular,
-    color: COLORS.text,
+    color: '#0D253F',
   },
   textArea: {
-    height: hp(15),
-    paddingTop: hp(1),
-  },
-  disabledInput: {
-    backgroundColor: '#F3F4F6',
-    color: '#6B7280',
+    height: hp(20),
+    paddingTop: hp(1.2),
   },
   footer: {
     marginTop: hp(3.1),
