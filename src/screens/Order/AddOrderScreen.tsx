@@ -16,7 +16,6 @@ import Button from '@components/common/Button';
 import type { Step } from '@components/common/Stepper';
 import Stepper from '@components/common/Stepper';
 import DesignMockup from '@components/specific/Order/DesignMockup';
-import PaymentSummary from '@components/specific/Order/PaymentSummary';
 import PrintArea from '@components/specific/Order/PrintArea';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
@@ -255,7 +254,7 @@ const OrderInfoSection = () => {
 
       {/* CHANGED: + Add Filter -> + Add Size (Full Width) */}
       <Button 
-        title="+ Add Size" 
+        title="+ Add Option" 
         variant="primary" 
         size="base" 
         style={styles.addSizeBtn}
@@ -273,17 +272,15 @@ export default function AddOrderScreen() {
   const orderInfoRef = useRef<any>(null);
   const printAreaRef = useRef<any>(null);
   const designMockupRef = useRef<any>(null);
-  const paymentSummaryRef = useRef<any>(null);
 
   const steps: Step[] = [
     { title: 'Info', id: 0 },
-    { title: 'Print', id: 1 },
+    { title: 'Quotation', id: 1 },
     { title: 'Design & Mockups', id: 2 },
-    { title: 'Payment & Summary', id: 3 },
   ];
 
   const handleNext = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
+    if (currentStep < 2) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
@@ -296,7 +293,6 @@ export default function AddOrderScreen() {
       case 0: break;
       case 1: printAreaRef.current?.clearFields(); break;
       case 2: designMockupRef.current?.clearFields(); break;
-      case 3: paymentSummaryRef.current?.clearFields(); break;
     }
   };
 
@@ -336,7 +332,6 @@ export default function AddOrderScreen() {
             {currentStep === 0 && <OrderInfoSection/>}
             {currentStep === 1 && <PrintArea ref={printAreaRef} />}
             {currentStep === 2 && <DesignMockup ref={designMockupRef} />}
-            {currentStep === 3 && <PaymentSummary ref={paymentSummaryRef} />}
           </View>
 
           <View style={styles.footer}>
@@ -345,7 +340,7 @@ export default function AddOrderScreen() {
             </TouchableOpacity>
 
             <View style={styles.actionButtons}>
-              {currentStep < 3 ? (
+              {currentStep < 2 ? (
                 <>
                   <Button
                     title="Back"
@@ -468,10 +463,6 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
     // --- ADDED TOP MARGIN to create spacing from tabs ---
   },
-  sectionHeader: {
-    marginBottom: hp(2),
-    marginTop: hp(1),
-  },
 
   
 
@@ -484,8 +475,9 @@ const styles = StyleSheet.create({
   sectionDivider: {
     height: 1,
     backgroundColor: '#B8CDDF',
-    width: '100%',
-  },
+    width: "100%",
+    marginBottom: 8
+},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

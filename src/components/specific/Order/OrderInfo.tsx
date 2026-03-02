@@ -423,7 +423,7 @@ export default OrderInfo;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#EBF6FF',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
     borderWidth: 1,
     borderColor: '#D1D5DB',
