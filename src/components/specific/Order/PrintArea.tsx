@@ -1,378 +1,592 @@
 import { Ionicons } from '@expo/vector-icons';
-import { FONT_FAMILY } from '@styles';
-import { ms } from "@utils/responsive";
-
+import { hp, rfs } from "@utils/responsive";
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
-const PrintArea = forwardRef((props, ref) => {
-  // --- STATE MANAGEMENT FOR COUNTERS ---
-  const [dimensions, setDimensions] = useState({
-    height: 0,
-    width: 0,
-    xOffset: 0,
-    yOffset: 0,
-  });
+const SIZE_OPTIONS = ['XS', 'Small', 'Medium', 'Large', 'XL', '2XL', '3XL'];
 
-  // --- HANDLERS ---
-  const handleIncrement = (field) => {
-    setDimensions(prev => ({ ...prev, [field]: prev[field] + 1 }));
-  };
+const QuotationAndSizes = forwardRef((props, ref) => {
+  const [sizeCards, setSizeCards] = useState([
+    { id: 1, size: 'XS', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
+    { id: 2, size: 'Small', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
+    { id: 3, size: 'Medium', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
+  ]);
 
-  const handleDecrement = (field) => {
-    setDimensions(prev => ({ ...prev, [field]: Math.max(0, prev[field] - 1) })); // Prevent negative values
-  };
-
-  const handleChangeText = (field, value) => {
-    const numValue = parseInt(value, 10);
-    setDimensions(prev => ({ ...prev, [field]: isNaN(numValue) ? 0 : numValue }));
-  };
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   useImperativeHandle(ref, () => ({
     clearFields: () => {
-      // Reset all counters to 0
-      setDimensions({ height: 0, width: 0, xOffset: 0, yOffset: 0 });
-      console.log('Clear PrintArea fields');
+      setSizeCards([{ id: 1, size: 'XS', quantity: '', costPrice: '', unitPrice: '', keepColor: false }]);
     }
   }));
 
+  const addSizeCard = () => {
+    const newCard = {
+      id: Date.now(),
+      size: '', 
+      quantity: '',
+      costPrice: '',
+      unitPrice: '',
+      keepColor: false
+    };
+    setSizeCards([...sizeCards, newCard]);
+  };
+
+  const removeSizeCard = (id) => {
+    if (sizeCards.length > 1) {
+      setSizeCards(sizeCards.filter(card => card.id !== id));
+    }
+  };
+
+  const toggleKeepColor = (id) => {
+    setSizeCards(sizeCards.map(card => 
+      card.id === id ? { ...card, keepColor: !card.keepColor } : card
+    ));
+  };
+
+  const handleSelectSize = (size) => {
+    setSizeCards(sizeCards.map(card => 
+      card.id === openDropdownId ? { ...card, size: size } : card
+    ));
+    setOpenDropdownId(null);
+  };
+
   return (
-    <View style={styles.card}>
-      {/* Section: Print Area */}
-      <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Print Area</Text>
-      </View>
-      <View style={styles.divider} />
+    <View style={styles.container}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.card}>
+          
+          {/* ==========================================
+              SECTION 1: QUOTATION 
+          ========================================== */}
+          <Text style={styles.sectionTitle}>Quotation</Text>
+          <View style={styles.divider} />
+          
+          <Text style={styles.sectionHeader}>Preview</Text>
+          <View style={styles.previewBox}>
+            <Text style={styles.placeholderText}>Preview will show here</Text>
+          </View>
 
-      {/* Select Print Area Dropdown */}
-      <View style={styles.fullInputContainer}>
-        <Text style={styles.label}>Select Print Area</Text>
-        <View style={styles.dropdownContainer}>
-           <Text style={[styles.dropdownInput, { color: '#9CA3AF', paddingTop: ms(5) }]}>
-             Select Print Area
-           </Text>
-           <Ionicons name="chevron-down" size={14} color="#6B7280" style={styles.dropdownIcon} />
+          <View style={styles.packageBox}>
+            <Text style={styles.labelBold}>Package: </Text>
+            <Text style={styles.valueText}>No data yet</Text>
+          </View>
+
+          <View style={styles.detailsGrid}>
+            <View style={styles.detailsCol}>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Client:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Pattern:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Print Type:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Neckline:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+            </View>
+            <View style={styles.detailsCol}>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Shirt Color:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Color Amount:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Quantity:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+              <View style={styles.detailRow}><Text style={styles.gridLabelBold}>Free:</Text><Text style={styles.gridValueText}>No data yet</Text></View>
+            </View>
+          </View>
+
+          <View style={styles.tableContainer}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>Size</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'center' }]}>Quantity</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'right' }]}>Amount</Text>
+            </View>
+            {['Small', 'Medium', 'Large', 'XL', '2XL', '3XL'].map((size, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={[styles.tableCellText, { flex: 1, fontFamily: 'Poppins_600SemiBold' }]}>{size}</Text>
+                <Text style={[styles.tableCellText, { flex: 1, textAlign: 'center' }]}>0</Text>
+                <Text style={[styles.tableCellText, { flex: 1, textAlign: 'right' }]}>0.00 PHP</Text>
+              </View>
+            ))}
+          </View>
+
+          <Text style={styles.subSectionTitle}>Quotation Summary</Text>
+          <View style={styles.quotationSummaryBox}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.labelBold}>60% Downpayment</Text>
+              <TextInput style={styles.blueInputFull} editable={false} placeholder="0.00 PHP" placeholderTextColor="#6B7280" />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.labelBold}>40% Balance (Upon Delivery/Pickup)</Text>
+              <TextInput style={styles.blueInputFull} editable={false} placeholder="0.00 PHP" placeholderTextColor="#6B7280" />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.labelBold}>Total</Text>
+              <TextInput style={styles.blueInputFull} editable={false} placeholder="0.00 PHP" placeholderTextColor="#6B7280" />
+            </View>
+          </View>
+
+          {/* ==========================================
+              SECTION 2: SIZES & QUANTITIES 
+          ========================================== */}
+          <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Sizes & Quantities</Text>
+          <View style={styles.divider} />
+
+          {sizeCards.map((card) => (
+            <View 
+              key={card.id} 
+              style={[styles.sizeCard, openDropdownId === card.id && { zIndex: 1000, elevation: 1000 }]}
+            >
+              {/* Row 1: Size & Cost Price */}
+              <View style={[styles.inputRow, openDropdownId === card.id && { zIndex: 1000, elevation: 1000 }]}>
+                <View style={[styles.inputCol, openDropdownId === card.id && { zIndex: 1000, elevation: 1000 }]}>
+                  <Text style={styles.labelBold}>Size</Text>
+                  <View style={{ position: 'relative', zIndex: openDropdownId === card.id ? 1000 : 1 }}>
+                    <TouchableOpacity 
+                      style={styles.dropdownInput} 
+                      onPress={() => setOpenDropdownId(openDropdownId === card.id ? null : card.id)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={{ color: '#1F2937', fontSize: 13 }}>
+                        {card.size || 'Select Size'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={14} color="#6B7280" />
+                    </TouchableOpacity>
+
+                    {openDropdownId === card.id && (
+                      <View style={styles.popoverDropdown}>
+                        <View> 
+                          {SIZE_OPTIONS.map((sizeOption, idx) => (
+                            <TouchableOpacity 
+                              key={idx}
+                              style={[
+                                styles.popoverItem, 
+                                idx === SIZE_OPTIONS.length - 1 && { borderBottomWidth: 0 } 
+                              ]}
+                              onPress={() => handleSelectSize(sizeOption)}
+                            >
+                              <Text style={styles.popoverItemText}>{sizeOption}</Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                </View>
+
+                <View style={styles.inputCol}>
+                  <Text style={styles.labelBold}>Cost Price</Text>
+                  <TextInput 
+                    style={styles.blueInputFull} 
+                    placeholder="Computation will show here" 
+                    placeholderTextColor="#6B7280"
+                    editable={false}
+                  />
+                </View>
+              </View>
+
+              {/* Row 2: Checkbox (Right Side Only) */}
+              <View style={styles.checkboxRowContainer}>
+                <View style={styles.inputCol} /> {/* Empty space on left */}
+                <View style={styles.inputCol}>
+                  <TouchableOpacity 
+                    style={styles.checkboxRow} 
+                    onPress={() => toggleKeepColor(card.id)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.checkbox}>
+                      {card.keepColor && <Ionicons name="checkmark" size={12} color="#001C34" />}
+                    </View>
+                    <Text style={styles.checkboxText}>Keep the same color for others</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Row 3: Quantity & Unit Price */}
+              <View style={styles.inputRow}>
+                <View style={styles.inputCol}>
+                  <Text style={styles.labelBold}>Quantity</Text>
+                  <TextInput 
+                    style={styles.whiteInput} 
+                    placeholder="Enter Quantity" 
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="numeric"
+                  />
+                </View>
+                <View style={styles.inputCol}>
+                  <Text style={styles.labelBold}>Unit Price</Text>
+                  <TextInput 
+                    style={styles.blueInputFull} 
+                    placeholder="Computation will show here" 
+                    placeholderTextColor="#6B7280"
+                    editable={false}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.removeRow}>
+                <TouchableOpacity style={styles.removeBtn} onPress={() => removeSizeCard(card.id)}>
+                  <Text style={styles.removeBtnText}>- Remove</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          <TouchableOpacity style={styles.addSizeBtn} onPress={addSizeCard}>
+            <Text style={styles.addSizeBtnText}>+ Add Size</Text>
+          </TouchableOpacity>
+
+
+          {/* ==========================================
+              SECTION 3: SUMMARY 
+          ========================================== */}
+          <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Summary</Text>
+          
+          <View style={styles.finalSummaryBox}>
+            <View style={styles.inputRow}>
+              <View style={styles.inputCol}>
+                <Text style={styles.labelBold}>Total Quantity</Text>
+                <TextInput style={styles.blueInputFull} editable={false} placeholder="0" placeholderTextColor="#1F2937" />
+              </View>
+              <View style={styles.inputCol}>
+                <Text style={styles.labelBold}>Unit Price</Text>
+                <TextInput style={styles.blueInputFull} editable={false} placeholder="P0.00" placeholderTextColor="#1F2937" />
+              </View>
+            </View>
+            <View style={{ marginTop: 15 }}>
+              <Text style={styles.labelBold}>Total Amount</Text>
+              <TextInput style={styles.blueInputFull} editable={false} placeholder="Total amount of the unit" placeholderTextColor="#1F2937" />
+            </View>
+          </View>
         </View>
-      </View>
+        {/* === END OF CARD === */}
 
-      {/* Print Area Color Input */}
-      <View style={styles.fullInputContainer}>
-        <Text style={styles.label}>Print Area Color</Text>
-        <TextInput 
-          style={styles.input} 
-          placeholder="Enter print area color" 
-          placeholderTextColor="#9CA3AF"
-        />
-        {/* Checkbox */}
-        <TouchableOpacity style={styles.checkboxRow} activeOpacity={0.7}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxText}>Keep the same fabric color</Text>
-        </TouchableOpacity>
-      </View>
+       
 
-      {/* Height, Width, Offsets Container - Darker Inner Card */}
-      <View style={styles.dimensionsCard}>
-        {/* Row 1: Height & Width */}
-        <View style={styles.row}>
-          <View style={styles.halfInputContainer}>
-            <Text style={styles.dimLabel}>Height</Text>
-            <View style={styles.counterRow}>
-              <TouchableOpacity 
-                style={styles.counterBtnLeft} 
-                onPress={() => handleDecrement('height')}
-              >
-                <Text style={styles.counterBtnText}>-</Text>
-              </TouchableOpacity>
-              <View style={styles.counterInputWrapper}>
-                <TextInput 
-                    style={styles.counterInput} 
-                    value={dimensions.height.toString()}
-                    onChangeText={(text) => handleChangeText('height', text)}
-                    keyboardType="numeric"
-                />
-              </View>
-              <TouchableOpacity 
-                style={styles.counterBtnRight}
-                onPress={() => handleIncrement('height')}
-              >
-                <Text style={styles.counterBtnText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.halfInputContainer}>
-            <Text style={styles.dimLabel}>Width</Text>
-            <View style={styles.counterRow}>
-              <TouchableOpacity 
-                style={styles.counterBtnLeft}
-                onPress={() => handleDecrement('width')}
-              >
-                <Text style={styles.counterBtnText}>-</Text>
-              </TouchableOpacity>
-              <View style={styles.counterInputWrapper}>
-                <TextInput 
-                    style={styles.counterInput} 
-                    value={dimensions.width.toString()}
-                    onChangeText={(text) => handleChangeText('width', text)}
-                    keyboardType="numeric"
-                />
-              </View>
-              <TouchableOpacity 
-                style={styles.counterBtnRight}
-                onPress={() => handleIncrement('width')}
-              >
-                <Text style={styles.counterBtnText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Row 2: X-offset & Y-offset */}
-        <View style={styles.row}>
-          <View style={styles.halfInputContainer}>
-            <Text style={styles.dimLabel}>X-offset</Text>
-            <View style={styles.counterRow}>
-              <TouchableOpacity 
-                style={styles.counterBtnLeft}
-                onPress={() => handleDecrement('xOffset')}
-              >
-                <Text style={styles.counterBtnText}>-</Text>
-              </TouchableOpacity>
-              <View style={styles.counterInputWrapper}>
-                <TextInput 
-                    style={styles.counterInput} 
-                    value={dimensions.xOffset.toString()}
-                    onChangeText={(text) => handleChangeText('xOffset', text)}
-                    keyboardType="numeric"
-                />
-              </View>
-              <TouchableOpacity 
-                style={styles.counterBtnRight}
-                onPress={() => handleIncrement('xOffset')}
-              >
-                <Text style={styles.counterBtnText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.halfInputContainer}>
-            <Text style={styles.dimLabel}>Y-offset</Text>
-            <View style={styles.counterRow}>
-              <TouchableOpacity 
-                style={styles.counterBtnLeft}
-                onPress={() => handleDecrement('yOffset')}
-              >
-                <Text style={styles.counterBtnText}>-</Text>
-              </TouchableOpacity>
-              <View style={styles.counterInputWrapper}>
-                <TextInput 
-                    style={styles.counterInput} 
-                    value={dimensions.yOffset.toString()}
-                    onChangeText={(text) => handleChangeText('yOffset', text)}
-                    keyboardType="numeric"
-                />
-              </View>
-              <TouchableOpacity 
-                style={styles.counterBtnRight}
-                onPress={() => handleIncrement('yOffset')}
-              >
-                <Text style={styles.counterBtnText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Add Print Location Button */}
-      <TouchableOpacity style={styles.addPrintLocationBtn}>
-        <Text style={styles.addPrintLocationText}>+ Add print location</Text>
-      </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 });
 
-PrintArea.displayName = 'PrintArea';
+QuotationAndSizes.displayName = 'QuotationAndSizes';
 
-export default PrintArea;
+export default QuotationAndSizes;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  scrollContent: {
+    paddingHorizontal: 0, 
+    paddingTop: 16,
+  },
   card: {
-    backgroundColor: '#EBF6FF', // Light Blue Card Background
+    backgroundColor: '#EBF6FF', 
     borderRadius: 12,
     padding: 20,
     borderWidth: 1,
     borderColor: '#D1D5DB',
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: rfs(16),
     fontFamily: "Poppins_600SemiBold",
+    color: '#111827',
+    marginBottom: hp(0.5),
+  },
+  subSectionTitle: {
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
     color: '#001C34',
-    marginBottom: 8,
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  sectionHeader: {
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#001C34',
+    marginBottom: 6,
   },
   divider: {
     height: 1,
     backgroundColor: '#cbd5e1',
     marginBottom: 20,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-    gap: 15,
+  labelBold: {
+    fontSize: 10,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#001C34',
+    marginBottom: 2,
   },
-  halfInputContainer: {
-    flex: 1,
+  valueText: {
+    fontSize: 10,
+    fontFamily: 'Poppins_400Regular',
+    color: '#9CA3AF',
   },
-  fullInputContainer: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    fontFamily: "Poppins_600SemiBold",
-    color: '#001C34', // Darker text for labels
-    marginBottom: 8,
-    marginLeft:8
-  },
-  dimLabel: {
-    fontSize: 14,
-    fontFamily: "Poppins_600SemiBold",
-    color: '#1F2937',
-    marginBottom: 6,
-  },
-  
-  // --- INPUTS ---
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB', // Light grey border
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 45,
-    fontSize: 14,
-    fontFamily: FONT_FAMILY.regular,
+
+  // --- QUOTATION STYLES ---
+  previewBox: {
     backgroundColor: '#FFFFFF',
-    color: '#1F2937',
-  },
-  dropdownContainer: {
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  dropdownInput: {
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 45,
-    fontSize: 14,
-    fontFamily: FONT_FAMILY.regular,
-    backgroundColor: '#FFFFFF',
-    color: '#1F2937',
-    textAlignVertical: 'center', 
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
   },
-  dropdownIcon: {
-    position: 'absolute',
-    right: 15,
-    fontSize: 10,
-    color: '#6B7280',
+  placeholderText: {
+    fontSize: 13,
+    fontFamily: 'Poppins_400Regular',
+    color: '#9CA3AF',
+  },
+  packageBox: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  
+  detailsGrid: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+  },
+  detailsCol: {
+    flex: 1,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start', 
+    marginBottom: 8,
+    paddingRight: 10,
+  },
+  gridLabelBold: {
+    fontSize: 9,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#001C34',
+    width: 75, 
+  },
+  gridValueText: {
+    fontSize: 9,
+    fontFamily: 'Poppins_400Regular',
+    color: '#9CA3AF',
+    flex: 1, 
   },
 
-  // --- CHECKBOX ---
+  tableContainer: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#DCEAF5', 
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#D1D5DB',
+  },
+  tableHeaderText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_700Bold',
+    color: '#001C34',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  tableCellText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    color: '#1F2937',
+  },
+  quotationSummaryBox: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 15,
+  },
+  inputGroup: {
+    marginBottom: 12,
+  },
+
+  // --- REBUILT FLEX SIZES & QUANTITIES ALIGNMENT ---
+  sizeCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    ...(Platform.OS === 'ios' ? { zIndex: 1 } : {}),
+  },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+  },
+  inputCol: {
+    flex: 1,
+  },
+  checkboxRowContainer: {
+    flexDirection: 'row',
+    gap: 15,
+    marginBottom: 10,
+  },
+
+  dropdownInput: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    height: 40,
+    backgroundColor: '#FFFFFF',
+  },
+  
+  popoverDropdown: {
+    position: 'absolute',
+    top: 46, 
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    elevation: 8, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  popoverItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB', 
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  popoverItemText: {
+    fontSize: 13,
+    fontFamily: 'Poppins_400Regular', 
+    color: '#001C34', 
+  },
+
+  whiteInput: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    height: 40,
+    fontSize: 13,
+    fontFamily: 'Poppins_400Regular',
+    backgroundColor: '#FFFFFF',
+    color: '#1F2937',
+  },
+  blueInputFull: {
+    backgroundColor: '#DCEAF5', 
+    borderWidth: 1,
+    borderColor: '#CFE0EE',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    height: 40,
+    fontSize: 13, 
+    fontFamily: 'Poppins_400Regular',
+    color: '#1F2937',
+  },
+
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 4,
   },
   checkbox: {
-    width: 18,
-    height: 18,
+    width: 14,
+    height: 14,
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    backgroundColor: '#FFF',
-    borderRadius: 4,
-    marginRight: 8,
+    borderRadius: 3,
+    marginRight: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   checkboxText: {
-    fontSize: 12,
-    color: '#8D8D8D',
-    fontFamily: "Poppins_400Regular",
+    fontSize: 9,
+    fontFamily: 'Poppins_400Regular',
+    color: '#6B7280',
   },
-
-  // --- DIMENSIONS CARD (Inner Container) ---
-  dimensionsCard: {
-    backgroundColor: '#DCEAF5', // Matches the inner darker blue area in image
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
+  removeRow: {
+    alignItems: 'flex-end',
+    marginTop: 10,
+  },
+  removeBtn: {
     borderWidth: 1,
-    borderColor: '#CFE0EE',
+    borderColor: '#EF4444', 
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
   },
-  
-  // --- MERGED COUNTER STYLES ---
-  counterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 40,
-    borderRadius: 6, // Rounded corners for the whole group
-    overflow: 'hidden', // Clips content to border radius
-    backgroundColor: '#FFFFFF', // White background for the input area
-    borderWidth: 2,
-    borderColor: '#808D99', // Border matching the button color
+  removeBtnText: {
+    color: '#EF4444',
+    fontSize: 12,
+    fontFamily: 'Poppins_600SemiBold',
   },
-  counterBtnLeft: {
-    backgroundColor: '#264660', // Dark Navy
-    width: 35,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRightWidth: 2,
-    borderColor: '#808D99'
-  },
-  counterBtnRight: {
-    backgroundColor: '#264660', // Dark Navy
-    width: 35,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderLeftWidth: 2,
-    borderColor: '#808D99'
-  },
-  counterBtnText: {
-    color: '#fff',
-    fontSize: 18,
-    fontFamily: FONT_FAMILY.medium,
-    lineHeight: 22,
-  },
-  counterInputWrapper: {
-    flex: 1,
-    height: '100%',
-    backgroundColor: '#FFFFFF',
-  },
-  counterInput: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: '#808D99',
-    marginBottom: -7,
-  
-  },
-
-  // --- ADD BUTTON ---
-  addPrintLocationBtn: {
-    backgroundColor: '#264660', // Dark Navy
-    paddingVertical: 14,
+  addSizeBtn: {
+    backgroundColor: '#001C34', 
     borderRadius: 25,
+    paddingVertical: 14,
     alignItems: 'center',
     marginTop: 5,
-    width: '100%',
+    marginBottom: 10,
   },
-  addPrintLocationText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: "Poppins_600SemiBold",
+  addSizeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
+  },
+
+  finalSummaryBox: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+  },
+
+  // --- FOOTER BUTTONS (MOVED OUTSIDE CARD) ---
+  clearBtnContainer: {
+    alignItems: 'flex-end',
+    marginTop: 15,
+    marginBottom: 20,
+    paddingHorizontal: 20, // Added to align with card content
+  },
+  clearText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    color: '#4B5563',
+    textDecorationLine: 'underline',
   },
 });
