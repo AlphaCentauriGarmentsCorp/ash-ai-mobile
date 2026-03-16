@@ -131,29 +131,135 @@ export interface UpdateAccountRequest extends Partial<CreateAccountRequest> {
 // Order Types
 export interface Order {
   id: string;
+  po_code: string;
   client_id: string;
   client?: Client;
-  order_number: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  total_amount: number;
-  items: OrderItem[];
+  client_brand?: string;
+  deadline?: string;
+  priority?: string;
+  brand?: string;
+  courier?: string;
+  method?: string;
+  receiver_name?: string;
+  receiver_contact?: string;
+  address?: string;
+  design_name?: string;
+  apparel_type?: string;
+  pattern_type?: string;
+  service_type?: string;
+  print_method?: string;
+  print_service?: string;
+  size_label?: string;
+  print_label_placement?: string;
+  fabric_type?: string;
+  fabric_supplier?: string;
+  fabric_color?: string;
+  thread_color?: string;
+  ribbing_color?: string;
+  placement_measurements?: string;
   notes?: string;
+  options?: string;
+  freebie_items?: string;
+  freebie_color?: string;
+  freebie_others?: string;
+  payment_method?: string;
+  payment_plan?: string;
+  total_price?: number;
+  average_unit_price?: number;
+  total_quantity?: number;
+  deposit?: number;
+  design_files?: string;
+  design_mockup?: string;
+  size_label_files?: string;
+  freebies_files?: string;
+  qr_path?: string;
+  barcode_path?: string;
+  status: string; // Changed to string to allow 'Pending Approval' etc.
   created_at: string;
   updated_at: string;
+  items?: OrderItem[]; // Keep for compatibility
 }
 
 export interface OrderItem {
   id: string;
+  sku?: string;
   product_name: string;
+  color?: string;
+  size?: string;
   quantity: number;
-  price: number;
-  subtotal: number;
+  price?: number;
+  subtotal?: number;
+  qr_path?: string;
+  barcode_path?: string;
 }
 
 export interface CreateOrderRequest {
-  client_id: string;
-  items: Omit<OrderItem, 'id' | 'subtotal'>[];
+  // Required fields
+  client: string;
+  company?: string;
+  contact_number: string;
+  receiver_name: string;
+  design_name: string;
+  fabric_color: string;
+  thread_color: string;
+  ribbing_color: string;
+  sizes: string;
+  total_quantity: number;
+  average_unit_price: number;
+  total_amount: number;
+  
+  // Optional order information
+  client_id?: string;
+  client_brand?: string;
+  deadline?: string;
+  priority?: string;
+  brand?: string;
+  courier?: string;
+  method?: string;
+  
+  // Shipping address
+  street_address?: string;
+  city?: string;
+  province?: string;
+  barangay?: string;
+  postal_code?: string;
+  
+  // Product details
+  apparel_type?: string;
+  pattern_type?: string;
+  service_type?: string;
+  print_method?: string;
+  print_service?: string;
+  size_label?: string;
+  print_label_placement?: string;
+  
+  // Fabric details
+  fabric_type?: string;
+  fabric_supplier?: string;
+  placement_measurements?: string;
+  
+  // Additional options
+  additional_options?: string;
+  freebie_items?: string;
+  freebie_color?: string;
+  freebie_others?: string;
+  
+  // Payment information
+  payment_method?: string;
+  payment_plan?: string;
+  deposit?: number;
+  
+  // File uploads (URLs after upload)
+  design_files?: string;
+  design_mockup?: string;
+  size_label_files?: string;
+  freebies_files?: string;
+  payment_files?: string;
+  
+  // Additional fields
   notes?: string;
+  status?: string;
+  items?: Omit<OrderItem, 'id' | 'subtotal'>[];
 }
 
 // File Upload Types

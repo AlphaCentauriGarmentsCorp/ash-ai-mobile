@@ -21,7 +21,7 @@ export interface Column {
 
 interface DataTableProps {
   columns: Column[];
-  data: any[];
+  data?: any[]; // Make optional with default
   trackWidth?: number;
   thumbWidth?: number;
   style?: ViewStyle;
@@ -32,7 +32,7 @@ interface DataTableProps {
 
 export default function DataTable({
   columns,
-  data,
+  data = [], // Add default empty array
   trackWidth = 350,
   thumbWidth = 120,
   style,
@@ -68,9 +68,12 @@ export default function DataTable({
   };
 
   const getSortedData = () => {
-    if (!sortConfig) return data;
+    // Ensure data is always an array
+    const safeData = Array.isArray(data) ? data : [];
+    
+    if (!sortConfig) return safeData;
 
-    const sortedData = [...data].sort((a, b) => {
+    const sortedData = [...safeData].sort((a, b) => {
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
 
