@@ -75,6 +75,10 @@ const API_CONFIG = {
     // Dropdown settings endpoints
     DROPDOWN_SETTINGS: '/dropdown-settings',
     DROPDOWN_SETTING_BY_ID: (id: number) => `/dropdown-settings/${id}`,
+
+    // Additional Options endpoints
+    ADDITIONAL_OPTIONS: '/additional-option',
+    ADDITIONAL_OPTION_BY_ID: (id: number) => `/additional-option/${id}`,
   },
 } as const;
 

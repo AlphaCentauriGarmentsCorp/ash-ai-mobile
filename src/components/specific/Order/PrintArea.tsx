@@ -2,29 +2,50 @@ import { Ionicons } from '@expo/vector-icons';
 import { hp, rfs } from "@utils/responsive";
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 const SIZE_OPTIONS = ['XS', 'Small', 'Medium', 'Large', 'XL', '2XL', '3XL'];
 
 const QuotationAndSizes = forwardRef((props, ref) => {
   const [sizeCards, setSizeCards] = useState([
-    { id: 1, size: 'XS', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
-    { id: 2, size: 'Small', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
-    { id: 3, size: 'Medium', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
+    { id: 1, size: '', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
+    { id: 2, size: '', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
+    { id: 3, size: '', quantity: '', costPrice: '', unitPrice: '', keepColor: false },
   ]);
 
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
   useImperativeHandle(ref, () => ({
     clearFields: () => {
-      setSizeCards([{ id: 1, size: 'XS', quantity: '', costPrice: '', unitPrice: '', keepColor: false }]);
+      setSizeCards([{ id: 1, size: '', quantity: '', costPrice: '', unitPrice: '', keepColor: false }]);
+    },
+    getData: () => {
+      const filteredItems = sizeCards
+        .filter(card => card.size && card.quantity && parseInt(card.quantity) > 0);
+      
+      console.log('PrintArea getData called:', {
+        totalCards: sizeCards.length,
+        filteredItems: filteredItems.length,
+        sizeCards: sizeCards
+      });
+      
+      return {
+        items: filteredItems.map(card => ({
+          product_name: card.size ? `${card.size} Size Item` : 'Size Item',
+          size: card.size || '',
+          quantity: parseInt(card.quantity) || 0,
+          price: parseFloat(card.unitPrice) || 0,
+          color: card.keepColor ? 'Custom Color' : ''
+        })),
+        notes: ''
+      };
     }
   }));
 
@@ -52,6 +73,12 @@ const QuotationAndSizes = forwardRef((props, ref) => {
     ));
   };
 
+  const updateSizeCard = (id, field, value) => {
+    setSizeCards(sizeCards.map(card => 
+      card.id === id ? { ...card, [field]: value } : card
+    ));
+  };
+
   const handleSelectSize = (size) => {
     setSizeCards(sizeCards.map(card => 
       card.id === openDropdownId ? { ...card, size: size } : card
@@ -60,7 +87,7 @@ const QuotationAndSizes = forwardRef((props, ref) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.stepContainer}>
       <ScrollView 
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={styles.scrollContent}
@@ -139,19 +166,31 @@ const QuotationAndSizes = forwardRef((props, ref) => {
           {sizeCards.map((card) => (
             <View 
               key={card.id} 
-              style={[styles.sizeCard, openDropdownId === card.id && { zIndex: 1000, elevation: 1000 }]}
+              style={[
+                styles.sizeCard, 
+                openDropdownId === card.id ? { zIndex: 1000, elevation: 1000 } : {}
+              ]}
             >
               {/* Row 1: Size & Cost Price */}
-              <View style={[styles.inputRow, openDropdownId === card.id && { zIndex: 1000, elevation: 1000 }]}>
-                <View style={[styles.inputCol, openDropdownId === card.id && { zIndex: 1000, elevation: 1000 }]}>
+              <View style={[
+                styles.inputRow, 
+                openDropdownId === card.id ? { zIndex: 1000, elevation: 1000 } : {}
+              ]}>
+                <View style={[
+                  styles.inputCol, 
+                  openDropdownId === card.id ? { zIndex: 1000, elevation: 1000 } : {}
+                ]}>
                   <Text style={styles.labelBold}>Size</Text>
-                  <View style={{ position: 'relative', zIndex: openDropdownId === card.id ? 1000 : 1 }}>
+                  <View style={{ 
+                    position: 'relative', 
+                    zIndex: openDropdownId === card.id ? 1000 : 1 
+                  }}>
                     <TouchableOpacity 
                       style={styles.dropdownInput} 
                       onPress={() => setOpenDropdownId(openDropdownId === card.id ? null : card.id)}
                       activeOpacity={0.7}
                     >
-                      <Text style={{ color: '#1F2937', fontSize: 13 }}>
+                      <Text style={{ color: card.size ? '#1F2937' : '#9CA3AF', fontSize: 13 }}>
                         {card.size || 'Select Size'}
                       </Text>
                       <Ionicons name="chevron-down" size={14} color="#6B7280" />
@@ -165,7 +204,7 @@ const QuotationAndSizes = forwardRef((props, ref) => {
                               key={idx}
                               style={[
                                 styles.popoverItem, 
-                                idx === SIZE_OPTIONS.length - 1 && { borderBottomWidth: 0 } 
+                                idx === SIZE_OPTIONS.length - 1 ? { borderBottomWidth: 0 } : {}
                               ]}
                               onPress={() => handleSelectSize(sizeOption)}
                             >
@@ -185,6 +224,7 @@ const QuotationAndSizes = forwardRef((props, ref) => {
                     placeholder="Computation will show here" 
                     placeholderTextColor="#6B7280"
                     editable={false}
+                    value={card.costPrice || ''}
                   />
                 </View>
               </View>
@@ -199,7 +239,7 @@ const QuotationAndSizes = forwardRef((props, ref) => {
                     activeOpacity={0.7}
                   >
                     <View style={styles.checkbox}>
-                      {card.keepColor && <Ionicons name="checkmark" size={12} color="#001C34" />}
+                      {card.keepColor ? <Ionicons name="checkmark" size={12} color="#001C34" /> : null}
                     </View>
                     <Text style={styles.checkboxText}>Keep the same color for others</Text>
                   </TouchableOpacity>
@@ -215,6 +255,8 @@ const QuotationAndSizes = forwardRef((props, ref) => {
                     placeholder="Enter Quantity" 
                     placeholderTextColor="#9CA3AF"
                     keyboardType="numeric"
+                    value={String(card.quantity || '')}
+                    onChangeText={(value) => updateSizeCard(card.id, 'quantity', value)}
                   />
                 </View>
                 <View style={styles.inputCol}>
@@ -224,6 +266,7 @@ const QuotationAndSizes = forwardRef((props, ref) => {
                     placeholder="Computation will show here" 
                     placeholderTextColor="#6B7280"
                     editable={false}
+                    value={card.unitPrice || ''}
                   />
                 </View>
               </View>
@@ -265,8 +308,6 @@ const QuotationAndSizes = forwardRef((props, ref) => {
         </View>
         {/* === END OF CARD === */}
 
-       
-
       </ScrollView>
     </View>
   );
@@ -277,13 +318,15 @@ QuotationAndSizes.displayName = 'QuotationAndSizes';
 export default QuotationAndSizes;
 
 const styles = StyleSheet.create({
+  stepContainer: {
+    padding: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
   scrollContent: {
     paddingHorizontal: 0, 
-    paddingTop: 16,
   },
   card: {
     backgroundColor: '#EBF6FF', 
@@ -435,7 +478,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 8,
-    padding: 15,
+    padding: 20,
     marginBottom: 15,
     ...(Platform.OS === 'ios' ? { zIndex: 1 } : {}),
   },
@@ -450,7 +493,7 @@ const styles = StyleSheet.create({
   checkboxRowContainer: {
     flexDirection: 'row',
     gap: 15,
-    marginBottom: 10,
+    marginBottom: 15,
   },
 
   dropdownInput: {
@@ -539,14 +582,15 @@ const styles = StyleSheet.create({
   },
   removeRow: {
     alignItems: 'flex-end',
-    marginTop: 10,
+    marginTop: 15,
   },
   removeBtn: {
     borderWidth: 1,
     borderColor: '#EF4444', 
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
+    borderRadius: 25,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFFFFF',
   },
   removeBtnText: {
     color: '#EF4444',

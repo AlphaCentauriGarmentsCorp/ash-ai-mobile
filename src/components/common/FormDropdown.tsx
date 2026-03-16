@@ -6,6 +6,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
@@ -21,6 +22,7 @@ interface FormDropdownProps {
   onSelect: (value: string) => void;
   placeholder?: string;
   icon?: keyof typeof Ionicons.glyphMap;
+  showSearch?: boolean; // Add optional prop to show/hide search
 }
 
 export default function FormDropdown({
@@ -29,16 +31,29 @@ export default function FormDropdown({
   onSelect,
   placeholder = 'Select',
   icon = 'chevron-down',
+  showSearch = true, // Default to true to maintain existing behavior
 }: FormDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSelect = (value: string) => {
     onSelect(value);
     setIsOpen(false);
+    setSearchQuery(''); // Clear search when closing
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setSearchQuery(''); // Clear search when closing
   };
 
   const selectedLabel =
     options.find((opt) => opt.value === selectedValue)?.label || placeholder;
+
+  // Filter options based on search query
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -56,43 +71,71 @@ export default function FormDropdown({
         visible={isOpen}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsOpen(false)}
+        onRequestClose={handleClose}
       >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => setIsOpen(false)}
+          onPress={handleClose}
         >
-          <View style={styles.modalContent}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{placeholder}</Text>
-              <TouchableOpacity onPress={() => setIsOpen(false)}>
+              <TouchableOpacity onPress={handleClose}>
                 <Ionicons name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
+
+            {/* Search Bar - Only show if showSearch is true */}
+            {showSearch && (
+              <View style={styles.searchContainer}>
+                <Ionicons name="search" size={18} color="#999" style={styles.searchIcon} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search..."
+                  placeholderTextColor="#999"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+                    <Ionicons name="close-circle" size={18} color="#999" />
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+
             <ScrollView style={styles.optionsList}>
-              {options.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[
-                    styles.optionItem,
-                    selectedValue === option.value && styles.selectedOption,
-                  ]}
-                  onPress={() => handleSelect(option.value)}
-                >
-                  <Text
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
                     style={[
-                      styles.optionText,
-                      selectedValue === option.value && styles.selectedOptionText,
+                      styles.optionItem,
+                      selectedValue === option.value && styles.selectedOption,
                     ]}
+                    onPress={() => handleSelect(option.value)}
                   >
-                    {option.label}
-                  </Text>
-                  {selectedValue === option.value && (
-                    <Ionicons name="checkmark" size={20} color="#0D253F" />
-                  )}
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.optionText,
+                        selectedValue === option.value && styles.selectedOptionText,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                    {selectedValue === option.value && (
+                      <Ionicons name="checkmark" size={20} color="#0D253F" />
+                    )}
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={styles.noResultsContainer}>
+                  <Text style={styles.noResultsText}>No results found</Text>
+                </View>
+              )}
             </ScrollView>
           </View>
         </TouchableOpacity>
@@ -131,14 +174,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 10,
     width: '80%',
-    maxHeight: '60%',
+    maxHeight: '70%',
     overflow: 'hidden',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
@@ -146,6 +190,29 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.lg,
     fontFamily: FONT_FAMILY.semiBold,
     color: '#0D253F',
+    flex: 1,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#f9f9f9',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#333',
+    padding: 0,
+  },
+  clearButton: {
+    padding: 4,
   },
   optionsList: {
     maxHeight: 300,
@@ -169,5 +236,15 @@ const styles = StyleSheet.create({
   selectedOptionText: {
     fontFamily: FONT_FAMILY.semiBold,
     color: '#0D253F',
+  },
+  noResultsContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noResultsText: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+    color: '#999',
   },
 });

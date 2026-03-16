@@ -1,21 +1,84 @@
-import { Ionicons } from '@expo/vector-icons';
-import React, { forwardRef, useImperativeHandle } from 'react';
+import FormDropdown, { FormDropdownOption } from '@components/common/FormDropdown';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
-const DesignMockup = forwardRef((props, ref) => {
+interface DesignMockupProps {
+  dropdownData?: {
+    placementMeasurements: FormDropdownOption[];
+    freebies: FormDropdownOption[];
+    loading?: boolean;
+  };
+}
+
+const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) => {
+  const [selectedPlacementMeasurement, setSelectedPlacementMeasurement] = useState('');
+  const [selectedFreebie, setSelectedFreebie] = useState('');
+  const [selectedPaymentPlan, setSelectedPaymentPlan] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+
+  // Use database data if available, otherwise fallback to static options
+  const placementMeasurementOptions: FormDropdownOption[] = dropdownData?.placementMeasurements || [
+    { label: 'Center Chest', value: 'center-chest' },
+    { label: 'Left Chest', value: 'left-chest' },
+    { label: 'Full Front', value: 'full-front' },
+    { label: 'Center Back', value: 'center-back' },
+    { label: 'Upper Back', value: 'upper-back' },
+    { label: 'Short Sleeve', value: 'short-sleeve' },
+    { label: 'Long Sleeve', value: 'long-sleeve' },
+    { label: 'Neck Label', value: 'neck-label' },
+    { label: 'Side Seam Label', value: 'side-seam-label' },
+    { label: 'Hem Label', value: 'hem-label' },
+  ];
+
+  const freebieOptions: FormDropdownOption[] = dropdownData?.freebies || [
+    { label: 'Tote Bag', value: 'tote-bag' },
+    { label: 'Stickers', value: 'stickers' },
+    { label: 'Keychain', value: 'keychain' },
+    { label: 'Pen', value: 'pen' },
+    { label: 'Notebook', value: 'notebook' },
+    { label: 'Mug', value: 'mug' },
+    { label: 'T-Shirt', value: 't-shirt' },
+    { label: 'Cap', value: 'cap' },
+  ];
+
+  const paymentPlanOptions: FormDropdownOption[] = [
+    { label: 'Full Payment', value: 'full-payment' },
+    { label: 'Down Payment', value: 'down-payment' },
+  ];
+
+  const paymentMethodOptions: FormDropdownOption[] = [
+    { label: 'Cash', value: 'cash' },
+    { label: 'Credit Card', value: 'credit-card' },
+    { label: 'Debit Card', value: 'debit-card' },
+    { label: 'Bank Transfer', value: 'bank-transfer' },
+    { label: 'GCash', value: 'gcash' },
+    { label: 'Maya', value: 'maya' },
+    { label: 'PayPal', value: 'paypal' },
+  ];
 
   useImperativeHandle(ref, () => ({
     clearFields: () => {
+      setSelectedPlacementMeasurement('');
+      setSelectedFreebie('');
+      setSelectedPaymentPlan('');
+      setSelectedPaymentMethod('');
       console.log("Fields cleared");
-    }
+    },
+    getData: () => ({
+      placementMeasurement: selectedPlacementMeasurement,
+      freebie: selectedFreebie,
+      paymentPlan: selectedPaymentPlan,
+      paymentMethod: selectedPaymentMethod,
+      notes: `Payment Plan: ${selectedPaymentPlan}, Payment Method: ${selectedPaymentMethod}, Placement: ${selectedPlacementMeasurement}, Freebie: ${selectedFreebie}`
+    })
   }));
 
   // Reusable component for the Upload & Preview boxes that repeat across the design
@@ -39,7 +102,7 @@ const DesignMockup = forwardRef((props, ref) => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.stepContainer}>
       <ScrollView 
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={styles.scrollContent}
@@ -59,10 +122,13 @@ const DesignMockup = forwardRef((props, ref) => {
 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Placement Measurements</Text>
-            <TouchableOpacity style={styles.dropdownInput} activeOpacity={0.7}>
-              <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Select Placement Measurements</Text>
-              <Ionicons name="chevron-down" size={14} color="#6B7280" />
-            </TouchableOpacity>
+            <FormDropdown
+              options={placementMeasurementOptions}
+              selectedValue={selectedPlacementMeasurement}
+              onSelect={setSelectedPlacementMeasurement}
+              placeholder={dropdownData?.loading ? "Loading..." : "Select Placement Measurements"}
+              showSearch={false}
+            />
             
             <TextInput 
               style={[styles.whiteInput, styles.textArea]} 
@@ -82,30 +148,32 @@ const DesignMockup = forwardRef((props, ref) => {
 
           <View style={styles.row}>
             <View style={styles.halfCol}>
-              <Text style={styles.labelBold}>Items</Text>
-              <TextInput 
-                style={styles.whiteInput} 
-                placeholder="Enter Items" 
-                placeholderTextColor="#9CA3AF"
+              <Text style={styles.labelBold}>Freebie</Text>
+              <FormDropdown
+                options={freebieOptions}
+                selectedValue={selectedFreebie}
+                onSelect={setSelectedFreebie}
+                placeholder={dropdownData?.loading ? "Loading..." : "Select other freebies"}
+                showSearch={false}
               />
             </View>
             <View style={styles.halfCol}>
-              <Text style={styles.labelBold}>Quantity</Text>
+              <Text style={styles.labelBold}>Color</Text>
               <TextInput 
                 style={styles.whiteInput} 
-                placeholder="Enter Quantity" 
+                placeholder="Enter freebie color" 
                 placeholderTextColor="#9CA3AF"
-                keyboardType="numeric"
               />
             </View>
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Others</Text>
-            <TouchableOpacity style={styles.dropdownInput} activeOpacity={0.7}>
-              <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Choose freebies package</Text>
-              <Ionicons name="chevron-down" size={14} color="#6B7280" />
-            </TouchableOpacity>
+            <TextInput 
+              style={styles.whiteInput} 
+              placeholder="Enter freebie items" 
+              placeholderTextColor="#9CA3AF"
+            />
           </View>
 
           {renderUploadSection("Freebies files")}
@@ -118,18 +186,24 @@ const DesignMockup = forwardRef((props, ref) => {
 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Payment Plan</Text>
-            <TouchableOpacity style={styles.dropdownInput} activeOpacity={0.7}>
-              <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Select Payment Plan</Text>
-              <Ionicons name="chevron-down" size={14} color="#6B7280" />
-            </TouchableOpacity>
+            <FormDropdown
+              options={paymentPlanOptions}
+              selectedValue={selectedPaymentPlan}
+              onSelect={setSelectedPaymentPlan}
+              placeholder="Select Payment Plan"
+              showSearch={false}
+            />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Payment Quantity</Text>
-            <TouchableOpacity style={styles.dropdownInput} activeOpacity={0.7}>
-              <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Select Payment Method</Text>
-              <Ionicons name="chevron-down" size={14} color="#6B7280" />
-            </TouchableOpacity>
+            <Text style={styles.labelBold}>Payment Method</Text>
+            <FormDropdown
+              options={paymentMethodOptions}
+              selectedValue={selectedPaymentMethod}
+              onSelect={setSelectedPaymentMethod}
+              placeholder="Select Payment Method"
+              showSearch={false}
+            />
           </View>
 
           <View style={styles.inputGroup}>
@@ -157,13 +231,15 @@ DesignMockup.displayName = 'DesignMockup';
 export default DesignMockup;
 
 const styles = StyleSheet.create({
+  stepContainer: {
+    padding: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
   scrollContent: {
     paddingHorizontal: 0, 
-    paddingTop: 16,
     },
   card: {
     backgroundColor: '#EBF6FF', 
