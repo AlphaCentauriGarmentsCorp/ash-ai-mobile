@@ -157,11 +157,6 @@ export default function PlacementMeasurementsListScreen() {
           </View>
           <Text style={styles.pageTitleText}>Placement Measurements</Text>
         </View>
-
-        <View style={styles.breadcrumbGroup}>
-          <Text style={styles.breadcrumbBold}>Home</Text>
-          <Text style={styles.breadcrumbNormal}> / Dropdown Settings / Placement Measurements</Text>
-        </View>
       </View>
 
       <ScrollView 
@@ -241,20 +236,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
     color: '#0D253F',
-  },
-  breadcrumbGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  breadcrumbBold: {
-    fontSize: 14,
-    fontFamily: 'Poppins_700Bold',
-    color: '#001C34',
-  },
-  breadcrumbNormal: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#001C34',
   },
   actionButtonsRow: {
     flexDirection: 'row',

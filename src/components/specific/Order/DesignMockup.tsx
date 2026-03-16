@@ -10,20 +10,54 @@ import {
     View
 } from 'react-native';
 
+// Import payment control system
+import { DEFAULT_DEPOSIT_PERCENTAGE, paymentMethodOptions, paymentPlanOptions } from '@constants/paymentOptions';
+
 interface DesignMockupProps {
   dropdownData?: {
     placementMeasurements: FormDropdownOption[];
     freebies: FormDropdownOption[];
     loading?: boolean;
   };
+  orderSummary?: {
+    totalAmount: number;
+    estimatedTotal: string;
+    remainingBalance: number;
+  };
 }
 
-const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) => {
+const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSummary }, ref) => {
   const [selectedPlacementMeasurement, setSelectedPlacementMeasurement] = useState('');
   const [selectedFreebie, setSelectedFreebie] = useState('');
   const [selectedPaymentPlan, setSelectedPaymentPlan] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [depositPercentage, setDepositPercentage] = useState(DEFAULT_DEPOSIT_PERCENTAGE);
+  const [freebieColor, setFreebieColor] = useState('');
+  const [freebieOthers, setFreebieOthers] = useState('');
+  const [placementNotes, setPlacementNotes] = useState('');
 
+  // Payment control calculations
+  const totalAmount = orderSummary?.totalAmount || 0;
+  const depositAmount = (totalAmount * depositPercentage) / 100;
+  const remainingBalance = totalAmount - depositAmount;
+
+  // Special handler for deposit percentage with validation
+  const handleDepositPercentageChange = useCallback((value: string) => {
+    // Ensure percentage is between 0-100
+    const percentage = Math.min(100, Math.max(0, parseFloat(value) || 0));
+    setDepositPercentage(percentage);
+  }, []);
+
+  // Convert payment options to FormDropdown format
+  const paymentPlanFormOptions: FormDropdownOption[] = paymentPlanOptions.map(option => ({
+    label: option.label,
+    value: option.value
+  }));
+
+  const paymentMethodFormOptions: FormDropdownOption[] = paymentMethodOptions.map(option => ({
+    label: option.label,
+    value: option.value
+  }));
   // Use database data if available, otherwise fallback to static options
   const placementMeasurementOptions: FormDropdownOption[] = dropdownData?.placementMeasurements || [
     { label: 'Center Chest', value: 'center-chest' },
@@ -49,34 +83,37 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
     { label: 'Cap', value: 'cap' },
   ];
 
-  const paymentPlanOptions: FormDropdownOption[] = [
-    { label: 'Full Payment', value: 'full-payment' },
-    { label: 'Down Payment', value: 'down-payment' },
-  ];
-
-  const paymentMethodOptions: FormDropdownOption[] = [
-    { label: 'Cash', value: 'cash' },
-    { label: 'Credit Card', value: 'credit-card' },
-    { label: 'Debit Card', value: 'debit-card' },
-    { label: 'Bank Transfer', value: 'bank-transfer' },
-    { label: 'GCash', value: 'gcash' },
-    { label: 'Maya', value: 'maya' },
-    { label: 'PayPal', value: 'paypal' },
-  ];
-
   useImperativeHandle(ref, () => ({
     clearFields: () => {
       setSelectedPlacementMeasurement('');
       setSelectedFreebie('');
       setSelectedPaymentPlan('');
       setSelectedPaymentMethod('');
+      setDepositPercentage(DEFAULT_DEPOSIT_PERCENTAGE);
+      setFreebieColor('');
+      setFreebieOthers('');
+      setPlacementNotes('');
       console.log("Fields cleared");
     },
     getData: () => ({
+      // Placement and freebies
       placementMeasurement: selectedPlacementMeasurement,
+      placementNotes: placementNotes,
       freebie: selectedFreebie,
+      freebieColor: freebieColor,
+      freebieOthers: freebieOthers,
+      
+      // Payment control data following the architecture
       paymentPlan: selectedPaymentPlan,
       paymentMethod: selectedPaymentMethod,
+      depositPercentage: depositPercentage,
+      estimatedTotal: totalAmount,
+      
+      // Calculated payment values
+      depositAmount: depositAmount,
+      remainingBalance: remainingBalance,
+      
+      // Notes for submission
       notes: `Payment Plan: ${selectedPaymentPlan}, Payment Method: ${selectedPaymentMethod}, Placement: ${selectedPlacementMeasurement}, Freebie: ${selectedFreebie}`
     })
   }));
@@ -132,11 +169,13 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
             
             <TextInput 
               style={[styles.whiteInput, styles.textArea]} 
-              placeholder="Enter notes here..." 
+              placeholder="Enter placement notes here..." 
               placeholderTextColor="#9CA3AF"
               multiline={true}
               numberOfLines={5}
               textAlignVertical="top"
+              value={placementNotes}
+              onChangeText={setPlacementNotes}
             />
           </View>
 
@@ -163,6 +202,8 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
                 style={styles.whiteInput} 
                 placeholder="Enter freebie color" 
                 placeholderTextColor="#9CA3AF"
+                value={freebieColor}
+                onChangeText={setFreebieColor}
               />
             </View>
           </View>
@@ -171,8 +212,10 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
             <Text style={styles.labelBold}>Others</Text>
             <TextInput 
               style={styles.whiteInput} 
-              placeholder="Enter freebie items" 
+              placeholder="Enter other freebie items" 
               placeholderTextColor="#9CA3AF"
+              value={freebieOthers}
+              onChangeText={setFreebieOthers}
             />
           </View>
 
@@ -187,7 +230,7 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Payment Plan</Text>
             <FormDropdown
-              options={paymentPlanOptions}
+              options={paymentPlanFormOptions}
               selectedValue={selectedPaymentPlan}
               onSelect={setSelectedPaymentPlan}
               placeholder="Select Payment Plan"
@@ -198,7 +241,7 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Payment Method</Text>
             <FormDropdown
-              options={paymentMethodOptions}
+              options={paymentMethodFormOptions}
               selectedValue={selectedPaymentMethod}
               onSelect={setSelectedPaymentMethod}
               placeholder="Select Payment Method"
@@ -206,11 +249,49 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData }, ref) 
             />
           </View>
 
+          {/* Conditional rendering based on payment plan */}
+          {selectedPaymentPlan === "downpayment" && (
+            <>
+              <View style={styles.inputGroup}>
+                <Text style={styles.labelBold}>Deposit %</Text>
+                <TextInput 
+                  style={styles.whiteInput} 
+                  placeholder="Enter deposit percentage (0-100)" 
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="numeric"
+                  value={depositPercentage.toString()}
+                  onChangeText={handleDepositPercentageChange}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.labelBold}>Deposit Amount</Text>
+                <TextInput 
+                  style={styles.blueInputFull} 
+                  editable={false} 
+                  value={`₱${depositAmount.toFixed(2)}`}
+                  placeholderTextColor="#1F2937" 
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.labelBold}>Remaining Balance</Text>
+                <TextInput 
+                  style={styles.blueInputFull} 
+                  editable={false} 
+                  value={`₱${remainingBalance.toFixed(2)}`}
+                  placeholderTextColor="#1F2937" 
+                />
+              </View>
+            </>
+          )}
+
           <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Total</Text>
+            <Text style={styles.labelBold}>Estimated Total</Text>
             <TextInput 
               style={styles.blueInputFull} 
               editable={false} 
+              value={`₱${totalAmount.toFixed(2)}`}
               placeholder="Estimated Total of Product" 
               placeholderTextColor="#1F2937" 
             />

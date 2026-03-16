@@ -137,7 +137,6 @@ function NewAccountScreenContent() {
         
         <PageHeader 
           title="Add Account" 
-          breadcrumb="Home / Add Accounts"
         />
 
         <Stepper

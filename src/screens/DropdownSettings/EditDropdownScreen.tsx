@@ -1,12 +1,12 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -50,8 +50,6 @@ export default function EditDropdownScreen() {
         
         <PageHeader 
           title={`Edit ${formattedCategory}`}
-          breadcrumbBold={`Home / ${formattedCategory}`}
-          breadcrumbNormal=" / Edit"
         />
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

@@ -275,7 +275,7 @@ export default function OrderListScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#0a2540" />
 
       <Header />
-      <PageTitle title="Orders" icon="people-outline" breadcrumb="Daily Operations / Orders" />
+      <PageTitle title="Orders" icon="people-outline" />
 
       <View style={styles.contentContainer}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>

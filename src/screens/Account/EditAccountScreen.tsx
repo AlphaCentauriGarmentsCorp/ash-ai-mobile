@@ -186,7 +186,6 @@ function EditAccountScreenContent() {
         
         <PageHeader 
           title="Edit Account" 
-          breadcrumb="Home / Edit Account"
         />
 
         <Stepper
