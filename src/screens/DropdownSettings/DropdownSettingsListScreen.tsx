@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -99,11 +99,6 @@ export default function DropdownSettingsListScreen() {
           </View>
           <Text style={styles.pageTitleText}>{category}</Text>
         </View>
-
-        <View style={styles.breadcrumbGroup}>
-          <Text style={styles.breadcrumbBold}>Home</Text>
-          <Text style={styles.breadcrumbNormal}> / {category}</Text>
-        </View>
       </View>
 
       <ScrollView style={styles.contentContainer}>
@@ -179,20 +174,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
     color: '#0D253F',
-  },
-  breadcrumbGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  breadcrumbBold: {
-    fontSize: 14,
-    fontFamily: 'Poppins_700Bold',
-    color: '#001C34',
-  },
-  breadcrumbNormal: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#001C34',
   },
   actionButtonsRow: {
     flexDirection: 'row',

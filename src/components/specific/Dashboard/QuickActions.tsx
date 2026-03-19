@@ -41,6 +41,7 @@ export default function QuickActions() {
   const quickActions: QuickActionItem[] = [
     { id: 'orders', title: 'View\nOrders', icon: 'receipt-outline', route: '/order' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    { id: 'scanner', title: 'Scanner', icon: 'scan-outline', route: '/scanner' },
     { id: 'payroll', title: 'Payroll', icon: 'card-outline', route: '' },
     { id: 'finance', title: 'Finance', icon: 'calculator-outline', route: '' },
   ];

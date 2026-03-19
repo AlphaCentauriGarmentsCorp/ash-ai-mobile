@@ -120,8 +120,6 @@ export default function ViewClientScreen() {
         <Stack.Screen options={{ headerShown: false }} />
         <PageHeader 
           title="View Client" 
-          breadcrumbBold="Home" 
-          breadcrumbNormal=" / View Client"
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0D253F" />
@@ -137,8 +135,6 @@ export default function ViewClientScreen() {
       
       <PageHeader 
         title="View Client" 
-        breadcrumbBold="Home" 
-        breadcrumbNormal=" / View Client"
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>

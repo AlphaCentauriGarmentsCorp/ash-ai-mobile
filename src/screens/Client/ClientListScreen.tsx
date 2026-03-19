@@ -2,19 +2,19 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Image,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    Image,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -350,11 +350,6 @@ export default function ClientListScreen() {
           </View>
           <Text style={styles.pageTitleText}>Clients</Text>
         </View>
-
-        <View style={styles.breadcrumbGroup}>
-          <Text style={styles.breadcrumbBold}>Home</Text>
-          <Text style={styles.breadcrumbNormal}> / Clients</Text>
-        </View>
       </View>
 
       <ScrollView 
@@ -530,20 +525,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
     color: '#0D253F',
-  },
-  breadcrumbGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  breadcrumbBold: {
-    fontSize: 14,
-    fontFamily: 'Poppins_700Bold',
-    color: '#001C34',
-  },
-  breadcrumbNormal: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#001C34', 
   },
   actionButtonsRow: {
     flexDirection: 'row',

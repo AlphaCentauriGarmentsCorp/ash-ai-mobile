@@ -106,11 +106,6 @@ export default function AddPrintMethodScreen() {
           </View>
           <Text style={styles.pageTitleText}>Add Print Method</Text>
         </View>
-
-        <View style={styles.breadcrumbGroup}>
-          <Text style={styles.breadcrumbBold}>Home</Text>
-          <Text style={styles.breadcrumbNormal}> / Dropdown Settings / Print Methods / Add</Text>
-        </View>
       </View>
 
       <ScrollView style={styles.contentContainer}>
@@ -196,20 +191,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
     color: '#0D253F',
-  },
-  breadcrumbGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  breadcrumbBold: {
-    fontSize: 14,
-    fontFamily: 'Poppins_700Bold',
-    color: '#001C34',
-  },
-  breadcrumbNormal: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#001C34',
   },
   formContainer: {
     padding: SPACING.lg,

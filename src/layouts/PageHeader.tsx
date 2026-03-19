@@ -6,12 +6,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface PageHeaderProps {
   title: string;
-  breadcrumbBold: string;
-  breadcrumbNormal: string;
   onBackPress?: () => void;
 }
 
-export default function PageHeader({ title, breadcrumbBold, breadcrumbNormal, onBackPress }: PageHeaderProps) {
+export default function PageHeader({ title, onBackPress }: PageHeaderProps) {
   const router = useRouter();
 
   const handleBackPress = () => {
@@ -32,9 +30,6 @@ export default function PageHeader({ title, breadcrumbBold, breadcrumbNormal, on
         <Ionicons name="chevron-back" size={24} color="#FFF" />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{title}</Text>
-      <Text style={styles.breadcrumbBold}>{breadcrumbBold}</Text>
-    <Text style={styles.breadcrumbNormal}>{breadcrumbNormal}</Text>
-
     </View>
   );
 }
@@ -46,7 +41,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    justifyContent: 'space-between',
   },
   backButton: {
     backgroundColor: 'transparent',
@@ -57,15 +51,5 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.bold,
     marginLeft: 10,
     flex: 1,
-  },
-  breadcrumbBold: {
-    fontSize: 10,
-    fontFamily: 'Poppins_700Bold',
-    color: '#ffffff',
-  },
-  breadcrumbNormal: {
-    fontSize: 10,
-    fontFamily: 'Poppins_300',
-    color: '#ffffff', // Slate-500 equivalent
   },
 });

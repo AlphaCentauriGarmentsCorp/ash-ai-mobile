@@ -617,6 +617,11 @@ export default function AddOrderScreen() {
   const [selectedAdditionalOption, setSelectedAdditionalOption] = useState('');
   const [requestedDeadline, setRequestedDeadline] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
+  const [orderSummary, setOrderSummary] = useState({
+    totalAmount: 0,
+    estimatedTotal: "0.00",
+    remainingBalance: 0
+  });
   
   // Additional form fields state
   const [preferredCourier, setPreferredCourier] = useState('');
@@ -1028,8 +1033,6 @@ export default function AddOrderScreen() {
         
         <PageHeader 
           title="Add New Order" 
-          breadcrumbBold= "Home" 
-          breadcrumbNormal=" / Add New Order"
         />
 
         <View style={styles.stepperWrapper}>
@@ -1121,7 +1124,10 @@ export default function AddOrderScreen() {
               />
             </View>
             <View style={currentStep === 1 ? styles.stepVisible : styles.stepHidden}>
-              <PrintArea ref={printAreaRef} />
+              <PrintArea 
+                ref={printAreaRef} 
+                onSummaryChange={(summary) => setOrderSummary(summary)}
+              />
             </View>
             <View style={currentStep === 2 ? styles.stepVisible : styles.stepHidden}>
               <DesignMockup 
@@ -1130,6 +1136,11 @@ export default function AddOrderScreen() {
                   placementMeasurements: dropdownData.placementMeasurements,
                   freebies: dropdownData.freebies,
                   loading: dropdownData.loading
+                }}
+                orderSummary={{
+                  totalAmount: orderSummary.totalAmount,
+                  estimatedTotal: orderSummary.estimatedTotal,
+                  remainingBalance: orderSummary.remainingBalance
                 }}
               />
             </View>

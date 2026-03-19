@@ -10,14 +10,14 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -217,8 +217,6 @@ export default function EditClientScreen() {
         <Stack.Screen options={{ headerShown: false }} />
         <PageHeader 
           title="Edit Client" 
-          breadcrumbBold="Home" 
-          breadcrumbNormal=" / Edit Client"
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0D253F" />
@@ -234,8 +232,6 @@ export default function EditClientScreen() {
       
       <PageHeader 
         title="Edit Client" 
-        breadcrumbBold="Home" 
-        breadcrumbNormal=" / Edit Client"
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

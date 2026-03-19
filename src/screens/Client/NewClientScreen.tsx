@@ -10,13 +10,13 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -220,8 +220,6 @@ export default function NewClientScreen() {
       
       <PageHeader 
         title="Add Client" 
-        breadcrumbBold= "Home" 
-        breadcrumbNormal=" / Add Clients"
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>

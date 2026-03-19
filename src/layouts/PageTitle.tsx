@@ -19,10 +19,9 @@ const sizes = getResponsiveSizes();
 interface PageTitleProps {
   title: string;
   icon?: keyof typeof Ionicons.glyphMap;
-  breadcrumb?: string;
 }
 
-export default function PageTitle({ title, icon = 'stats-chart-outline', breadcrumb }: PageTitleProps) {
+export default function PageTitle({ title, icon = 'stats-chart-outline' }: PageTitleProps) {
   return (
     <View style={styles.container}>
       <View style={styles.leftSection}>
@@ -31,9 +30,6 @@ export default function PageTitle({ title, icon = 'stats-chart-outline', breadcr
         </View>
         <Text style={styles.title}>{title}</Text>
       </View>
-      {breadcrumb && (
-        <Text style={styles.breadcrumb}>{breadcrumb}</Text>
-      )}
     </View>
   );
 }
@@ -42,7 +38,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: 'white',
     paddingHorizontal: sizes.padding,
     paddingVertical: sizes.isSmallDevice ? 16 : 18,
@@ -68,10 +63,5 @@ const styles = StyleSheet.create({
     fontSize: sizes.titleFontSize,
     fontWeight: '600',
     color: '#333',
-  },
-  breadcrumb: {
-    fontSize: sizes.isSmallDevice ? 11 : 12,
-    color: '#666',
-    marginLeft: sizes.isSmallDevice ? 8 : 12,
   },
 });

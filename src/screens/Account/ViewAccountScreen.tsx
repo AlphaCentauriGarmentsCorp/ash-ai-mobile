@@ -59,7 +59,6 @@ function ViewAccountScreenContent() {
         
         <PageHeader 
           title="View Account" 
-          breadcrumb="Home / View Account"
         />
 
         <Stepper

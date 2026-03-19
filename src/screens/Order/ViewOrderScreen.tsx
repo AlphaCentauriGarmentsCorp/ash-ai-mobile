@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -430,7 +430,6 @@ export default function ViewOrderScreen() {
       <PageTitle 
         title="Order Details" 
         icon="document-text-outline" 
-        breadcrumb={`Home / Orders / ${po_code || ''}`}
       />
 
       <View style={styles.contentContainer}>
