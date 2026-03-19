@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Stack, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Animated,
     Dimensions,
     StatusBar,
     StyleSheet,
@@ -27,12 +28,37 @@ export default function ScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [flashEnabled, setFlashEnabled] = useState(false);
+  
+  // Animation for scanning line
+  const scanAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
       requestPermission();
     }
   }, [permission]);
+
+  // Start scanning animation
+  useEffect(() => {
+    if (!scanned) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scanAnimation, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scanAnimation, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+      return () => animation.stop();
+    }
+  }, [scanned]);
 
   const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
     if (scanned) return;
@@ -123,20 +149,6 @@ export default function ScannerScreen() {
           style={styles.camera}
           facing="back"
           enableTorch={flashEnabled}
-          barcodeScannerSettings={{
-            barcodeTypes: [
-              'qr',
-              'ean13',
-              'ean8',
-              'code128',
-              'code39',
-              'code93',
-              'upce',
-              'pdf417',
-              'aztec',
-              'datamatrix',
-            ],
-          }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         >
           {/* Overlay */}
@@ -158,10 +170,31 @@ export default function ScannerScreen() {
                 
                 {/* Scanning line animation */}
                 {!scanned && (
-                  <View style={styles.scanLineContainer}>
+                  <Animated.View
+                    style={[
+                      styles.scanLineContainer,
+                      {
+                        transform: [
+                          {
+                            translateY: scanAnimation.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [0, SCREEN_WIDTH * 0.7 - 4],
+                            }),
+                          },
+                        ],
+                      },
+                    ]}
+                  >
                     <View style={styles.scanLine} />
-                  </View>
+                    <View style={styles.scanLineGlow} />
+                  </Animated.View>
                 )}
+                
+                {/* Grid overlay for better visual */}
+                <View style={styles.gridOverlay}>
+                  <View style={styles.gridLine} />
+                  <View style={styles.gridLine} />
+                </View>
               </View>
               
               <View style={styles.overlaySide} />
@@ -283,51 +316,79 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH * 0.7,
     height: SCREEN_WIDTH * 0.7,
     position: 'relative',
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   corner: {
     position: 'absolute',
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderColor: '#3B82F6',
+    borderRadius: 4,
   },
   cornerTopLeft: {
-    top: 0,
-    left: 0,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
+    top: -2,
+    left: -2,
+    borderTopWidth: 6,
+    borderLeftWidth: 6,
+    borderTopLeftRadius: 20,
   },
   cornerTopRight: {
-    top: 0,
-    right: 0,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
+    top: -2,
+    right: -2,
+    borderTopWidth: 6,
+    borderRightWidth: 6,
+    borderTopRightRadius: 20,
   },
   cornerBottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
+    bottom: -2,
+    left: -2,
+    borderBottomWidth: 6,
+    borderLeftWidth: 6,
+    borderBottomLeftRadius: 20,
   },
   cornerBottomRight: {
-    bottom: 0,
-    right: 0,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
+    bottom: -2,
+    right: -2,
+    borderBottomWidth: 6,
+    borderRightWidth: 6,
+    borderBottomRightRadius: 20,
   },
   scanLineContainer: {
     position: 'absolute',
-    top: '50%',
+    top: 0,
     left: 0,
     right: 0,
-    height: 2,
+    height: 4,
+    alignItems: 'center',
   },
   scanLine: {
-    height: 2,
+    width: '100%',
+    height: 3,
     backgroundColor: '#3B82F6',
+  },
+  scanLineGlow: {
+    position: 'absolute',
+    width: '100%',
+    height: 20,
+    backgroundColor: '#3B82F6',
+    opacity: 0.3,
     shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
+    shadowOpacity: 1,
+    shadowRadius: 10,
+  },
+  gridOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'space-evenly',
+  },
+  gridLine: {
+    height: 1,
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
   },
   overlayBottom: {
     flex: 1,
