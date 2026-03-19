@@ -46,7 +46,13 @@ module.exports = {
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera to scan QR codes and barcodes."
+        }
+      ]
     ],
     experiments: {
       typedRoutes: true,
