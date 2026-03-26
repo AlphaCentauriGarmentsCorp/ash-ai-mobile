@@ -110,6 +110,17 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         { id: 'size-label', title: 'Size Labels', route: '/dropdown-settings/size-label' },
       ]
     },
+    // --- ADDED MATERIAL SUPPLIERS TAB HERE ---
+    { 
+      id: 'material-suppliers', 
+      title: 'Material Suppliers', 
+      icon: 'person-circle-outline',
+      subItems: [
+        { id: 'add-supplier', title: 'Add Supplier', route: '/material-suppliers/add' },
+        { id: 'all-suppliers', title: 'All Suppliers', route: '/material-suppliers/all' },
+        { id: 'all-materials', title: 'All Materials', route: '/material-suppliers/materials' },
+      ]
+    },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },

@@ -8,6 +8,7 @@ export { default as API_CONFIG } from './config';
 export { dropdownsApi, type DropdownOption } from './dropdowns';
 export { dropdownSettingsApi, type CreateDropdownSettingRequest, type DropdownSetting, type DropdownSettingType, type UpdateDropdownSettingRequest } from './dropdownSettings';
 export { freebiesApi, type CreateFreebieRequest, type Freebie, type UpdateFreebieRequest } from './freebies';
+export { materialApi, supplierApi, type CreateSupplierRequest, type Material, type Supplier } from './materialSuppliers';
 export { orderApi } from './order';
 export { patternTypeApi, type CreatePatternTypeRequest, type PatternType, type UpdatePatternTypeRequest } from './patternType';
 export { placementMeasurementApi, type CreatePlacementMeasurementRequest, type PlacementMeasurement, type UpdatePlacementMeasurementRequest } from './placementMeasurement';
