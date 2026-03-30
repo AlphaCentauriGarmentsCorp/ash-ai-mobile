@@ -34,15 +34,37 @@ export interface Material {
   id: number;
   material_type: string;
   name: string;
-  supplier_name: string;
-  finishing: string;
-  unit_price: string;
-  status: string;
+  supplier_id: number;
+  supplier_name?: string;
+  supplier?: {
+    id: number;
+    name: string;
+    code_name: string;
+  };
+  price: string;
+  unit: string;
+  minimum?: string;
+  lead?: string;
+  notes?: string;
+  finishing?: string;
+  unit_price?: string;
+  status?: string;
   address?: string;
   created_at?: string;
 }
 
-const SUPPLIERS = '/suppliers';
+export interface CreateMaterialRequest {
+  supplier_id: number;
+  name: string;
+  material_type: string;
+  unit: string;
+  price: string;
+  minimum?: string;
+  lead?: string;
+  notes?: string;
+}
+
+const SUPPLIERS = '/supplier';
 const MATERIALS = '/materials';
 
 export const supplierApi = {
@@ -65,4 +87,19 @@ export const supplierApi = {
 export const materialApi = {
   getAll: async (params?: { page?: number; per_page?: number; search?: string }): Promise<PaginatedResponse<Material>> =>
     apiClient.get(MATERIALS, { params }),
+
+  store: async (data: CreateMaterialRequest): Promise<ApiResponse<Material>> =>
+    apiClient.post(MATERIALS, data),
+
+  show: async (id: number): Promise<ApiResponse<Material>> =>
+    apiClient.get(`${MATERIALS}/${id}`),
+
+  update: async (id: number, data: Partial<CreateMaterialRequest>): Promise<ApiResponse<Material>> =>
+    apiClient.put(`${MATERIALS}/${id}`, data),
+
+  delete: async (id: number): Promise<ApiResponse<void>> =>
+    apiClient.delete(`${MATERIALS}/${id}`),
+
+  getBySupplier: async (supplierId: number): Promise<ApiResponse<Material[]>> =>
+    apiClient.get(`${MATERIALS}/${supplierId}/supplier`),
 };

@@ -68,9 +68,25 @@ export default function ScannerScreen() {
     // Check if it's a PO code format (e.g., ASH-2026-000001)
     const poCodePattern = /^[A-Z]+-\d{4}-\d{6}$/;
     
+    // Check if it's an equipment code (e.g., EQP-0001, EQP-1234)
+    const equipmentCodePattern = /^EQP-\d+$/i;
+    
+    // Check if it's a pure numeric equipment ID
+    const equipmentIdPattern = /^\d+$/;
+    
     if (poCodePattern.test(data)) {
       // Navigate to order details
+      console.log('Navigating to order:', `/order/view?po_code=${data}`);
       router.push(`/order/view?po_code=${data}`);
+    } else if (equipmentCodePattern.test(data)) {
+      // Extract the numeric ID from equipment code (EQP-0001 -> 1)
+      const equipmentId = data.split('-')[1].replace(/^0+/, '') || '1';
+      console.log('Navigating to equipment with ID:', equipmentId);
+      router.push({ pathname: "/inventory/equipment/view", params: { id: equipmentId } });
+    } else if (equipmentIdPattern.test(data)) {
+      // Navigate to equipment details with numeric ID
+      console.log('Navigating to equipment with ID:', data);
+      router.push({ pathname: "/inventory/equipment/view", params: { id: data } });
     } else {
       // Show the scanned data
       Alert.alert(

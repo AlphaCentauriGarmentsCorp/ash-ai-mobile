@@ -3,47 +3,86 @@ import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supplierApi, type CreateSupplierRequest } from '@api/materialSuppliers';
 
-export default function AddSupplierScreen() {
+export default function EditSupplierScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const fontsLoaded = usePoppinsFonts();
 
-  const [name, setName] = useState('');
+  const supplierId = params.id?.toString();
+
+  const [codeName, setCodeName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [email, setEmail] = useState('');
-  const [streetAddress, setStreetAddress] = useState('');
+  const [street, setStreet] = useState('');
   const [province, setProvince] = useState('');
   const [barangay, setBarangay] = useState('');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [notes, setNotes] = useState('');
   
-  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (supplierId) {
+      fetchSupplierData();
+    } else {
+      Alert.alert('Error', 'Supplier ID is missing');
+      router.back();
+    }
+  }, [supplierId]);
+
+  const fetchSupplierData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await supplierApi.show(Number(supplierId));
+      
+      const supplier = (response as any).data || response;
+      
+      setCodeName(supplier.code_name || '');
+      setContactPerson(supplier.contact_person || '');
+      setContactNumber(supplier.contact_information || '');
+      setEmail(supplier.email || '');
+      setStreet(supplier.street || '');
+      setProvince(supplier.province || '');
+      setBarangay(supplier.barangay || '');
+      setCity(supplier.city || '');
+      setPostalCode(supplier.postal_code || '');
+      setNotes(supplier.notes || '');
+      
+    } catch (error: any) {
+      console.error('Error fetching supplier:', error);
+      Alert.alert('Error', 'Failed to load supplier data');
+      router.back();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!name.trim()) newErrors.name = 'Name is required';
+    if (!codeName.trim()) newErrors.code_name = 'Code name is required';
     if (!contactPerson.trim()) newErrors.contact_person = 'Contact person is required';
-    if (!contactNumber.trim()) newErrors.contact_number = 'Contact number is required';
-    else if (contactNumber.length < 10) newErrors.contact_number = 'Contact number must be at least 10 digits';
+    if (!contactNumber.trim()) newErrors.contact_information = 'Contact number is required';
+    else if (contactNumber.length < 10) newErrors.contact_information = 'Contact number must be at least 10 digits';
     if (!email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email format';
 
@@ -61,12 +100,12 @@ export default function AddSupplierScreen() {
     setErrors({});
 
     try {
-      const supplierData: CreateSupplierRequest = {
-        name: name.trim(),
+      const supplierData: Partial<CreateSupplierRequest> = {
+        code_name: codeName.trim(),
         contact_person: contactPerson.trim(),
-        contact_number: contactNumber.trim(),
+        contact_information: contactNumber.trim(),
         email: email.trim(),
-        street_address: streetAddress.trim(),
+        street: street.trim(),
         province: province.trim(),
         barangay: barangay.trim(),
         city: city.trim(),
@@ -74,30 +113,27 @@ export default function AddSupplierScreen() {
         notes: notes.trim(),
       };
 
-      console.log('Submitting supplier data:', supplierData);
+      console.log('Updating supplier data:', supplierData);
       
-      const response = await supplierApi.store(supplierData);
+      await supplierApi.update(Number(supplierId), supplierData);
       
-      console.log('Supplier created successfully:', response);
-      Alert.alert('Success', 'Supplier created successfully', [
+      Alert.alert('Success', 'Supplier updated successfully', [
         {
           text: 'OK',
           onPress: () => router.back(),
         },
       ]);
     } catch (error: any) {
-      console.error('Error creating supplier:', error);
+      console.error('Error updating supplier:', error);
       
-      // Handle validation errors from API
       if (error.response?.data?.errors) {
         const apiErrors = error.response.data.errors;
         setErrors(apiErrors);
         
-        // Show first error message
         const firstError = Object.values(apiErrors)[0];
         Alert.alert('Validation Error', Array.isArray(firstError) ? firstError[0] : String(firstError));
       } else {
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to create supplier';
+        const errorMessage = error.response?.data?.message || error.message || 'Failed to update supplier';
         Alert.alert('Error', errorMessage);
       }
     } finally {
@@ -105,34 +141,28 @@ export default function AddSupplierScreen() {
     }
   };
 
-  const handleClearAll = () => {
-    setName('');
-    setContactPerson('');
-    setContactNumber('');
-    setEmail('');
-    setStreetAddress('');
-    setProvince('');
-    setBarangay('');
-    setCity('');
-    setPostalCode('');
-    setNotes('');
-    setErrors({});
-  };
-
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <PageHeader title="Edit Supplier" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0D253F" />
+          <Text style={styles.loadingText}>Loading supplier data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       
-      <PageHeader 
-        title="Add Supplier Form" 
-      />
+      <PageHeader title="Edit Supplier" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           
-          {/* Section: Supplier Form */}
           <Text style={styles.sectionTitle}>Supplier Form</Text>
           <View style={styles.divider} />
           
@@ -140,13 +170,13 @@ export default function AddSupplierScreen() {
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Code Name</Text>
               <TextInput 
-                style={[styles.input, errors.name && styles.inputError]} 
+                style={[styles.input, errors.code_name && styles.inputError]} 
                 placeholder="Enter Code Name"
-                value={name}
-                onChangeText={setName}
+                value={codeName}
+                onChangeText={setCodeName}
               />
-              {errors.name && (
-                <Text style={styles.errorText}>{errors.name}</Text>
+              {errors.code_name && (
+                <Text style={styles.errorText}>{errors.code_name}</Text>
               )}
             </View>
             <View style={styles.halfInputContainer}>
@@ -167,14 +197,14 @@ export default function AddSupplierScreen() {
             <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Contact Number</Text>
               <TextInput 
-                style={[styles.input, errors.contact_number && styles.inputError]} 
+                style={[styles.input, errors.contact_information && styles.inputError]} 
                 placeholder="Enter Contact Number" 
                 keyboardType="phone-pad"
                 value={contactNumber}
                 onChangeText={setContactNumber}
               />
-              {errors.contact_number && (
-                <Text style={styles.errorText}>{errors.contact_number}</Text>
+              {errors.contact_information && (
+                <Text style={styles.errorText}>{errors.contact_information}</Text>
               )}
             </View>
             <View style={styles.halfInputContainer}>
@@ -193,7 +223,6 @@ export default function AddSupplierScreen() {
             </View>
           </View>
 
-          {/* Section: Address */}
           <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Address</Text>
           <View style={styles.divider} />
 
@@ -202,8 +231,8 @@ export default function AddSupplierScreen() {
             <TextInput 
               style={styles.input} 
               placeholder="Enter Street"
-              value={streetAddress}
-              onChangeText={setStreetAddress}
+              value={street}
+              onChangeText={setStreet}
             />
           </View>
 
@@ -250,7 +279,6 @@ export default function AddSupplierScreen() {
             </View>
           </View>
 
-          {/* Section: Notes */}
           <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Notes</Text>
           <View style={styles.divider} />
           <TextInput 
@@ -265,12 +293,7 @@ export default function AddSupplierScreen() {
 
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClearAll}>
-            <Text style={styles.clearText}>Clear all fields</Text>
-          </TouchableOpacity>
-          
           <View style={styles.actionButtons}>
             <Button
               title="Cancel"
@@ -283,7 +306,7 @@ export default function AddSupplierScreen() {
             />
             
             <Button
-              title={isSubmitting ? "Saving..." : "Save"}
+              title={isSubmitting ? "Updating..." : "Update"}
               onPress={handleSubmit}
               variant="primary"
               size="base"
@@ -301,6 +324,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: wp(4),
+  },
+  loadingText: {
+    marginTop: hp(2),
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
   },
   scrollContent: {
     padding: wp(4),
@@ -367,16 +402,6 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: hp(3.1),
     marginBottom: hp(2.5),
-  },
-  clearButtonContainer: {
-    alignItems: 'flex-end',
-    marginBottom: hp(2.5),
-  },
-  clearText: {
-    color: '#4B5563',
-    textDecorationLine: 'underline',
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONT_FAMILY.regular,
   },
   actionButtons: {
     flexDirection: 'row',
