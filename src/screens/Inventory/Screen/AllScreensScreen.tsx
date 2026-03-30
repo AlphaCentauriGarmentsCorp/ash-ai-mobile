@@ -2,28 +2,26 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { supplierApi, type Supplier } from '@api/materialSuppliers';
+import { screenApi, type Screen } from '@api/screens';
 import Button from '@components/common/Button';
 import ConfirmModal from '@components/common/ConfirmModal';
 import type { Column } from '@components/common/DataTable';
 import DataTable from '@components/common/DataTable';
-import type { DropdownOption } from '@components/common/Dropdown';
-import Dropdown from '@components/common/Dropdown';
 import Pagination from '@components/common/Pagination';
 import SearchBar from '@components/common/SearchBar';
 import { usePoppinsFonts } from '@hooks';
@@ -109,7 +107,7 @@ const RowActionMenu = ({ onEdit, onView, onDelete }: RowActionMenuProps) => {
   );
 };
 
-export default function AllSuppliersScreen() {
+export default function AllScreensScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const fontsLoaded = usePoppinsFonts();
@@ -117,73 +115,63 @@ export default function AllSuppliersScreen() {
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(15);
-  const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const [allSuppliersFromAPI, setAllSuppliersFromAPI] = useState<Supplier[]>([]); 
+  const [allScreensFromAPI, setAllScreensFromAPI] = useState<Screen[]>([]); 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [selectedScreen, setSelectedScreen] = useState<Screen | null>(null);
 
-  // Client-side filtering
-  const filteredSuppliers = useMemo(() => {
-    if (!Array.isArray(allSuppliersFromAPI)) {
+  const filteredScreens = useMemo(() => {
+    if (!Array.isArray(allScreensFromAPI)) {
       return [];
     }
     
     if (!searchText.trim()) {
-      return allSuppliersFromAPI;
+      return allScreensFromAPI;
     }
 
     const searchLower = searchText.toLowerCase().trim();
-    return allSuppliersFromAPI.filter(supplier => {
-      if (supplier.code_name?.toLowerCase().includes(searchLower)) return true;
-      if (supplier.contact_person?.toLowerCase().includes(searchLower)) return true;
-      if (supplier.contact_information?.toLowerCase().includes(searchLower)) return true;
-      if (supplier.email?.toLowerCase().includes(searchLower)) return true;
+    return allScreensFromAPI.filter(screen => {
+      if (screen.name?.toLowerCase().includes(searchLower)) return true;
+      if (screen.address?.toLowerCase().includes(searchLower)) return true;
+      if (screen.size?.toLowerCase().includes(searchLower)) return true;
       return false;
     });
-  }, [allSuppliersFromAPI, searchText]);
+  }, [allScreensFromAPI, searchText]);
 
-  // Calculate pagination
-  const totalSuppliers = filteredSuppliers.length;
-  const totalPages = Math.ceil(totalSuppliers / entriesPerPage);
+  const totalScreens = filteredScreens.length;
+  const totalPages = Math.ceil(totalScreens / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
-  const currentSuppliers = filteredSuppliers.slice(startIndex, endIndex);
+  const currentScreens = filteredScreens.slice(startIndex, endIndex);
 
   useEffect(() => {
-    fetchSuppliers();
+    fetchScreens();
   }, []);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [entriesPerPage, searchText]);
 
-  const fetchSuppliers = async () => {
+  const fetchScreens = async () => {
     try {
       setLoading(true);
-      const response = await supplierApi.getAll({ page: 1, per_page: 9999 });
-      console.log('Suppliers response:', response);
+      const response = await screenApi.getAll({ page: 1, per_page: 9999 });
       
-      let suppliersArray: Supplier[] = [];
+      let screensArray: Screen[] = [];
       
       if (Array.isArray(response.data)) {
-        suppliersArray = response.data;
+        screensArray = response.data;
       } else if (Array.isArray(response)) {
-        suppliersArray = response;
-      } else {
-        console.error('Unexpected response structure:', response);
-        suppliersArray = [];
+        screensArray = response;
       }
       
-      console.log('Setting suppliers array with', suppliersArray.length, 'items');
-      setAllSuppliersFromAPI(suppliersArray);
+      setAllScreensFromAPI(screensArray);
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      setAllSuppliersFromAPI([]);
-      Alert.alert('Error', 'Failed to load suppliers. Please try again.');
+      console.error('Error fetching screens:', error);
+      setAllScreensFromAPI([]);
     } finally {
       setLoading(false);
     }
@@ -191,152 +179,121 @@ export default function AllSuppliersScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    try {
-      const response = await supplierApi.getAll({ page: 1, per_page: 9999 });
-      
-      let suppliersArray: Supplier[] = [];
-      
-      if (Array.isArray(response.data)) {
-        suppliersArray = response.data;
-      } else if (Array.isArray(response)) {
-        suppliersArray = response;
-      } else {
-        suppliersArray = [];
-      }
-      
-      setAllSuppliersFromAPI(suppliersArray);
-    } catch (error) {
-      console.error('Error refreshing suppliers:', error);
-      Alert.alert('Error', 'Failed to refresh suppliers');
-      setAllSuppliersFromAPI([]);
-    } finally {
-      setRefreshing(false);
-    }
+    await fetchScreens();
+    setRefreshing(false);
   };
 
-  const handleDeleteSupplier = async () => {
-    if (!selectedSupplier) return;
+  const handleDeleteScreen = (screen: Screen) => {
+    setSelectedScreen(screen);
+    setRemoveModalVisible(true);
+  };
+
+  const confirmDeleteScreen = async () => {
+    if (!selectedScreen) return;
     try {
-      console.log('Deleting supplier:', selectedSupplier.id);
-      await supplierApi.delete(selectedSupplier.id);
+      await screenApi.delete(selectedScreen.id);
       setRemoveModalVisible(false);
-      setSelectedSupplier(null);
-      Alert.alert('Success', 'Supplier deleted successfully');
-      fetchSuppliers(); 
+      setSelectedScreen(null);
+      Alert.alert('Success', 'Screen deleted successfully');
+      fetchScreens(); 
     } catch (error: any) {
-      console.error('Error deleting supplier:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete supplier';
+      console.error('Error deleting screen:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete screen';
       Alert.alert('Error', errorMessage);
     }
   };
 
-  const handleEntriesChange = (value: number) => {
-    setEntriesPerPage(value);
-  };
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  const filterOptions: DropdownOption[] = [
-    { label: 'All Clients', value: 'all' },
-    { label: 'Active', value: 'active' },
-    { label: 'Inactive', value: 'inactive' },
-  ];
-
   const columns: Column[] = useMemo(() => [
     { 
-      key: 'code_name', 
-      header: 'Code Name', 
-      width: 120, 
-      sortable: true,
-      render: (value: any) => (
-        <Text style={styles.cellText} numberOfLines={1}>
-          {value || 'N/A'}
-        </Text>
-      )
-    },
-    { 
-      key: 'contact_person', 
-      header: 'Contact Person', 
-      width: 120, 
-      sortable: true,
-      render: (value: any) => (
-        <Text style={styles.cellText} numberOfLines={1}>
-          {value || 'N/A'}
-        </Text>
-      )
-    },
-    { 
-      key: 'contact_information', 
-      header: 'Contact Number', 
-      width: 130, 
-      sortable: true,
-      render: (value: any) => (
-        <Text style={styles.cellText} numberOfLines={1}>
-          {value || 'N/A'}
-        </Text>
-      )
-    },
-    { 
-      key: 'email', 
-      header: 'Email', 
+      key: 'name', 
+      header: 'Design Name', 
       width: 180, 
       sortable: true,
-      render: (value: any) => (
-        <Text style={styles.cellText} numberOfLines={1}>
-          {value || 'N/A'}
-        </Text>
-      )
-    },
-    {
-      key: 'address',
-      header: 'Address',
-      width: 200,
-      sortable: false,
-      render: (_value: any, item: Supplier) => {
-        const address = [item.street, item.barangay, item.city, item.province]
-          .filter(Boolean)
-          .join(', ');
-        return (
-          <Text style={styles.cellText} numberOfLines={2}>
-            {address || 'N/A'}
-          </Text>
-        );
-      }
-    },
-    {
-      key: 'notes',
-      header: 'Notes',
-      width: 150,
-      sortable: false,
       render: (value: any) => (
         <Text style={styles.cellText} numberOfLines={2}>
           {value || 'N/A'}
         </Text>
       )
     },
+    { 
+      key: 'address', 
+      header: 'Address', 
+      width: 150, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={styles.cellText} numberOfLines={2}>
+          {value || 'N/A'}
+        </Text>
+      )
+    },
+    { 
+      key: 'size', 
+      header: 'Size', 
+      width: 100, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={styles.cellText} numberOfLines={1}>
+          {value || 'N/A'}
+        </Text>
+      )
+    },
+    { 
+      key: 'mesh_count', 
+      header: 'Mesh Count', 
+      width: 100, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={[styles.cellText, styles.centerText]}>
+          {value || 'N/A'}
+        </Text>
+      )
+    },
+    { 
+      key: 'total_use', 
+      header: 'Total Use', 
+      width: 90, 
+      sortable: true,
+      render: (value: any) => (
+        <Text style={[styles.cellText, styles.centerText]}>
+          {value || '0'}
+        </Text>
+      )
+    },
+    { 
+      key: 'status', 
+      header: 'Status', 
+      width: 100, 
+      sortable: true,
+      render: (value: any) => {
+        const status = value || 'Active';
+        const bgColor = status.toLowerCase() === 'active' ? '#D1FAE5' : '#FEE2E2';
+        const textColor = status.toLowerCase() === 'active' ? '#065F46' : '#991B1B';
+        
+        return (
+          <View style={[styles.statusBadge, { backgroundColor: bgColor }]}>
+            <Text style={[styles.statusText, { color: textColor }]} numberOfLines={1}>
+              {status}
+            </Text>
+          </View>
+        );
+      }
+    },
     {
       key: 'action',
       header: '',
       width: 60,
       sortable: false,
-      render: (_value: any, item: Supplier) => {
+      render: (_value: any, item: Screen) => {
         return (
           <RowActionMenu 
-            onEdit={() => router.push({ pathname: "/material-suppliers/edit", params: { id: item.id } })}
-            onView={() => router.push({ pathname: "/material-suppliers/view", params: { id: item.id } })}
-            onDelete={() => {
-              setSelectedSupplier(item);
-              setRemoveModalVisible(true);
-            }}
+            onEdit={() => router.push({ pathname: "/inventory/screen/edit", params: { id: item.id } })}
+            onView={() => router.push({ pathname: "/inventory/screen/view", params: { id: item.id } })}
+            onDelete={() => handleDeleteScreen(item)}
           />
         );
       },
     },
-  ], [currentSuppliers.length]);
+  ], [currentScreens.length]);
 
   if (!fontsLoaded) return null;
 
@@ -352,9 +309,9 @@ export default function AllSuppliersScreen() {
       <View style={styles.pageTitleContainer}>
         <View style={styles.titleLeftGroup}>
           <View style={styles.iconCircleWrapper}>
-            <Ionicons name="person-circle-outline" size={24} color="#0D253F" />
+            <Ionicons name="grid-outline" size={24} color="#0D253F" />
           </View>
-          <Text style={styles.pageTitleText}>Supplier</Text>
+          <Text style={styles.pageTitleText}>Screen Inventory</Text>
         </View>
       </View>
 
@@ -371,8 +328,8 @@ export default function AllSuppliersScreen() {
       >
         <View style={styles.actionButtonsRow}>
           <Button
-            title="Add Supplier"
-            onPress={() => router.push('/material-suppliers/add')}
+            title="Add Screen"
+            onPress={() => router.push('/inventory/screen/add')}
             variant="primary"
             size="base"
             icon="add-circle-outline"
@@ -383,48 +340,34 @@ export default function AllSuppliersScreen() {
         <SearchBar
           value={searchText}
           onChangeText={setSearchText}
-          placeholder="Search by client name, brand..."
+          placeholder="Search screens..."
         />
-
-        <View style={styles.listControlRow}>
-          <Text style={styles.listTitle}>List</Text>
-          <View style={styles.filterContainer}>
-            <Ionicons name="funnel" size={14} color="#001C34" />
-            <Text style={styles.filterText}>Filter:</Text>
-            <Dropdown
-              options={filterOptions}
-              selectedValue={selectedFilter}
-              onSelect={setSelectedFilter}
-              placeholder="All Clients"
-            />
-          </View>
-        </View>
 
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0D253F" />
-            <Text style={styles.loadingText}>Loading suppliers...</Text>
+            <Text style={styles.loadingText}>Loading screens...</Text>
           </View>
-        ) : filteredSuppliers.length === 0 ? (
+        ) : filteredScreens.length === 0 ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>
-              {searchText.trim() ? 'No suppliers found matching your search.' : 'No suppliers available.'}
+              {searchText.trim() ? 'No screens found matching your search.' : 'No screens available.'}
             </Text>
           </View>
         ) : (
           <View style={{ paddingBottom: 150, zIndex: 1 }}> 
             <DataTable 
               columns={columns} 
-              data={currentSuppliers} 
+              data={currentScreens} 
             />
 
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               entriesPerPage={entriesPerPage}
-              totalEntries={totalSuppliers}
-              onPageChange={handlePageChange}
-              onEntriesChange={handleEntriesChange}
+              totalEntries={totalScreens}
+              onPageChange={setCurrentPage}
+              onEntriesChange={setEntriesPerPage}
             />
           </View>
         )}
@@ -435,11 +378,11 @@ export default function AllSuppliersScreen() {
       <ConfirmModal
         visible={removeModalVisible}
         onClose={() => setRemoveModalVisible(false)}
-        onConfirm={handleDeleteSupplier}
-        title="Remove Supplier?"
-        message={`Are you sure you want to remove ${selectedSupplier ? selectedSupplier.code_name : 'this supplier'}? This action cannot be undone.`}
-        confirmText="Remove Supplier"
-        highlightText={selectedSupplier ? selectedSupplier.code_name : ''}
+        onConfirm={confirmDeleteScreen}
+        title="Remove Screen?"
+        message={`Are you sure you want to remove ${selectedScreen ? selectedScreen.name || 'this screen' : 'this screen'}? This action cannot be undone.`}
+        confirmText="Remove Screen"
+        highlightText={selectedScreen ? selectedScreen.name || '' : ''}
       />
     </View>
   );
@@ -487,27 +430,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
     gap: SPACING.base,
   },
-  listControlRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm + 2
-  },
-  listTitle: {
-    fontSize: FONT_SIZES.base,
-    fontFamily: 'Poppins_500Medium',
-    color: '#0D253F'
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  filterText: {
-    marginHorizontal: SPACING.xs + 1,
-    color: "COLORS.textSecondary",
-    fontFamily: 'Poppins_300Light',
-    fontSize: FONT_SIZES.sm,
-  },
   actionBtn: {
     borderWidth: SIZES.border.thin + 1,
     borderColor: '#A5B4BF',
@@ -532,7 +454,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 8, 
-    overflow: 'visible', 
   },
   dropdownItem: {
     flexDirection: 'row',
@@ -554,6 +475,19 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     color: COLORS.text,
     fontFamily: 'poppins-regular',
+  },
+  centerText: {
+    textAlign: 'center',
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  statusText: {
+    fontSize: 11,
+    fontFamily: 'Poppins_500Medium',
   },
   loadingContainer: {
     flex: 1,

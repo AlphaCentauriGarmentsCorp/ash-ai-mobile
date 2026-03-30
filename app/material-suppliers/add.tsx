@@ -1,1 +1,1 @@
-export { default } from '@screens/MaterialSuppliers/AddSupplierScreen';
+export { default } from '../../src/screens/MaterialSuppliers/AddSupplierScreen';

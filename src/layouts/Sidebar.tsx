@@ -94,6 +94,7 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    { id: 'quotation', title: 'Quotation', icon: 'document-text-outline', route: '/quotation' },
     { 
       id: 'dropdown-settings', 
       title: 'Dropdown Settings', 
@@ -110,17 +111,6 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         { id: 'size-label', title: 'Size Labels', route: '/dropdown-settings/size-label' },
       ]
     },
-    // --- ADDED MATERIAL SUPPLIERS TAB HERE ---
-    { 
-      id: 'material-suppliers', 
-      title: 'Material Suppliers', 
-      icon: 'person-circle-outline',
-      subItems: [
-        { id: 'add-supplier', title: 'Add Supplier', route: '/material-suppliers/add' },
-        { id: 'all-suppliers', title: 'All Suppliers', route: '/material-suppliers/all' },
-        { id: 'all-materials', title: 'All Materials', route: '/material-suppliers/materials' },
-      ]
-    },
     { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
     { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
     { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
@@ -132,6 +122,20 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     { id: 'cutting', title: 'Cutting Operations', icon: 'cut-outline' },
     { id: 'printing', title: 'Printing Operations', icon: 'print-outline' },
     { id: 'material', title: 'Material Preparation', icon: 'cube-outline' },
+    { 
+      id: 'material-suppliers', 
+      title: 'Material Suppliers', 
+      icon: 'person-circle-outline',
+      subItems: [
+        { id: 'all-suppliers', title: 'All Suppliers', route: '/material-suppliers/all' },
+        { id: 'all-materials', title: 'All Materials', route: '/material-suppliers/materials' },
+      ]
+    },
+  ];
+
+  const inventory: MenuItem[] = [
+    { id: 'equipment', title: 'Equipment', icon: 'construct-outline', route: '/inventory/equipment' },
+    { id: 'screen-inventory', title: 'Screen Inventory', icon: 'grid-outline', route: '/inventory/screen' },
   ];
 
   const toggleExpand = (itemId: string, parentId?: string) => {
@@ -299,6 +303,12 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Daily Operations</Text>
                 {dailyOperations.map(renderMenuItem)}
+              </View>
+
+              {/* Inventory Section */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Inventory</Text>
+                {inventory.map(renderMenuItem)}
               </View>
             </ScrollView>
           </View>
