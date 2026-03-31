@@ -1,1 +1,1 @@
-export { default } from '../../../src/screens/Inventory/Equipment/AllEquipmentScreen';
+export { default } from '../../../src/screens/Inventory/Equipment/EquipmentLocationsScreen';

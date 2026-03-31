@@ -134,7 +134,15 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   ];
 
   const inventory: MenuItem[] = [
-    { id: 'equipment', title: 'Equipment', icon: 'construct-outline', route: '/inventory/equipment' },
+    { 
+      id: 'equipment', 
+      title: 'Equipment', 
+      icon: 'construct-outline',
+      subItems: [
+        { id: 'all-equipment-locations', title: 'All Equipment', route: '/inventory/equipment' },
+        { id: 'add-equipment', title: 'Add Equipment', route: '/inventory/equipment/add' },
+      ]
+    },
     { id: 'screen-inventory', title: 'Screen Inventory', icon: 'grid-outline', route: '/inventory/screen' },
   ];
 
