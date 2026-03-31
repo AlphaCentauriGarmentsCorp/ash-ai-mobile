@@ -4,6 +4,7 @@ import { ApiResponse, PaginatedResponse } from './types';
 export interface EquipmentLocation {
   id: number;
   name: string;
+  icon?: string;
   description?: string;
   created_at?: string;
 }
