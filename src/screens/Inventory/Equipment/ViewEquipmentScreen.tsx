@@ -96,13 +96,13 @@ export default function ViewEquipmentScreen() {
           <View style={styles.headerContent}>
             {equipment.image ? (
               <Image 
-                source={{ uri: equipment.image }} 
+                source={{ uri: `${API_CONFIG.STORAGE_BASE_URL}${equipment.image}` }} 
                 style={styles.headerImage}
                 resizeMode="cover"
               />
             ) : equipment.qr_code ? (
               <Image 
-                source={{ uri: equipment.qr_code }} 
+                source={{ uri: `${API_CONFIG.STORAGE_BASE_URL}${equipment.qr_code}` }} 
                 style={styles.qrCode}
                 resizeMode="contain"
               />

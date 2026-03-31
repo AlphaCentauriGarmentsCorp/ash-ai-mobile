@@ -13,11 +13,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { equipmentLocationApi, type EquipmentLocation } from '@api/equipment';
 import Button from '@components/common/Button';
+import Dropdown, { type DropdownOption } from '@components/common/Dropdown';
 import FormInput from '@components/common/FormInput';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
 import { COLORS, FONT_FAMILY, FONT_SIZES, SPACING } from '@styles';
 import { hp } from '@utils/responsive';
+
+const LOCATION_ICON_OPTIONS: DropdownOption[] = [
+  { value: 'warehouse', label: 'Warehouse' },
+  { value: 'business', label: 'Production Area' },
+  { value: 'radio', label: 'Live Area' },
+  { value: 'business-outline', label: 'Office' },
+  { value: 'cube', label: 'Stock Room' },
+  { value: 'car', label: 'Garage' },
+  { value: 'moon', label: 'Dark Room' },
+];
 
 export default function EditEquipmentLocationScreen() {
   const router = useRouter();
@@ -28,6 +39,7 @@ export default function EditEquipmentLocationScreen() {
 
   const [formData, setFormData] = useState({
     name: '',
+    icon: '',
     description: '',
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +62,7 @@ export default function EditEquipmentLocationScreen() {
       
       setFormData({
         name: locationData.name || '',
+        icon: locationData.icon || '',
         description: locationData.description || '',
       });
     } catch (error) {
@@ -75,10 +88,16 @@ export default function EditEquipmentLocationScreen() {
       return;
     }
 
+    if (!formData.icon) {
+      Alert.alert('Validation Error', 'Icon is required');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await equipmentLocationApi.update(Number(locationId), {
         name: formData.name,
+        icon: formData.icon,
         description: formData.description || undefined,
       });
       
@@ -125,6 +144,18 @@ export default function EditEquipmentLocationScreen() {
               placeholder="Enter location name"
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
+            />
+          </View>
+
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>
+              Icon <Text style={styles.required}>*</Text>
+            </Text>
+            <Dropdown
+              options={LOCATION_ICON_OPTIONS}
+              selectedValue={formData.icon}
+              onSelect={(value) => handleInputChange('icon', value)}
+              placeholder="Select an icon"
             />
           </View>
 
