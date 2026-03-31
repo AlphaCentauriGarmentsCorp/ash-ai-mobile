@@ -227,12 +227,26 @@ interface LocationCardProps {
 }
 
 const LocationCard = ({ location, onPress, onEdit, onDelete }: LocationCardProps) => {
+  // Map icon name to Ionicons
+  const getIconName = (icon?: string): keyof typeof Ionicons.glyphMap => {
+    const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
+      'warehouse': 'business',
+      'business': 'business',
+      'radio': 'radio',
+      'business-outline': 'business-outline',
+      'cube': 'cube',
+      'car': 'car',
+      'moon': 'moon',
+    };
+    return iconMap[icon || ''] || 'location';
+  };
+
   return (
     <View style={styles.locationCard}>
       <View style={styles.cardHeader}>
         <View style={styles.locationHeader}>
           <View style={styles.locationIcon}>
-            <Ionicons name="location" size={24} color="#0D253F" />
+            <Ionicons name={getIconName(location.icon)} size={24} color="#0D253F" />
           </View>
           <View style={styles.locationInfo}>
             <Text style={styles.locationName}>{location.name}</Text>

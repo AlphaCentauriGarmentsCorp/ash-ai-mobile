@@ -105,13 +105,13 @@ export const equipmentLocationApi = {
   getAll: async (): Promise<ApiResponse<EquipmentLocation[]>> =>
     apiClient.get(LOCATIONS),
 
-  store: async (data: { name: string; description?: string }): Promise<ApiResponse<EquipmentLocation>> =>
+  store: async (data: { name: string; icon: string; description?: string }): Promise<ApiResponse<EquipmentLocation>> =>
     apiClient.post(LOCATIONS, data),
 
   show: async (id: number): Promise<ApiResponse<EquipmentLocation>> =>
     apiClient.get(`${LOCATIONS}/${id}`),
 
-  update: async (id: number, data: { name?: string; description?: string }): Promise<ApiResponse<EquipmentLocation>> =>
+  update: async (id: number, data: { name?: string; icon?: string; description?: string }): Promise<ApiResponse<EquipmentLocation>> =>
     apiClient.put(`${LOCATIONS}/${id}`, data),
 
   delete: async (id: number): Promise<ApiResponse<void>> =>
