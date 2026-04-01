@@ -6,13 +6,34 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "API_URL": "https://api.sorbetesapparel.com/api/v2",
+        "API_BASE_URL": "https://api.sorbetesapparel.com"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "API_URL": "https://api.sorbetesapparel.com/api/v2",
+        "API_BASE_URL": "https://api.sorbetesapparel.com"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "API_URL": "https://api.sorbetesapparel.com/api/v2",
+        "API_BASE_URL": "https://api.sorbetesapparel.com"
+      }
     }
   },
   "submit": {

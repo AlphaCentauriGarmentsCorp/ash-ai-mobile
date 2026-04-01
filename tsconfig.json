@@ -79,5 +79,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "src/**/*"
-, "src/services"  ]
+, "src/services", "app/quotation/index.tsx"  ]
 }

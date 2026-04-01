@@ -26,7 +26,15 @@ module.exports = {
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
-      package: "com.joe1724.ashai"
+      package: "com.joe1724.ashai",
+      permissions: [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      usesCleartextTraffic: true
     },
     web: {
       output: "static",
