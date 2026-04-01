@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { patternTypeApi, type UpdatePatternTypeRequest } from '@api';
 import Button from '@components/common/Button';
-import FormInput from '@components/common/FormInput';
+import { UnifiedInput } from '@components/unified';
 import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, SPACING } from '@styles';
@@ -143,7 +143,8 @@ export default function EditPatternTypeScreen() {
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Label text="Name" required />
-            <FormInput
+            <UnifiedInput
+              variant="styled"
               placeholder="Enter pattern type name"
               value={formData.name || ''}
               onChangeText={(value) => handleInputChange('name', value)}
@@ -152,7 +153,8 @@ export default function EditPatternTypeScreen() {
 
           <View style={styles.inputGroup}>
             <Label text="Description" />
-            <FormInput
+            <UnifiedInput
+              variant="styled"
               placeholder="Enter description (optional)"
               value={formData.description || ''}
               onChangeText={(value) => handleInputChange('description', value)}

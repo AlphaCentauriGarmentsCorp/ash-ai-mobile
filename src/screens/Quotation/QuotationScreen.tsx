@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Button from '@components/common/Button';
-import FormDropdown from '@components/common/FormDropdown';
+import { UnifiedDropdown } from '@components/unified';
 import { PageHeader } from '@layouts';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
@@ -321,8 +321,9 @@ export default function QuotationScreen() {
 
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>T-shirt Type</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
+                label="T-shirt Type"
                 options={tshirtTypes.map(t => ({ label: `${t.name} (₱${t.base_price})`, value: t.id.toString() }))}
                 selectedValue={selectedTshirtType.toString()}
                 onSelect={(value) => {
@@ -335,8 +336,9 @@ export default function QuotationScreen() {
               />
             </View>
             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Neckline</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
+                label="Neckline"
                 options={necklines.map(n => ({ label: `${n.name} (₱${n.base_price})`, value: n.id.toString() }))}
                 selectedValue={selectedNeckline.toString()}
                 onSelect={(value) => {
@@ -352,8 +354,9 @@ export default function QuotationScreen() {
 
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Print Type</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
+                label="Print Type"
                 options={printTypes.map(t => ({ label: `${t.name} (₱${t.base_price})`, value: t.id.toString() }))}
                 selectedValue={selectedPrintType.toString()}
                 onSelect={(value) => {
@@ -366,8 +369,9 @@ export default function QuotationScreen() {
               />
             </View>
             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Print Colors</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
+                label="Print Colors"
                 options={printColors
                   .filter(pc => pc.print_type_id === selectedPrintType)
                   .map(pc => ({ label: `${pc.color_count} color${pc.color_count > 1 ? 's' : ''} (₱${pc.price})`, value: pc.color_count.toString() }))}
@@ -381,8 +385,9 @@ export default function QuotationScreen() {
 
           <View style={styles.row}>
             <View style={styles.fullInputContainer}>
-              <Text style={styles.label}>Print Pattern</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
+                label="Print Pattern"
                 options={printPatterns.map(p => ({ label: `${p.name} (₱${p.additional_price})`, value: p.id.toString() }))}
                 selectedValue={selectedPrintPattern.toString()}
                 onSelect={(value) => {
@@ -417,8 +422,9 @@ export default function QuotationScreen() {
                 
                 <View style={styles.row}>
                   <View style={styles.halfInputContainer}>
-                    <Text style={styles.label}>Size</Text>
-                    <FormDropdown
+                    <UnifiedDropdown
+                      variant="searchable"
+                      label="Size"
                       options={sizes.map(s => ({ label: s.name, value: s.id.toString() }))}
                       selectedValue={item.size_id.toString()}
                       onSelect={(value) => updateItemField(item.id, 'size_id', parseInt(value))}
@@ -537,8 +543,9 @@ export default function QuotationScreen() {
 
           <View style={styles.row}>
             <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Discount Type</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
+                label="Discount Type"
                 options={[
                   { label: 'Percentage (%)', value: 'percentage' },
                   { label: 'Fixed Amount (₱)', value: 'fixed' },

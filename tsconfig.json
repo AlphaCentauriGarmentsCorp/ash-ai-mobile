@@ -70,6 +70,12 @@
       ],
       "@context/*": [
         "./src/context/*"
+      ],
+      "@constants": [
+        "./src/constants"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
       ]
     }
   },

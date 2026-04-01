@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { additionalOptionsApi, type CreateAdditionalOptionRequest } from '@api';
 import Button from '@components/common/Button';
-import FormInput from '@components/common/FormInput';
+import { UnifiedInput } from '@components/unified';
 import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
 import { COLORS, SPACING } from '@styles';
@@ -133,7 +133,8 @@ export default function AddAdditionalOptionScreen() {
             
             <View style={styles.fieldContainer}>
               <Label text="Label" required />
-              <FormInput
+              <UnifiedInput
+                variant="styled"
                 placeholder="Placeholder"
                 value={formData.name}
                 onChangeText={(value) => handleInputChange('name', value)}
@@ -143,7 +144,8 @@ export default function AddAdditionalOptionScreen() {
 
             <View style={styles.fieldContainer}>
               <Label text="Description" />
-              <FormInput
+              <UnifiedInput
+                variant="styled"
                 placeholder="Enter description here..."
                 value={formData.description || ''}
                 onChangeText={(value) => handleInputChange('description', value)}

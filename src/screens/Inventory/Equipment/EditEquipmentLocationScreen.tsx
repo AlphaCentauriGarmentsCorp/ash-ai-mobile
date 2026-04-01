@@ -5,29 +5,27 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { equipmentLocationApi, type EquipmentLocation } from '@api/equipment';
-import Button from '@components/common/Button';
-import Dropdown, { type DropdownOption } from '@components/common/Dropdown';
+import { SectionHeader, LoadingScreen, FormCard, ActionButtons } from '@components/form';
+import { UnifiedInput, UnifiedDropdown } from '@components/unified';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
-import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { COLORS, FONT_FAMILY, FONT_SIZES, SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
-
-const LOCATION_ICON_OPTIONS: DropdownOption[] = [
-  { value: 'warehouse', label: 'Warehouse' },
-  { value: 'business', label: 'Production Area' },
-  { value: 'radio', label: 'Live Area' },
-  { value: 'business-outline', label: 'Office' },
-  { value: 'cube', label: 'Stock Room' },
-  { value: 'car', label: 'Garage' },
-  { value: 'moon', label: 'Dark Room' },
-];
+import { 
+  ALERTS, 
+  BUTTONS, 
+  PLACEHOLDERS, 
+  VALIDATION_MESSAGES, 
+  LOADING_MESSAGES, 
+  SUCCESS_MESSAGES, 
+  ERROR_MESSAGES,
+  LOCATION_ICON_OPTIONS 
+} from '@constants';
 
 export default function EditEquipmentLocationScreen() {
   const router = useRouter();
@@ -49,7 +47,7 @@ export default function EditEquipmentLocationScreen() {
     if (locationId) {
       fetchLocationData();
     } else {
-      Alert.alert('Error', 'Location ID is missing');
+      Alert.alert(ALERTS.ERROR_TITLE, ERROR_MESSAGES.LOCATION_ID_MISSING);
       router.back();
     }
   }, [locationId]);
@@ -67,7 +65,7 @@ export default function EditEquipmentLocationScreen() {
       });
     } catch (error) {
       console.error('Error fetching location:', error);
-      Alert.alert('Error', 'Failed to load location data');
+      Alert.alert(ALERTS.ERROR_TITLE, ERROR_MESSAGES.FAILED_LOAD_LOCATION);
       router.back();
     } finally {
       setIsLoading(false);
@@ -84,8 +82,8 @@ export default function EditEquipmentLocationScreen() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.name.trim()) newErrors.name = 'Location name is required';
-    if (!formData.icon) newErrors.icon = 'Icon is required';
+    if (!formData.name.trim()) newErrors.name = VALIDATION_MESSAGES.LOCATION_NAME_REQUIRED;
+    if (!formData.icon) newErrors.icon = VALIDATION_MESSAGES.ICON_REQUIRED;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -93,7 +91,7 @@ export default function EditEquipmentLocationScreen() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please fill in all required fields');
+      Alert.alert(ALERTS.VALIDATION_ERROR, VALIDATION_MESSAGES.FILL_REQUIRED_FIELDS);
       return;
     }
 
@@ -105,13 +103,13 @@ export default function EditEquipmentLocationScreen() {
         description: formData.description || undefined,
       });
       
-      Alert.alert('Success', 'Location updated successfully', [
-        { text: 'OK', onPress: () => router.back() }
+      Alert.alert(ALERTS.SUCCESS_TITLE, SUCCESS_MESSAGES.LOCATION_UPDATED, [
+        { text: BUTTONS.OK, onPress: () => router.back() }
       ]);
     } catch (error: any) {
       console.error('Error updating location:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to update location';
-      Alert.alert('Error', errorMessage);
+      const errorMessage = error.response?.data?.message || error.message || ERROR_MESSAGES.FAILED_UPDATE_LOCATION;
+      Alert.alert(ALERTS.ERROR_TITLE, errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -122,10 +120,7 @@ export default function EditEquipmentLocationScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
         <PageHeader title="Edit Equipment Location" />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0D253F" />
-          <Text style={styles.loadingText}>Loading location data...</Text>
-        </View>
+        <LoadingScreen message={LOADING_MESSAGES.LOADING_LOCATION} />
       </SafeAreaView>
     );
   }
@@ -137,70 +132,49 @@ export default function EditEquipmentLocationScreen() {
       <PageHeader title="Edit Equipment Location" />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.card}>
+        <FormCard>
           
           {/* Section: Equipment Location Details */}
-          <Text style={styles.sectionTitle}>Equipment Location Details</Text>
-          <View style={styles.divider} />
+          <SectionHeader title="Equipment Location Details" />
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Location Name <Text style={styles.required}>*</Text></Text>
-            <TextInput
-              style={[styles.input, errors.name && styles.inputError]}
-              placeholder="Enter location name"
-              value={formData.name}
-              onChangeText={(value) => handleInputChange('name', value)}
-            />
-            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-          </View>
+          <UnifiedInput
+            label="Location Name"
+            required
+            placeholder={PLACEHOLDERS.LOCATION_NAME}
+            value={formData.name}
+            onChangeText={(value) => handleInputChange('name', value)}
+            error={errors.name}
+          />
 
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Icon <Text style={styles.required}>*</Text></Text>
-            <Dropdown
-              options={LOCATION_ICON_OPTIONS}
-              selectedValue={formData.icon}
-              onSelect={(value) => handleInputChange('icon', value)}
-              placeholder="Select an icon"
-            />
-            {errors.icon && <Text style={styles.errorText}>{errors.icon}</Text>}
-          </View>
+          <UnifiedDropdown
+            label="Icon"
+            required
+            options={LOCATION_ICON_OPTIONS}
+            selectedValue={formData.icon}
+            onSelect={(value) => handleInputChange('icon', value)}
+            placeholder={PLACEHOLDERS.SELECT_ICON}
+            error={errors.icon}
+          />
 
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Enter location description"
-              value={formData.description}
-              onChangeText={(value) => handleInputChange('description', value)}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-        </View>
+          <UnifiedInput
+            label="Description"
+            placeholder={PLACEHOLDERS.LOCATION_DESCRIPTION}
+            value={formData.description}
+            onChangeText={(value) => handleInputChange('description', value)}
+            isTextArea
+            numberOfLines={4}
+          />
+        </FormCard>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <View style={styles.actionButtons}>
-            <Button
-              title="Cancel"
-              onPress={() => router.back()}
-              variant="outline"
-              size="base"
-              style={styles.cancelBtn}
-              textStyle={styles.cancelText}
-              disabled={isSubmitting}
-            />
-            
-            <Button
-              title={isSubmitting ? "Updating..." : "Update"}
-              onPress={handleSubmit}
-              variant="primary"
-              size="base"
-              style={styles.submitBtn}
-              disabled={isSubmitting}
-            />
-          </View>
+          <ActionButtons
+            onCancel={() => router.back()}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            submitTitle={BUTTONS.UPDATE}
+            submitLoadingTitle={BUTTONS.UPDATING}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -212,55 +186,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: wp(4),
-  },
-  loadingText: {
-    marginTop: hp(2),
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.regular,
-    color: COLORS.text,
-  },
   scrollContent: {
     padding: wp(4),
-  },
-  card: {
-    backgroundColor: '#EBF6FF',
-    borderRadius: 10,
-    padding: wp(5.3),
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-  },
-  sectionTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontFamily: 'Poppins_700Bold',
-    color: '#001C34',
-    marginBottom: hp(1.2),
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginBottom: hp(1.9),
   },
   formGroup: {
     marginBottom: hp(1.9),
   },
-  label: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#001C34',
-    marginBottom: hp(0.6),
-  },
-  required: {
-    color: '#EF4444',
-  },
   input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 5,
+    borderWidth: SIZES.border.thin,
+    borderColor: COLORS.borderGray,
+    borderRadius: SIZES.radius.sm,
     paddingHorizontal: wp(2.7),
     paddingVertical: hp(1),
     fontSize: FONT_SIZES.sm,
@@ -269,13 +204,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   inputError: {
-    borderColor: '#F87171',
-  },
-  errorText: {
-    fontSize: FONT_SIZES.xs,
-    color: '#F87171',
-    marginTop: hp(0.3),
-    fontFamily: FONT_FAMILY.regular,
+    borderColor: COLORS.errorLight,
   },
   textArea: {
     height: hp(12.5),
@@ -283,24 +212,5 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: hp(3.1),
     marginBottom: hp(2.5),
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: wp(4),
-  },
-  cancelBtn: {
-    backgroundColor: '#E5E7EB',
-    borderColor: '#E5E7EB',
-    minWidth: wp(26.7),
-  },
-  cancelText: {
-    color: '#1F2937',
-    fontWeight: '700',
-  },
-  submitBtn: {
-    backgroundColor: '#0D253F',
-    minWidth: wp(26.7),
   },
 });

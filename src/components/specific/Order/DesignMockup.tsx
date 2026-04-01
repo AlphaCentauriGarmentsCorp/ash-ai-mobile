@@ -1,4 +1,4 @@
-import FormDropdown, { FormDropdownOption } from '@components/common/FormDropdown';
+import { UnifiedDropdown, type UnifiedDropdownOption } from '@components/unified';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import {
     Image,
@@ -15,8 +15,8 @@ import { DEFAULT_DEPOSIT_PERCENTAGE, paymentMethodOptions, paymentPlanOptions } 
 
 interface DesignMockupProps {
   dropdownData?: {
-    placementMeasurements: FormDropdownOption[];
-    freebies: FormDropdownOption[];
+    placementMeasurements: UnifiedDropdownOption[];
+    freebies: UnifiedDropdownOption[];
     loading?: boolean;
   };
   orderSummary?: {
@@ -48,18 +48,18 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSu
     setDepositPercentage(percentage);
   }, []);
 
-  // Convert payment options to FormDropdown format
-  const paymentPlanFormOptions: FormDropdownOption[] = paymentPlanOptions.map(option => ({
+  // Convert payment options to UnifiedDropdown format
+  const paymentPlanFormOptions: UnifiedDropdownOption[] = paymentPlanOptions.map(option => ({
     label: option.label,
     value: option.value
   }));
 
-  const paymentMethodFormOptions: FormDropdownOption[] = paymentMethodOptions.map(option => ({
+  const paymentMethodFormOptions: UnifiedDropdownOption[] = paymentMethodOptions.map(option => ({
     label: option.label,
     value: option.value
   }));
   // Use database data if available, otherwise fallback to static options
-  const placementMeasurementOptions: FormDropdownOption[] = dropdownData?.placementMeasurements || [
+  const placementMeasurementOptions: UnifiedDropdownOption[] = dropdownData?.placementMeasurements || [
     { label: 'Center Chest', value: 'center-chest' },
     { label: 'Left Chest', value: 'left-chest' },
     { label: 'Full Front', value: 'full-front' },
@@ -72,7 +72,7 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSu
     { label: 'Hem Label', value: 'hem-label' },
   ];
 
-  const freebieOptions: FormDropdownOption[] = dropdownData?.freebies || [
+  const freebieOptions: UnifiedDropdownOption[] = dropdownData?.freebies || [
     { label: 'Tote Bag', value: 'tote-bag' },
     { label: 'Stickers', value: 'stickers' },
     { label: 'Keychain', value: 'keychain' },
@@ -159,7 +159,8 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSu
 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Placement Measurements</Text>
-            <FormDropdown
+            <UnifiedDropdown
+              variant="searchable"
               options={placementMeasurementOptions}
               selectedValue={selectedPlacementMeasurement}
               onSelect={setSelectedPlacementMeasurement}
@@ -188,7 +189,8 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSu
           <View style={styles.row}>
             <View style={styles.halfCol}>
               <Text style={styles.labelBold}>Freebie</Text>
-              <FormDropdown
+              <UnifiedDropdown
+                variant="searchable"
                 options={freebieOptions}
                 selectedValue={selectedFreebie}
                 onSelect={setSelectedFreebie}
@@ -229,7 +231,8 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSu
 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Payment Plan</Text>
-            <FormDropdown
+            <UnifiedDropdown
+              variant="searchable"
               options={paymentPlanFormOptions}
               selectedValue={selectedPaymentPlan}
               onSelect={setSelectedPaymentPlan}
@@ -240,7 +243,8 @@ const DesignMockup = forwardRef<any, DesignMockupProps>(({ dropdownData, orderSu
 
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Payment Method</Text>
-            <FormDropdown
+            <UnifiedDropdown
+              variant="searchable"
               options={paymentMethodFormOptions}
               selectedValue={selectedPaymentMethod}
               onSelect={setSelectedPaymentMethod}
