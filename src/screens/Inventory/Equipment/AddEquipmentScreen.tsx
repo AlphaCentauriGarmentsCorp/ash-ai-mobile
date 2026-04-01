@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -18,10 +19,9 @@ import { equipmentApi, equipmentLocationApi, type EquipmentLocation } from '@api
 import Button from '@components/common/Button';
 import Dropdown, { type DropdownOption } from '@components/common/Dropdown';
 import FileUpload from '@components/common/FileUpload';
-import FormInput from '@components/common/FormInput';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SPACING } from '@styles';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
 
 export default function AddEquipmentScreen() {
@@ -50,6 +50,7 @@ export default function AddEquipmentScreen() {
   const [isLoadingLocations, setIsLoadingLocations] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchLocations();
@@ -75,6 +76,9 @@ export default function AddEquipmentScreen() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const handleImagePick = async () => {
@@ -126,7 +130,7 @@ export default function AddEquipmentScreen() {
     setFormData(prev => ({ ...prev, receipt: files }));
   };
 
-  const handleReset = () => {
+  const handleClearAll = () => {
     setFormData({
       location_id: locationId || '',
       name: '',
@@ -142,20 +146,24 @@ export default function AddEquipmentScreen() {
       receipt: [],
     });
     setImagePreview(null);
+    setErrors({});
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.location_id) newErrors.location_id = 'Location is required';
+    if (!formData.name.trim()) newErrors.name = 'Item name is required';
+    if (!formData.quantity) newErrors.quantity = 'Quantity is required';
+    else if (parseInt(formData.quantity) < 0) newErrors.quantity = 'Quantity must be positive';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
-    // Validation
-    if (!formData.location_id) {
-      Alert.alert('Validation Error', 'Please select a location');
-      return;
-    }
-    if (!formData.name.trim()) {
-      Alert.alert('Validation Error', 'Item name is required');
-      return;
-    }
-    if (!formData.quantity || parseInt(formData.quantity) < 0) {
-      Alert.alert('Validation Error', 'Please enter a valid quantity');
+    if (!validateForm()) {
+      Alert.alert('Validation Error', 'Please fill in all required fields');
       return;
     }
 
@@ -209,40 +217,40 @@ export default function AddEquipmentScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <PageHeader title="Add Equipment" />
       
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Equipment Details Section */}
-        <View style={styles.formCard}>
+        <View style={styles.card}>
           <Text style={styles.sectionTitle}>Equipment Details</Text>
+          <View style={styles.divider} />
           
-          <View style={styles.row}>
-            <View style={styles.fullWidth}>
-              <Text style={styles.label}>
-                Item Name <Text style={styles.required}>*</Text>
-              </Text>
-              <FormInput
-                placeholder="Enter item name"
-                value={formData.name}
-                onChangeText={(value) => handleInputChange('name', value)}
-              />
-            </View>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Item Name <Text style={styles.required}>*</Text></Text>
+            <TextInput
+              style={[styles.input, errors.name && styles.inputError]}
+              placeholder="Enter item name"
+              value={formData.name}
+              onChangeText={(value) => handleInputChange('name', value)}
+            />
+            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
 
           <View style={styles.row}>
-            <View style={styles.halfWidth}>
-              <Text style={styles.label}>
-                Quantity <Text style={styles.required}>*</Text>
-              </Text>
-              <FormInput
+            <View style={styles.halfInputContainer}>
+              <Text style={styles.label}>Quantity <Text style={styles.required}>*</Text></Text>
+              <TextInput
+                style={[styles.input, errors.quantity && styles.inputError]}
                 placeholder="Enter quantity"
                 value={formData.quantity}
                 onChangeText={(value) => handleInputChange('quantity', value)}
                 keyboardType="numeric"
               />
+              {errors.quantity && <Text style={styles.errorText}>{errors.quantity}</Text>}
             </View>
 
-            <View style={styles.halfWidth}>
+            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Color</Text>
-              <FormInput
+              <TextInput
+                style={styles.input}
                 placeholder="Enter color"
                 value={formData.color}
                 onChangeText={(value) => handleInputChange('color', value)}
@@ -251,18 +259,20 @@ export default function AddEquipmentScreen() {
           </View>
 
           <View style={styles.row}>
-            <View style={styles.halfWidth}>
+            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Model / Year</Text>
-              <FormInput
+              <TextInput
+                style={styles.input}
                 placeholder="Enter model / year"
                 value={formData.model}
                 onChangeText={(value) => handleInputChange('model', value)}
               />
             </View>
 
-            <View style={styles.halfWidth}>
+            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Material</Text>
-              <FormInput
+              <TextInput
+                style={styles.input}
                 placeholder="Enter material"
                 value={formData.material}
                 onChangeText={(value) => handleInputChange('material', value)}
@@ -271,18 +281,20 @@ export default function AddEquipmentScreen() {
           </View>
 
           <View style={styles.row}>
-            <View style={styles.halfWidth}>
+            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Price</Text>
-              <FormInput
+              <TextInput
+                style={styles.input}
                 placeholder="Enter price"
                 value={formData.price}
                 onChangeText={(value) => handleInputChange('price', value)}
               />
             </View>
 
-            <View style={styles.halfWidth}>
+            <View style={styles.halfInputContainer}>
               <Text style={styles.label}>Penalty</Text>
-              <FormInput
+              <TextInput
+                style={styles.input}
                 placeholder="Enter penalty"
                 value={formData.penalty}
                 onChangeText={(value) => handleInputChange('penalty', value)}
@@ -292,38 +304,39 @@ export default function AddEquipmentScreen() {
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>Design</Text>
-            <FormInput
+            <TextInput
+              style={[styles.input, styles.textArea]}
               placeholder="Enter design description"
               value={formData.design}
               onChangeText={(value) => handleInputChange('design', value)}
               multiline
               numberOfLines={3}
-              inputStyle={styles.textArea}
+              textAlignVertical="top"
             />
           </View>
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>Description</Text>
-            <FormInput
+            <TextInput
+              style={[styles.input, styles.textArea]}
               placeholder="Enter equipment description"
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
               multiline
               numberOfLines={3}
-              inputStyle={styles.textArea}
+              textAlignVertical="top"
             />
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>
-              Equipment Location <Text style={styles.required}>*</Text>
-            </Text>
+            <Text style={styles.label}>Equipment Location <Text style={styles.required}>*</Text></Text>
             <Dropdown
               options={locations}
               selectedValue={formData.location_id}
               onSelect={(value) => handleInputChange('location_id', value)}
               placeholder="Select a location"
             />
+            {errors.location_id && <Text style={styles.errorText}>{errors.location_id}</Text>}
           </View>
 
           {/* Image Upload */}
@@ -347,8 +360,9 @@ export default function AddEquipmentScreen() {
         </View>
 
         {/* Documents Section */}
-        <View style={styles.formCard}>
+        <View style={styles.card}>
           <Text style={styles.sectionTitle}>Documents</Text>
+          <View style={styles.divider} />
           <FileUpload
             label="Receipt Upload"
             category="payment"
@@ -357,22 +371,32 @@ export default function AddEquipmentScreen() {
           />
         </View>
 
-        <View style={styles.buttonRow}>
-          <Button
-            title="Reset"
-            onPress={handleReset}
-            variant="secondary"
-            size="base"
-            disabled={isSubmitting}
-          />
-          <Button
-            title="Save Equipment"
-            onPress={handleSubmit}
-            variant="primary"
-            size="base"
-            loading={isSubmitting}
-            disabled={isSubmitting}
-          />
+        {/* Footer */}
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClearAll}>
+            <Text style={styles.clearText}>Clear all fields</Text>
+          </TouchableOpacity>
+          
+          <View style={styles.actionButtons}>
+            <Button
+              title="Cancel"
+              onPress={() => router.back()}
+              variant="outline"
+              size="base"
+              style={styles.cancelBtn}
+              textStyle={styles.cancelText}
+              disabled={isSubmitting}
+            />
+            
+            <Button
+              title={isSubmitting ? "Saving..." : "Save"}
+              onPress={handleSubmit}
+              variant="primary"
+              size="base"
+              style={styles.submitBtn}
+              disabled={isSubmitting}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -382,7 +406,7 @@ export default function AddEquipmentScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.white,
   },
   loadingContainer: {
     flex: 1,
@@ -397,47 +421,69 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   scrollContent: {
-    padding: SPACING.base,
-    paddingBottom: hp(4),
+    padding: wp(4),
   },
-  formCard: {
-    backgroundColor: '#E8F4FD',
-    borderRadius: 12,
-    padding: SPACING.lg,
+  card: {
+    backgroundColor: '#EBF6FF',
+    borderRadius: 10,
+    padding: wp(5.3),
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
     marginBottom: hp(2),
   },
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
-    fontFamily: FONT_FAMILY.semiBold,
-    color: '#0D253F',
-    marginBottom: SPACING.lg,
+    fontFamily: 'Poppins_700Bold',
+    color: '#001C34',
+    marginBottom: hp(1.2),
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginBottom: hp(1.9),
   },
   row: {
     flexDirection: 'row',
-    gap: SPACING.base,
-    marginBottom: SPACING.base,
+    justifyContent: 'space-between',
+    marginBottom: hp(1.9),
   },
-  fullWidth: {
-    flex: 1,
-  },
-  halfWidth: {
-    flex: 1,
+  halfInputContainer: {
+    width: '48%',
   },
   formGroup: {
-    marginBottom: SPACING.lg,
+    marginBottom: hp(1.9),
   },
   label: {
     fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.medium,
-    color: '#0D253F',
-    marginBottom: SPACING.xs,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#001C34',
+    marginBottom: hp(0.6),
   },
   required: {
     color: '#EF4444',
   },
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 5,
+    paddingHorizontal: wp(2.7),
+    paddingVertical: hp(1),
+    fontSize: FONT_SIZES.sm,
+    backgroundColor: COLORS.white,
+    fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
+  },
+  inputError: {
+    borderColor: '#F87171',
+  },
+  errorText: {
+    fontSize: FONT_SIZES.xs,
+    color: '#F87171',
+    marginTop: hp(0.3),
+    fontFamily: FONT_FAMILY.regular,
+  },
   textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
+    height: hp(10),
   },
   imageUploadButton: {
     backgroundColor: '#F9FAFB',
@@ -478,8 +524,37 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 12,
   },
-  buttonRow: {
+  footer: {
+    marginTop: hp(1),
+    marginBottom: hp(2.5),
+  },
+  clearButtonContainer: {
+    alignItems: 'flex-end',
+    marginBottom: hp(2.5),
+  },
+  clearText: {
+    color: '#4B5563',
+    textDecorationLine: 'underline',
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONT_FAMILY.regular,
+  },
+  actionButtons: {
     flexDirection: 'row',
-    gap: SPACING.base,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: wp(4),
+  },
+  cancelBtn: {
+    backgroundColor: '#E5E7EB',
+    borderColor: '#E5E7EB',
+    minWidth: wp(26.7),
+  },
+  cancelText: {
+    color: '#1F2937',
+    fontWeight: '700',
+  },
+  submitBtn: {
+    backgroundColor: '#0D253F',
+    minWidth: wp(26.7),
   },
 });

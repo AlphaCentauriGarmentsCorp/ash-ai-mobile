@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -7,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,11 +14,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { equipmentLocationApi, type EquipmentLocation } from '@api/equipment';
 import Button from '@components/common/Button';
 import Dropdown, { type DropdownOption } from '@components/common/Dropdown';
-import FormInput from '@components/common/FormInput';
 import { usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
-import { COLORS, FONT_FAMILY, FONT_SIZES, SPACING } from '@styles';
-import { hp } from '@utils/responsive';
+import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
+import { hp, wp } from '@utils/responsive';
 
 const LOCATION_ICON_OPTIONS: DropdownOption[] = [
   { value: 'warehouse', label: 'Warehouse' },
@@ -44,6 +43,7 @@ export default function EditEquipmentLocationScreen() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (locationId) {
@@ -76,20 +76,24 @@ export default function EditEquipmentLocationScreen() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
-  const handleReset = () => {
-    fetchLocationData();
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.name.trim()) newErrors.name = 'Location name is required';
+    if (!formData.icon) newErrors.icon = 'Icon is required';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim()) {
-      Alert.alert('Validation Error', 'Location name is required');
-      return;
-    }
-
-    if (!formData.icon) {
-      Alert.alert('Validation Error', 'Icon is required');
+    if (!validateForm()) {
+      Alert.alert('Validation Error', 'Please fill in all required fields');
       return;
     }
 
@@ -132,62 +136,71 @@ export default function EditEquipmentLocationScreen() {
       
       <PageHeader title="Edit Equipment Location" />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.formCard}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.card}>
+          
+          {/* Section: Equipment Location Details */}
           <Text style={styles.sectionTitle}>Equipment Location Details</Text>
+          <View style={styles.divider} />
           
           <View style={styles.formGroup}>
-            <Text style={styles.label}>
-              Location Name <Text style={styles.required}>*</Text>
-            </Text>
-            <FormInput
+            <Text style={styles.label}>Location Name <Text style={styles.required}>*</Text></Text>
+            <TextInput
+              style={[styles.input, errors.name && styles.inputError]}
               placeholder="Enter location name"
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
             />
+            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>
-              Icon <Text style={styles.required}>*</Text>
-            </Text>
+            <Text style={styles.label}>Icon <Text style={styles.required}>*</Text></Text>
             <Dropdown
               options={LOCATION_ICON_OPTIONS}
               selectedValue={formData.icon}
               onSelect={(value) => handleInputChange('icon', value)}
               placeholder="Select an icon"
             />
+            {errors.icon && <Text style={styles.errorText}>{errors.icon}</Text>}
           </View>
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>Description</Text>
-            <FormInput
+            <TextInput
+              style={[styles.input, styles.textArea]}
               placeholder="Enter location description"
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
               multiline
               numberOfLines={4}
-              inputStyle={styles.textArea}
+              textAlignVertical="top"
             />
           </View>
         </View>
 
-        <View style={styles.buttonRow}>
-          <Button
-            title="Reset"
-            onPress={handleReset}
-            variant="secondary"
-            size="base"
-            disabled={isSubmitting}
-          />
-          <Button
-            title="Update"
-            onPress={handleSubmit}
-            variant="primary"
-            size="base"
-            loading={isSubmitting}
-            disabled={isSubmitting}
-          />
+        {/* Footer */}
+        <View style={styles.footer}>
+          <View style={styles.actionButtons}>
+            <Button
+              title="Cancel"
+              onPress={() => router.back()}
+              variant="outline"
+              size="base"
+              style={styles.cancelBtn}
+              textStyle={styles.cancelText}
+              disabled={isSubmitting}
+            />
+            
+            <Button
+              title={isSubmitting ? "Updating..." : "Update"}
+              onPress={handleSubmit}
+              variant="primary"
+              size="base"
+              style={styles.submitBtn}
+              disabled={isSubmitting}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -197,54 +210,97 @@ export default function EditEquipmentLocationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.white,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    padding: wp(4),
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: hp(2),
     fontSize: FONT_SIZES.sm,
     fontFamily: FONT_FAMILY.regular,
     color: COLORS.text,
   },
   scrollContent: {
-    padding: SPACING.base,
-    paddingBottom: hp(4),
+    padding: wp(4),
   },
-  formCard: {
-    backgroundColor: '#E8F4FD',
-    borderRadius: 12,
-    padding: SPACING.lg,
-    marginBottom: hp(2),
+  card: {
+    backgroundColor: '#EBF6FF',
+    borderRadius: 10,
+    padding: wp(5.3),
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
   },
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
-    fontFamily: FONT_FAMILY.semiBold,
-    color: '#0D253F',
-    marginBottom: SPACING.lg,
+    fontFamily: 'Poppins_700Bold',
+    color: '#001C34',
+    marginBottom: hp(1.2),
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginBottom: hp(1.9),
   },
   formGroup: {
-    marginBottom: SPACING.lg,
+    marginBottom: hp(1.9),
   },
   label: {
     fontSize: FONT_SIZES.sm,
-    fontFamily: FONT_FAMILY.medium,
-    color: '#0D253F',
-    marginBottom: SPACING.xs,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#001C34',
+    marginBottom: hp(0.6),
   },
   required: {
     color: '#EF4444',
   },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: 'top',
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 5,
+    paddingHorizontal: wp(2.7),
+    paddingVertical: hp(1),
+    fontSize: FONT_SIZES.sm,
+    backgroundColor: COLORS.white,
+    fontFamily: FONT_FAMILY.regular,
+    color: COLORS.text,
   },
-  buttonRow: {
+  inputError: {
+    borderColor: '#F87171',
+  },
+  errorText: {
+    fontSize: FONT_SIZES.xs,
+    color: '#F87171',
+    marginTop: hp(0.3),
+    fontFamily: FONT_FAMILY.regular,
+  },
+  textArea: {
+    height: hp(12.5),
+  },
+  footer: {
+    marginTop: hp(3.1),
+    marginBottom: hp(2.5),
+  },
+  actionButtons: {
     flexDirection: 'row',
-    gap: SPACING.base,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: wp(4),
+  },
+  cancelBtn: {
+    backgroundColor: '#E5E7EB',
+    borderColor: '#E5E7EB',
+    minWidth: wp(26.7),
+  },
+  cancelText: {
+    color: '#1F2937',
+    fontWeight: '700',
+  },
+  submitBtn: {
+    backgroundColor: '#0D253F',
+    minWidth: wp(26.7),
   },
 });
