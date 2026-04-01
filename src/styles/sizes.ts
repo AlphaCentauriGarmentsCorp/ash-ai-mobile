@@ -40,12 +40,13 @@ export const SIZES = {
   radius: {
     none: 0,
     xs: 2,
-    sm: 4,
+    sm: 5,
     base: 8,
-    md: 12,
-    lg: 16,
-    xl: 24,
-    '2xl': 32,
+    md: 10,
+    lg: 12,
+    xl: 16,
+    '2xl': 24,
+    '3xl': 32,
     full: 9999,
   },
   

@@ -1,5 +1,5 @@
 import Checkbox from '@components/common/Checkbox';
-import FormDropdown from '@components/common/FormDropdown';
+import { UnifiedDropdown } from '@components/unified';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
@@ -91,7 +91,8 @@ const OrderInfo = forwardRef((props, ref) => {
 <View style={styles.row}>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Brand</Text>
-    <FormDropdown
+    <UnifiedDropdown
+      variant="searchable"
       options={brandOptions}
       selectedValue={brand}
       onSelect={setBrand}
@@ -100,7 +101,8 @@ const OrderInfo = forwardRef((props, ref) => {
   </View>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Priority</Text>
-    <FormDropdown
+    <UnifiedDropdown
+      variant="searchable"
       options={priorityOptions}
       selectedValue={priority}
       onSelect={setPriority}
@@ -281,7 +283,8 @@ const OrderInfo = forwardRef((props, ref) => {
 <View style={styles.row}>
   <View style={styles.halfInputContainer}>
     <Text style={styles.label}>Apparel Type</Text>
-    <FormDropdown
+    <UnifiedDropdown
+      variant="searchable"
       options={apparelTypeOptions}
       selectedValue={apparelType}
       onSelect={setApparelType}
@@ -353,7 +356,8 @@ const OrderInfo = forwardRef((props, ref) => {
 
 <View style={styles.fullInputContainer}>
   <Text style={styles.label}>Fabric Type</Text>
-  <FormDropdown
+  <UnifiedDropdown
+    variant="searchable"
     options={fabricTypeOptions}
     selectedValue={fabricType}
     onSelect={setFabricType}

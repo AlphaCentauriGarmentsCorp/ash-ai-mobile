@@ -1,7 +1,7 @@
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import FormDropdown, { FormDropdownOption } from './FormDropdown';
+import { UnifiedDropdown, type UnifiedDropdownOption } from '../unified';
 
 interface EnhancedDropdownProps {
   options: any[]; // Enhanced options with additional properties
@@ -28,8 +28,8 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   showDetails = false,
   style
 }) => {
-  // Convert enhanced options to FormDropdown format
-  const formOptions: FormDropdownOption[] = options.map(option => ({
+  // Convert enhanced options to UnifiedDropdown format
+  const formOptions: UnifiedDropdownOption[] = options.map(option => ({
     label: option.label,
     value: option.value
   }));
@@ -39,7 +39,8 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
 
   return (
     <View style={style}>
-      <FormDropdown
+      <UnifiedDropdown
+        variant="searchable"
         options={formOptions}
         selectedValue={selectedValue}
         onSelect={onSelect}

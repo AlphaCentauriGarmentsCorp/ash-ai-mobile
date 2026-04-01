@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Client, clientsApi, CreateOrderRequest, orderApi } from '@api';
 import Button from '@components/common/Button';
 import DatePickerField from '@components/common/DatePickerField';
-import FormDropdown, { FormDropdownOption } from '@components/common/FormDropdown';
+import { UnifiedDropdown, type UnifiedDropdownOption } from '@components/unified';
 import type { Step } from '@components/common/Stepper';
 import Stepper from '@components/common/Stepper';
 import DesignMockup from '@components/specific/Order/DesignMockup';
@@ -162,7 +162,7 @@ const OrderInfoSection = ({
   fabricTypeOptions,
   fabricSupplierOptions
 }: { 
-  clientOptions: FormDropdownOption[];
+  clientOptions: UnifiedDropdownOption[];
   selectedClient: string;
   onClientSelect: (value: string) => void;
   clientBrands: string;
@@ -228,13 +228,13 @@ const OrderInfoSection = ({
   // Dropdown data from API
   dropdownData: any;
   // Static dropdown options
-  brandOptions: FormDropdownOption[];
-  priorityOptions: FormDropdownOption[];
-  courierOptions: FormDropdownOption[];
-  shippingMethodOptions: FormDropdownOption[];
-  printServiceOptions: FormDropdownOption[];
-  fabricTypeOptions: FormDropdownOption[];
-  fabricSupplierOptions: FormDropdownOption[];
+  brandOptions: UnifiedDropdownOption[];
+  priorityOptions: UnifiedDropdownOption[];
+  courierOptions: UnifiedDropdownOption[];
+  shippingMethodOptions: UnifiedDropdownOption[];
+  printServiceOptions: UnifiedDropdownOption[];
+  fabricTypeOptions: UnifiedDropdownOption[];
+  fabricSupplierOptions: UnifiedDropdownOption[];
 }) => {
   return (
     <View style={styles.stepContainer}>
@@ -245,7 +245,8 @@ const OrderInfoSection = ({
         <View style={styles.row}>
           <View style={styles.colHalf}>
             <Label text="Client" />
-            <FormDropdown
+            <UnifiedDropdown
+              variant="searchable"
               options={clientOptions}
               selectedValue={selectedClient}
               onSelect={onClientSelect}
@@ -277,7 +278,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Brand" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={brandOptions}
             selectedValue={selectedBrand}
             onSelect={onBrandSelect}
@@ -287,7 +289,8 @@ const OrderInfoSection = ({
         </View>
         <View style={styles.colHalf}>
           <Label text="Priority" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={priorityOptions}
             selectedValue={selectedPriority}
             onSelect={onPrioritySelect}
@@ -302,7 +305,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Preferred Courier" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={courierOptions}
             selectedValue={preferredCourier}
             onSelect={onPreferredCourierChange}
@@ -311,7 +315,8 @@ const OrderInfoSection = ({
         </View>
         <View style={styles.colHalf}>
           <Label text="Shipping Method" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={shippingMethodOptions}
             selectedValue={selectedShippingMethod}
             onSelect={onShippingMethodSelect}
@@ -405,7 +410,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Apparel Type" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.apparelTypes}
             selectedValue={selectedApparelType}
             onSelect={onApparelTypeSelect}
@@ -414,7 +420,8 @@ const OrderInfoSection = ({
         </View>
         <View style={styles.colHalf}>
           <Label text="Pattern Type" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.patternTypes}
             selectedValue={selectedPatternType}
             onSelect={onPatternTypeSelect}
@@ -427,7 +434,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colFull}>
           <Label text="Service Type" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.serviceTypes}
             selectedValue={selectedServiceType}
             onSelect={onServiceTypeSelect}
@@ -440,7 +448,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Print Method" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.printMethods}
             selectedValue={selectedPrintMethod}
             onSelect={onPrintMethodSelect}
@@ -450,7 +459,8 @@ const OrderInfoSection = ({
         </View>
         <View style={styles.colHalf}>
           <Label text="Print Service" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={printServiceOptions}
             selectedValue={selectedPrintService}
             onSelect={onPrintServiceSelect}
@@ -463,7 +473,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Size Label" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.sizeLabels}
             selectedValue={selectedSizeLabel}
             onSelect={onSizeLabelSelect}
@@ -473,7 +484,8 @@ const OrderInfoSection = ({
         </View>
         <View style={styles.colHalf}>
           <Label text="Print Label Placement" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.printLabelPlacements}
             selectedValue={selectedPrintLabelPlacement}
             onSelect={onPrintLabelPlacementSelect}
@@ -488,7 +500,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colFull}>
           <Label text="Fabric Type" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={fabricTypeOptions}
             selectedValue={selectedFabricType}
             onSelect={onFabricTypeSelect}
@@ -501,7 +514,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Fabric Supplier" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={fabricSupplierOptions}
             selectedValue={selectedFabricSupplier}
             onSelect={onFabricSupplierSelect}
@@ -551,7 +565,8 @@ const OrderInfoSection = ({
       <View style={styles.row}>
         <View style={styles.colHalf}>
           <Label text="Options" />
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={dropdownData.additionalOptions}
             selectedValue={selectedAdditionalOption}
             onSelect={onAdditionalOptionSelect}
@@ -598,7 +613,7 @@ export default function AddOrderScreen() {
   const fontsLoaded = usePoppinsFonts();
   const dropdownData = useDropdownData();
   const [currentStep, setCurrentStep] = useState(0);
-  const [clients, setClients] = useState<FormDropdownOption[]>([]);
+  const [clients, setClients] = useState<UnifiedDropdownOption[]>([]);
   const [clientsData, setClientsData] = useState<Client[]>([]); // Store full client data
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedClientBrands, setSelectedClientBrands] = useState('');
@@ -644,7 +659,7 @@ export default function AddOrderScreen() {
   const printAreaRef = useRef<any>(null);
   const designMockupRef = useRef<any>(null);
 
-  // Convert enhanced dropdown options to FormDropdown format
+  // Convert enhanced dropdown options to UnifiedDropdown format
   const brandFormOptions = convertToFormOptions(brandOptions);
   const priorityFormOptions = convertToFormOptions(priorityOptions);
   const courierFormOptions = convertToFormOptions(courierOptions);

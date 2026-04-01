@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { freebiesApi, type CreateFreebieRequest } from '@api';
 import Button from '@components/common/Button';
-import FormInput from '@components/common/FormInput';
+import { UnifiedInput } from '@components/unified';
 import { useAuth } from '@context';
 import { usePoppinsFonts } from '@hooks';
 import { Header } from '@layouts';
@@ -129,7 +129,8 @@ export default function AddFreebieScreen() {
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Label text="Name" required />
-            <FormInput
+            <UnifiedInput
+              variant="styled"
               placeholder="Enter freebie name"
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
@@ -138,7 +139,8 @@ export default function AddFreebieScreen() {
 
           <View style={styles.inputGroup}>
             <Label text="Description" />
-            <FormInput
+            <UnifiedInput
+              variant="styled"
               placeholder="Enter description (optional)"
               value={formData.description || ''}
               onChangeText={(value) => handleInputChange('description', value)}

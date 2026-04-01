@@ -4,7 +4,7 @@ import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import React, { useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-import FormDropdown, { FormDropdownOption } from '../../../components/common/FormDropdown';
+import { UnifiedDropdown, type UnifiedDropdownOption } from '../../../components/unified';
 import { useAccountForm } from '../../../context/AccountFormContext';
 
 interface AccountPersonalDataProps {
@@ -16,13 +16,13 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
   const { formData, updateFormData } = useAccountForm();
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const genderOptions: FormDropdownOption[] = [
+  const genderOptions: UnifiedDropdownOption[] = [
     { label: 'Male', value: 'male' },
     { label: 'Female', value: 'female' },
     { label: 'Other', value: 'other' },
   ];
 
-  const civilStatusOptions: FormDropdownOption[] = [
+  const civilStatusOptions: UnifiedDropdownOption[] = [
     { label: 'Single', value: 'single' },
     { label: 'Married', value: 'married' },
     { label: 'Divorced', value: 'divorced' },
@@ -137,7 +137,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
         </View>
         <View style={styles.halfInputContainer}>
           <Text style={styles.label}>Gender</Text>
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={genderOptions}
             selectedValue={formData.gender}
             onSelect={(value) => updateFormData({ gender: value })}
@@ -166,7 +167,8 @@ export default function AccountPersonalData({ readOnly = false, onEdit }: Accoun
         </View>
         <View style={styles.halfInputContainer}>
           <Text style={styles.label}>Civil Status</Text>
-          <FormDropdown
+          <UnifiedDropdown
+            variant="searchable"
             options={civilStatusOptions}
             selectedValue={formData.civilStatus}
             onSelect={(value) => updateFormData({ civilStatus: value })}
