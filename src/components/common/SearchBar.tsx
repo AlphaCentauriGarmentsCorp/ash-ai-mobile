@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.base,
     paddingVertical: SPACING.sm,
     backgroundColor: COLORS.white,
-    fontFamily: "poppins-regular",
+    fontFamily: 'Poppins_400Regular',
     fontSize: FONT_SIZES.sm,
   },
   searchIconContainer: {

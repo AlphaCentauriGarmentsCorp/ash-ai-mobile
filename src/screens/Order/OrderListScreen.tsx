@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'; // Imported for the custom buttons
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Modal,
@@ -94,7 +94,7 @@ export default function OrderListScreen() {
       const response = await orderApi.index({
         page: currentPage,
         per_page: entriesPerPage,
-        search: searchQuery || undefined,
+        // Remove search from API call since we're doing client-side search
         status: selectedTask !== 'all' ? selectedTask : undefined,
       });
 
@@ -123,22 +123,57 @@ export default function OrderListScreen() {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, entriesPerPage, searchQuery, selectedTask]);
+  }, [currentPage, entriesPerPage, selectedTask]);
   
-  const filteredOrders = orders.filter(order => {
+  // Create searchable text for each order (optimized with useMemo)
+  const searchableOrders = useMemo(() => {
+    return orders.map(order => ({
+      ...order,
+      searchableText: [
+        order.poNumber,
+        order.type,
+        order.priority,
+        order.clothing,
+        order.designName,
+        order.status,
+        order.leadTimeLeft,
+        // Add any nested properties if they exist
+        order.color === '#000' ? 'sorbetes' : 'reefer', // Brand search
+      ].filter(Boolean).join(' ').toLowerCase()
+    }));
+  }, [orders]);
+
+  // Enhanced filtering with multi-field search
+  const filteredOrders = useMemo(() => {
+    let filtered = searchableOrders;
+
+    // Apply search filter (multi-field, case-insensitive, partial matching)
+    if (searchQuery.trim()) {
+      const searchTerm = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(order => 
+        order.searchableText.includes(searchTerm)
+      );
+    }
+
+    // Apply brand filter
     if (selectedOrder !== 'all') {
-      const isSorbetes = order.color === '#000';
-      const isReefer = order.color === '#F58220';
-      if (selectedOrder === 'sorbetes' && !isSorbetes) return false;
-      if (selectedOrder === 'reefer' && !isReefer) return false;
+      const isSorbetes = (order: any) => order.color === '#000';
+      const isReefer = (order: any) => order.color === '#F58220';
+      
+      filtered = filtered.filter(order => {
+        if (selectedOrder === 'sorbetes' && !isSorbetes(order)) return false;
+        if (selectedOrder === 'reefer' && !isReefer(order)) return false;
+        return true;
+      });
     }
     
+    // Apply priority filter
     if (selectedPriority !== 'all') {
-      if (order.priority !== selectedPriority) return false;
+      filtered = filtered.filter(order => order.priority === selectedPriority);
     }
     
-    return true;
-  });
+    return filtered;
+  }, [searchableOrders, searchQuery, selectedOrder, selectedPriority]);
   
   const totalPages = Math.ceil(totalRecords / entriesPerPage);
   
@@ -310,7 +345,7 @@ export default function OrderListScreen() {
           <SearchBar
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder="Search by client name, brand..."
+            placeholder="Search by PO#, type, priority, clothing, design, status..."
             style={styles.searchContainer}
           />
 
