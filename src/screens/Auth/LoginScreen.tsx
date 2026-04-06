@@ -2,9 +2,9 @@ import { EuphoriaScript_400Regular, useFonts } from '@expo-google-fonts/euphoria
 import { GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import {
-  Poppins_400Regular,
-  Poppins_700Bold,
-  Poppins_800ExtraBold
+    Poppins_400Regular,
+    Poppins_700Bold,
+    Poppins_800ExtraBold
 } from '@expo-google-fonts/poppins';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,18 +12,18 @@ import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Image,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context';
@@ -123,21 +123,20 @@ export default function Index() {
       style={styles.container}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
         style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
 
         {/* TOP LOGO SECTION */}
         <View style={[styles.topSection, { paddingTop: insets.top + 30 }]}>
-          {!isKeyboardVisible && (
+          <View style={{ opacity: isKeyboardVisible ? 0 : 1, alignItems: 'center' }}>
             <Image
               source={require('../../assets/images/ash-logo.png')}
               style={styles.logoImage}
             />
-          )}
-          {!isKeyboardVisible && (
             <Text style={styles.tagline}>Companion App</Text>
-          )}
+          </View>
         </View>
 
         {/* BOTTOM FORM SECTION */}
