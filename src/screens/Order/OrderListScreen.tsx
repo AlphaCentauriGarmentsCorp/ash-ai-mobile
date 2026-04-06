@@ -5,6 +5,7 @@ import {
     ActivityIndicator,
     Modal,
     Pressable,
+    RefreshControl,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -60,6 +61,7 @@ export default function OrderListScreen() {
   const [dropdownVisible, setDropdownVisible] = useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Helper function to calculate lead time
   const calculateLeadTime = (deadline: string): string => {
@@ -151,14 +153,16 @@ export default function OrderListScreen() {
     }
   };
   
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
+    setRefreshing(true);
     setSelectedOrder('all');
     setSelectedTask('all');
     setSelectedPriority('all');
     setSearchQuery('');
     setCurrentPage(1);
     setEntriesPerPage(15);
-    fetchOrders();
+    await fetchOrders();
+    setRefreshing(false);
   };
 
   const handleView = (orderId: string) => {
@@ -278,42 +282,29 @@ export default function OrderListScreen() {
       <PageTitle title="Orders" icon="people-outline" />
 
       <View style={styles.contentContainer}>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={styles.scrollView} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={['#0D253F']}
+              tintColor="#0D253F"
+            />
+          }
+        >
           
-          {/* CUSTOM ACTION BUTTONS */}
+          {/* NEW ORDER BUTTON */}
           <View style={styles.actionButtonsContainer}>
-            
-            {/* Left Group: New Order & Refresh */}
-            <View style={styles.leftButtonsGroup}>
-              <TouchableOpacity 
-                style={styles.primaryPillBtn} 
-                onPress={() => router.push('/order/add')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="add" size={18} color="#FFFFFF" style={styles.btnIcon} />
-                <Text style={styles.primaryPillText}>New Order</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={styles.secondaryPillBtn} 
-                onPress={handleRefresh}
-                activeOpacity={0.6}
-              >
-                <Ionicons name="refresh-outline" size={16} color="#0D253F" style={styles.btnIcon} />
-                <Text style={styles.secondaryPillText}>Refresh</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Right Group: Order History */}
             <TouchableOpacity 
-              style={styles.tertiaryPillBtn} 
-              onPress={() => console.log('Order history')}
-              activeOpacity={0.6}
+              style={styles.primaryPillBtn} 
+              onPress={() => router.push('/order/add')}
+              activeOpacity={0.8}
             >
-              <Ionicons name="time-outline" size={16} color="#0D253F" style={styles.btnIcon} />
-              <Text style={styles.tertiaryPillText}>Order History</Text>
+              <Ionicons name="add" size={18} color="#FFFFFF" style={styles.btnIcon} />
+              <Text style={styles.primaryPillText}>New Order</Text>
             </TouchableOpacity>
-            
           </View>
 
           <SearchBar
@@ -478,78 +469,29 @@ const styles = StyleSheet.create({
     paddingTop: hp(2) 
   },
 
-  // --- CUSTOM ACTION BUTTON STYLES (Fixed to match Image 1 exactly) ---
+  // --- NEW ORDER BUTTON STYLES ---
   actionButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Pushes left group to the left, history to the right
     alignItems: 'center',
     marginBottom: hp(2),
-    width: '100%',
-  },
-  leftButtonsGroup: {
-    
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12, // Gap between New Order and Refresh
   },
   primaryPillBtn: {
-    width:110,
+    width: 110,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0D253F', // Deep Navy background
     borderRadius: 50, // Pill shape
     height: 42,
-    paddingHorizontal: 20, // Defines width dynamically based on text
+    paddingHorizontal: 20,
   },
-  secondaryPillBtn: {
-    width:100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#0D253F', // Deep Navy border
-    borderRadius: 50, // Pill shape
-    height: 42,
-    paddingHorizontal: 20, // Defines width dynamically based on text
-  },
-   tertiaryPillBtn: {
-    width:100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#0D253F', // Deep Navy border
-    borderRadius: 50, // Pill shape
-    height: 35,
-    paddingHorizontal: 20, // Defines width dynamically based on text
-  },
-
   primaryPillText: {
-    fontFamily: 'Poppins_500Medium', // Matching bold font
+    fontFamily: 'Poppins_500Medium',
     fontSize: 12,
     color: '#FFFFFF',
     marginRight: 5,
     marginLeft: -5,
     marginTop: 2,
-  },
-  secondaryPillText: {
-     fontFamily: 'Poppins_600SemiBold',
-    fontSize: 12,
-    marginRight: 5,
-    marginLeft: -5,
-    marginTop: 2,
-    color: '#001C34', // Dark Navy text
-  },
-  tertiaryPillText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 8,
-    marginRight: 5,
-    marginLeft: -5,
-    marginTop: 2,
-    color: '#001C34', // Dark Navy text
   },
   btnIcon: {
     marginRight: 8,
