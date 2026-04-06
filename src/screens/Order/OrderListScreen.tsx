@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'; // Imported for the custom buttons
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Modal,
     Pressable,
+    RefreshControl,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -60,6 +61,7 @@ export default function OrderListScreen() {
   const [dropdownVisible, setDropdownVisible] = useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Helper function to calculate lead time
   const calculateLeadTime = (deadline: string): string => {
@@ -92,7 +94,7 @@ export default function OrderListScreen() {
       const response = await orderApi.index({
         page: currentPage,
         per_page: entriesPerPage,
-        search: searchQuery || undefined,
+        // Remove search from API call since we're doing client-side search
         status: selectedTask !== 'all' ? selectedTask : undefined,
       });
 
@@ -121,22 +123,57 @@ export default function OrderListScreen() {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, entriesPerPage, searchQuery, selectedTask]);
+  }, [currentPage, entriesPerPage, selectedTask]);
   
-  const filteredOrders = orders.filter(order => {
+  // Create searchable text for each order (optimized with useMemo)
+  const searchableOrders = useMemo(() => {
+    return orders.map(order => ({
+      ...order,
+      searchableText: [
+        order.poNumber,
+        order.type,
+        order.priority,
+        order.clothing,
+        order.designName,
+        order.status,
+        order.leadTimeLeft,
+        // Add any nested properties if they exist
+        order.color === '#000' ? 'sorbetes' : 'reefer', // Brand search
+      ].filter(Boolean).join(' ').toLowerCase()
+    }));
+  }, [orders]);
+
+  // Enhanced filtering with multi-field search
+  const filteredOrders = useMemo(() => {
+    let filtered = searchableOrders;
+
+    // Apply search filter (multi-field, case-insensitive, partial matching)
+    if (searchQuery.trim()) {
+      const searchTerm = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(order => 
+        order.searchableText.includes(searchTerm)
+      );
+    }
+
+    // Apply brand filter
     if (selectedOrder !== 'all') {
-      const isSorbetes = order.color === '#000';
-      const isReefer = order.color === '#F58220';
-      if (selectedOrder === 'sorbetes' && !isSorbetes) return false;
-      if (selectedOrder === 'reefer' && !isReefer) return false;
+      const isSorbetes = (order: any) => order.color === '#000';
+      const isReefer = (order: any) => order.color === '#F58220';
+      
+      filtered = filtered.filter(order => {
+        if (selectedOrder === 'sorbetes' && !isSorbetes(order)) return false;
+        if (selectedOrder === 'reefer' && !isReefer(order)) return false;
+        return true;
+      });
     }
     
+    // Apply priority filter
     if (selectedPriority !== 'all') {
-      if (order.priority !== selectedPriority) return false;
+      filtered = filtered.filter(order => order.priority === selectedPriority);
     }
     
-    return true;
-  });
+    return filtered;
+  }, [searchableOrders, searchQuery, selectedOrder, selectedPriority]);
   
   const totalPages = Math.ceil(totalRecords / entriesPerPage);
   
@@ -151,14 +188,16 @@ export default function OrderListScreen() {
     }
   };
   
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
+    setRefreshing(true);
     setSelectedOrder('all');
     setSelectedTask('all');
     setSelectedPriority('all');
     setSearchQuery('');
     setCurrentPage(1);
     setEntriesPerPage(15);
-    fetchOrders();
+    await fetchOrders();
+    setRefreshing(false);
   };
 
   const handleView = (orderId: string) => {
@@ -278,48 +317,35 @@ export default function OrderListScreen() {
       <PageTitle title="Orders" icon="people-outline" />
 
       <View style={styles.contentContainer}>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={styles.scrollView} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={['#0D253F']}
+              tintColor="#0D253F"
+            />
+          }
+        >
           
-          {/* CUSTOM ACTION BUTTONS */}
+          {/* NEW ORDER BUTTON */}
           <View style={styles.actionButtonsContainer}>
-            
-            {/* Left Group: New Order & Refresh */}
-            <View style={styles.leftButtonsGroup}>
-              <TouchableOpacity 
-                style={styles.primaryPillBtn} 
-                onPress={() => router.push('/order/add')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="add" size={18} color="#FFFFFF" style={styles.btnIcon} />
-                <Text style={styles.primaryPillText}>New Order</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={styles.secondaryPillBtn} 
-                onPress={handleRefresh}
-                activeOpacity={0.6}
-              >
-                <Ionicons name="refresh-outline" size={16} color="#0D253F" style={styles.btnIcon} />
-                <Text style={styles.secondaryPillText}>Refresh</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Right Group: Order History */}
             <TouchableOpacity 
-              style={styles.tertiaryPillBtn} 
-              onPress={() => console.log('Order history')}
-              activeOpacity={0.6}
+              style={styles.primaryPillBtn} 
+              onPress={() => router.push('/order/add')}
+              activeOpacity={0.8}
             >
-              <Ionicons name="time-outline" size={16} color="#0D253F" style={styles.btnIcon} />
-              <Text style={styles.tertiaryPillText}>Order History</Text>
+              <Ionicons name="add" size={18} color="#FFFFFF" style={styles.btnIcon} />
+              <Text style={styles.primaryPillText}>New Order</Text>
             </TouchableOpacity>
-            
           </View>
 
           <SearchBar
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder="Search by client name, brand..."
+            placeholder="Search by PO#, type, priority, clothing, design, status..."
             style={styles.searchContainer}
           />
 
@@ -478,78 +504,29 @@ const styles = StyleSheet.create({
     paddingTop: hp(2) 
   },
 
-  // --- CUSTOM ACTION BUTTON STYLES (Fixed to match Image 1 exactly) ---
+  // --- NEW ORDER BUTTON STYLES ---
   actionButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Pushes left group to the left, history to the right
     alignItems: 'center',
     marginBottom: hp(2),
-    width: '100%',
-  },
-  leftButtonsGroup: {
-    
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12, // Gap between New Order and Refresh
   },
   primaryPillBtn: {
-    width:110,
+    width: 110,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0D253F', // Deep Navy background
     borderRadius: 50, // Pill shape
     height: 42,
-    paddingHorizontal: 20, // Defines width dynamically based on text
+    paddingHorizontal: 20,
   },
-  secondaryPillBtn: {
-    width:100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#0D253F', // Deep Navy border
-    borderRadius: 50, // Pill shape
-    height: 42,
-    paddingHorizontal: 20, // Defines width dynamically based on text
-  },
-   tertiaryPillBtn: {
-    width:100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#0D253F', // Deep Navy border
-    borderRadius: 50, // Pill shape
-    height: 35,
-    paddingHorizontal: 20, // Defines width dynamically based on text
-  },
-
   primaryPillText: {
-    fontFamily: 'Poppins_500Medium', // Matching bold font
+    fontFamily: 'Poppins_500Medium',
     fontSize: 12,
     color: '#FFFFFF',
     marginRight: 5,
     marginLeft: -5,
     marginTop: 2,
-  },
-  secondaryPillText: {
-     fontFamily: 'Poppins_600SemiBold',
-    fontSize: 12,
-    marginRight: 5,
-    marginLeft: -5,
-    marginTop: 2,
-    color: '#001C34', // Dark Navy text
-  },
-  tertiaryPillText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 8,
-    marginRight: 5,
-    marginLeft: -5,
-    marginTop: 2,
-    color: '#001C34', // Dark Navy text
   },
   btnIcon: {
     marginRight: 8,

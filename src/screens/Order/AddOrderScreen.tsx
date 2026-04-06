@@ -16,11 +16,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Client, clientsApi, CreateOrderRequest, orderApi } from '@api';
 import Button from '@components/common/Button';
 import DatePickerField from '@components/common/DatePickerField';
-import { UnifiedDropdown, type UnifiedDropdownOption } from '@components/unified';
 import type { Step } from '@components/common/Stepper';
 import Stepper from '@components/common/Stepper';
 import DesignMockup from '@components/specific/Order/DesignMockup';
 import PrintArea from '@components/specific/Order/PrintArea';
+import { UnifiedDropdown, type UnifiedDropdownOption } from '@components/unified';
 import { useDropdownData, usePoppinsFonts } from '@hooks';
 import { PageHeader } from '@layouts';
 import { ms } from "@utils/responsive";
@@ -1162,9 +1162,17 @@ export default function AddOrderScreen() {
           </View>
 
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClear}>
-              <Text style={styles.clearText}>Clear all fields</Text>
-            </TouchableOpacity>
+            <View style={styles.topFooterRow}>
+              <TouchableOpacity style={styles.clearButtonContainer} onPress={handleClear}>
+                <Text style={styles.clearText}>Clear all fields</Text>
+              </TouchableOpacity>
+              
+              {currentStep === 2 && (
+                <TouchableOpacity style={styles.saveAsDraftContainer} onPress={handleSaveAsDraft}>
+                  <Text style={styles.saveAsDraftText}>Save as Draft</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <View style={styles.actionButtons}>
               {currentStep < 2 ? (
@@ -1191,24 +1199,16 @@ export default function AddOrderScreen() {
                     title="Back"
                     onPress={handleBack}
                     variant="outline"
-                    size="sm"
-                    style={StyleSheet.flatten([styles.navBtnSmall, styles.backBtn])}
+                    size="base"
+                    style={StyleSheet.flatten([styles.navBtn, styles.backBtn])}
                     textStyle={styles.backBtnText}
                   />
                   <Button
                     title="Save"
                     onPress={handleSave}
                     variant="primary"
-                    size="sm"
-                    style={styles.navBtnSmall}
-                  />
-                  <Button
-                    title="Save as Draft"
-                    onPress={handleSaveAsDraft}
-                    variant="outline"
-                    size="sm"
-                    style={StyleSheet.flatten([styles.navBtnSmall, styles.backBtn])}
-                    textStyle={styles.backBtnText}
+                    size="base"
+                    style={styles.navBtn}
                   />
                 </>
               )}
@@ -1344,14 +1344,28 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
   },
-  clearButtonContainer: {
+  topFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: ms(16),
+  },
+  clearButtonContainer: {
+    alignItems: 'flex-start',
   },
   clearText: {
     fontSize: ms(14),
     fontFamily: 'Poppins_400Regular',
     color: '#ef4444',
+    textDecorationLine: 'underline',
+  },
+  saveAsDraftContainer: {
+    alignItems: 'flex-end',
+  },
+  saveAsDraftText: {
+    fontSize: ms(14),
+    fontFamily: 'Poppins_400Regular',
+    color: '#3b82f6',
     textDecorationLine: 'underline',
   },
   actionButtons: {
@@ -1362,10 +1376,6 @@ const styles = StyleSheet.create({
   navBtn: {
     flex: 1,
     minHeight: ms(48),
-  },
-  navBtnSmall: {
-    flex: 1,
-    minHeight: ms(44),
   },
   backBtn: {
     borderColor: '#d1d5db',
