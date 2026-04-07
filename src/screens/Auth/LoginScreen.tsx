@@ -2,28 +2,28 @@ import { EuphoriaScript_400Regular, useFonts } from '@expo-google-fonts/euphoria
 import { GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import {
-  Poppins_400Regular,
-  Poppins_700Bold,
-  Poppins_800ExtraBold
+    Poppins_400Regular,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
 } from '@expo-google-fonts/poppins';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Image,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context';
@@ -36,9 +36,7 @@ export default function Index() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // ADDED: State to toggle password visibility
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  
   const [rememberMe, setRememberMe] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -53,7 +51,6 @@ export default function Index() {
     return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       router.replace('/dashboard');
@@ -67,83 +64,63 @@ export default function Index() {
     EuphoriaScript_400Regular,
     Poppins_400Regular,
     Poppins_700Bold,
-    Poppins_800ExtraBold
+    Poppins_800ExtraBold,
   });
 
   const handleLogin = async () => {
-    if (email === '' || password === '') {
+    if (!email || !password) {
       Alert.alert('Error', 'Please fill in both email and password.');
       return;
     }
-
     setIsLoggingIn(true);
     try {
       await login({ email, password });
       router.replace('/dashboard');
     } catch (error: any) {
-      console.log('Login error:', error);
-      
       let errorMessage = 'Login failed. Please try again.';
-      
-      // Handle validation errors (422)
       if (error?.response?.status === 422) {
         const errors = error?.response?.data?.errors;
-        if (errors) {
-          // Combine all validation error messages
-          const errorMessages = Object.values(errors).flat().join('\n');
-          errorMessage = errorMessages || 'Validation failed. Please check your input.';
-        } else {
-          errorMessage = error?.response?.data?.message || 'Validation failed. Please check your input.';
-        }
-      }
-      // Handle other API errors
-      else if (error?.response?.data?.message) {
+        errorMessage = errors
+          ? Object.values(errors).flat().join('\n')
+          : error?.response?.data?.message || 'Validation failed.';
+      } else if (error?.response?.data?.message) {
         errorMessage = error.response.data.message;
-      }
-      // Handle network errors
-      else if (error?.message) {
+      } else if (error?.message) {
         errorMessage = error.message;
       }
-      
       Alert.alert('Login Failed', errorMessage);
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  const handleForgotPassword = () => {
-    router.push('/login/forgot'); 
-  };
-
   if (!fontsLoaded || authLoading) return null;
 
   return (
-    <LinearGradient
-      colors={['#E0F4FB', '#9AD1F0', '#6FBBE8']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#E0F4FB', '#9AD1F0', '#6FBBE8']} style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-
-        {/* TOP LOGO SECTION */}
-        <View style={[styles.topSection, { paddingTop: insets.top + 30 }]}>
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 30, paddingBottom: insets.bottom + 30 }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          {/* LOGO — hidden via opacity when keyboard is up, layout stays stable */}
           {!isKeyboardVisible && (
-            <Image
-              source={require('../../assets/images/ash-logo.png')}
-              style={styles.logoImage}
-            />
+            <View style={styles.logoSection}>
+              <Image
+                source={require('../../assets/images/ash-logo.png')}
+                style={styles.logoImage}
+              />
+              <Text style={styles.tagline}>Companion App</Text>
+            </View>
           )}
-          {!isKeyboardVisible && (
-            <Text style={styles.tagline}>Companion App</Text>
-          )}
-        </View>
 
-        {/* BOTTOM FORM SECTION */}
-        <View style={[styles.bottomSection, { paddingBottom: insets.bottom + 30 }]}>
+          {/* FORM */}
           <View style={styles.formContainer}>
-            
             <View style={styles.textContainer}>
               <Text style={styles.welcomeTitle}>Welcome!</Text>
               <Text style={styles.welcomeSub}>Manage your tasks and production workflow with ease.</Text>
@@ -170,28 +147,26 @@ export default function Index() {
               <TextInput
                 placeholder="Password"
                 placeholderTextColor="#999"
-                // MODIFIED: Toggle secureTextEntry based on state
                 secureTextEntry={!isPasswordVisible}
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
                 editable={!isLoggingIn}
               />
-              {/* MODIFIED: Wrapped icon in TouchableOpacity for interaction */}
               <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-                <Ionicons 
-                  name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
-                  color="#999" 
-                  style={{ opacity: 0.7 }} 
+                <Ionicons
+                  name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color="#999"
+                  style={{ opacity: 0.7 }}
                 />
               </TouchableOpacity>
             </View>
-          
-            {/* Checkbox & Forgot Password Row */}
+
+            {/* Remember me & Forgot password */}
             <View style={styles.row}>
-              <Pressable 
-                style={styles.checkboxWrapper} 
+              <Pressable
+                style={styles.checkboxWrapper}
                 onPress={() => setRememberMe(!rememberMe)}
                 hitSlop={10}
                 disabled={isLoggingIn}
@@ -202,9 +177,9 @@ export default function Index() {
                 <Text style={styles.smallLabel}>Remember me</Text>
               </Pressable>
 
-              <TouchableOpacity 
-                onPress={handleForgotPassword}
-                hitSlop={15} 
+              <TouchableOpacity
+                onPress={() => router.push('/login/forgot')}
+                hitSlop={15}
                 style={{ padding: 5 }}
                 disabled={isLoggingIn}
               >
@@ -213,8 +188,8 @@ export default function Index() {
             </View>
 
             {/* Login Button */}
-            <TouchableOpacity 
-              style={[styles.loginBtn, isLoggingIn && styles.loginBtnDisabled]} 
+            <TouchableOpacity
+              style={[styles.loginBtn, isLoggingIn && styles.loginBtnDisabled]}
               onPress={handleLogin}
               disabled={isLoggingIn}
             >
@@ -224,10 +199,8 @@ export default function Index() {
                 <Text style={styles.loginBtnText}>Login</Text>
               )}
             </TouchableOpacity>
-
           </View>
-        </View>
-
+        </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
@@ -235,13 +208,15 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  keyboardView: { flex: 1, justifyContent: 'space-between' },
-  
-  topSection: {
-    alignItems: 'center',
-    paddingBottom: 20,
-    flex: 1, 
+  keyboardView: { flex: 1 },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
+    paddingHorizontal: 35,
+  },
+  logoSection: {
+    alignItems: 'center',
+    marginBottom: 10,
   },
   logoImage: {
     width: 320,
@@ -252,13 +227,8 @@ const styles = StyleSheet.create({
     fontFamily: 'EuphoriaScript_400Regular',
     fontSize: 32,
     color: '#2C3E50',
-    marginTop: -80, 
+    marginTop: -80,
     opacity: 0.9,
-  },
-  
-  bottomSection: {
-    justifyContent: 'flex-end',
-    paddingHorizontal: 35,
   },
   formContainer: {
     width: '100%',
@@ -277,16 +247,15 @@ const styles = StyleSheet.create({
     color: '#2C3E50',
     opacity: 0.8,
   },
-  
   inputBox: {
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    height: 35, 
+    height: 35,
     marginBottom: 25,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
@@ -298,18 +267,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#333',
     height: '120%',
-    opacity: 1,
   },
-
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 5,
-    marginBottom: 30, 
+    marginBottom: 30,
   },
-  checkboxWrapper: { 
-    flexDirection: 'row', 
+  checkboxWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   checkbox: {
@@ -321,9 +288,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxActive: {
-    // Optional: Add background color when active if desired
-  },
+  checkboxActive: {},
   smallLabel: {
     color: '#000000',
     fontSize: 9,
@@ -331,23 +296,20 @@ const styles = StyleSheet.create({
     opacity: 0.95,
     marginRight: 10,
   },
-
   loginBtn: {
     backgroundColor: '#00437A',
     height: 50,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 5,
     marginBottom: 50,
     marginTop: -5,
   },
-  loginBtnDisabled: {
-    opacity: 0.6,
-  },
+  loginBtnDisabled: { opacity: 0.6 },
   loginBtnText: {
     color: '#FFFFFF',
     fontSize: 18,
