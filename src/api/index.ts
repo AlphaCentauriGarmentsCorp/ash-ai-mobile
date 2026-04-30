@@ -14,6 +14,7 @@ export { patternTypeApi, type CreatePatternTypeRequest, type PatternType, type U
 export { placementMeasurementApi, type CreatePlacementMeasurementRequest, type PlacementMeasurement, type UpdatePlacementMeasurementRequest } from './placementMeasurement';
 export { printLabelPlacementApi, type CreatePrintLabelPlacementRequest, type PrintLabelPlacement, type UpdatePrintLabelPlacementRequest } from './printLabelPlacement';
 export { printMethodApi, type CreatePrintMethodRequest, type PrintMethod, type UpdatePrintMethodRequest } from './printMethod';
+export { quotationApi, type CreateQuotationRequest, type Quotation } from './quotation';
 export { serviceTypeApi, type CreateServiceTypeRequest, type ServiceType, type UpdateServiceTypeRequest } from './serviceType';
 export { uploadApi } from './upload';
 

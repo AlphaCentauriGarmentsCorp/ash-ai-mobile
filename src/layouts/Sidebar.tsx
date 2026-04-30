@@ -94,7 +94,16 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const homeItems: MenuItem[] = [
     { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
     { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
-    { id: 'quotation', title: 'Quotation', icon: 'document-text-outline', route: '/quotation' },
+    {
+      id: 'quotation',
+      title: 'Quotation',
+      icon: 'document-text-outline',
+      subItems: [
+        { id: 'all-quotation', title: 'All Quotation', route: '/quotation/all' },
+        { id: 'add-quotation', title: 'Add Quotation', route: '/quotation' },
+        { id: 'client-quotation', title: 'Client Quotation', route: '/quotation/quotation-client' },
+      ]
+    },
     { 
       id: 'dropdown-settings', 
       title: 'Dropdown Settings', 
