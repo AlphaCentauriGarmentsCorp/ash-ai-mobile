@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -11,9 +10,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import quotationApi from '../../api/quotation';
 
 import Button from '@components/common/Button';
-import { UnifiedDropdown } from '@components/unified';
 import { PageHeader } from '@layouts';
 import { COLORS, FONT_FAMILY, FONT_SIZES } from '@styles';
 import { hp, wp } from '@utils/responsive';
@@ -44,25 +43,22 @@ export default function QuotationScreen() {
   // Order Information
   const [orderInfo, setOrderInfo] = useState({
     client_name: '',
+    client_email: '',
     brand: '',
     shirt_color: '',
     free_items: '',
-    notes: '',
   });
 
   // Pricing Data
   const tshirtTypes = [
-    { id: 1, name: 'BOXY', base_price: 350 },
-    { id: 2, name: 'REGULAR', base_price: 300 },
-    { id: 3, name: 'OVERSIZED', base_price: 400 },
+    { id: 1, name: 'Boxy', base_price: 370 },
+    { id: 2, name: 'Standard', base_price: 300 },
   ];
 
   const necklines = [
-    { id: 1, name: 'STANDARD', base_price: 0 },
-    { id: 2, name: 'CREW NECK', base_price: 10 },
-    { id: 3, name: 'V-NECK', base_price: 15 },
-    { id: 4, name: 'TURTLENECK', base_price: 20 },
-    { id: 5, name: 'MOCK NECK', base_price: 12 },
+    { id: 1, name: 'Standard', base_price: 0 },
+    { id: 2, name: 'Proclub', base_price: 20 },
+    { id: 3, name: 'Neckline2', base_price: 50 },
   ];
 
   const sizes = [
@@ -83,10 +79,8 @@ export default function QuotationScreen() {
   ];
 
   const printTypes = [
-    { id: 1, name: 'SILKSCREEN (WATERBASED)', base_price: 50 },
-    { id: 2, name: 'SILKSCREEN (PLASTISOL)', base_price: 50 },
-    { id: 3, name: 'DTG', base_price: 100 },
-    { id: 4, name: 'EMBROIDERY', base_price: 150 },
+    { id: 1, name: 'SILK SCREEN', base_price: 0 },
+    { id: 2, name: 'DTF', base_price: 100 },
   ];
 
   const printColors = [
@@ -105,10 +99,8 @@ export default function QuotationScreen() {
   ];
 
   const printPatterns = [
-    { id: 1, name: 'STANDARD', additional_price: 0 },
-    { id: 2, name: 'ALL-OVER PRINT', additional_price: 200 },
-    { id: 3, name: 'SLEEVE PRINT', additional_price: 100 },
-    { id: 4, name: 'BACK PRINT', additional_price: 150 },
+    { id: 1, name: 'Standard Print', additional_price: 0 },
+    { id: 2, name: 'Full Print', additional_price: 20 },
   ];
 
   const addonCategories = [
@@ -134,11 +126,11 @@ export default function QuotationScreen() {
   ]);
 
   const [selectedAddons, setSelectedAddons] = useState<number[]>([]);
-  const [selectedTshirtType, setSelectedTshirtType] = useState(1);
-  const [selectedPrintType, setSelectedPrintType] = useState(1);
-  const [selectedPrintPattern, setSelectedPrintPattern] = useState(1);
-  const [selectedNeckline, setSelectedNeckline] = useState(1);
-  const [selectedColorCount, setSelectedColorCount] = useState(2);
+  const [selectedTshirtType, setSelectedTshirtType] = useState('');
+  const [selectedPrintType, setSelectedPrintType] = useState('');
+  const [selectedPrintPattern, setSelectedPrintPattern] = useState('');
+  const [selectedNeckline, setSelectedNeckline] = useState('');
+  const [selectedColorCount, setSelectedColorCount] = useState('');
   const [discount, setDiscount] = useState({ type: 'percentage', value: 0 });
 
   // Helper functions
@@ -161,7 +153,7 @@ export default function QuotationScreen() {
   const calculateItemAmount = (item: QuotationItem) => {
     const combinedSizePrice = getCombinedSizePrice(item.tshirt_type_id, item.size_id);
     const printTypeBasePrice = printTypes.find(t => t.id === item.print_type_id)?.base_price || 0;
-    const printColorPrice = getPrintColorPrice(item.print_type_id, selectedColorCount);
+    const printColorPrice = getPrintColorPrice(item.print_type_id,selectedColorCount ? parseInt(selectedColorCount) : 0);
     const printPatternPrice = printPatterns.find(p => p.id === item.print_pattern_id)?.additional_price || 0;
     const necklinePrice = necklines.find(n => n.id === item.neckline_id)?.base_price || 0;
 
@@ -206,11 +198,18 @@ export default function QuotationScreen() {
   // Actions
   const addQuotationItem = () => {
     const newId = Math.max(...quotationItems.map(i => i.id), 0) + 1;
-    setQuotationItems([...quotationItems, {
-      id: newId, size_id: sizes[0]?.id || 1, quantity: 50,
-      tshirt_type_id: selectedTshirtType, print_type_id: selectedPrintType,
-      print_pattern_id: selectedPrintPattern, neckline_id: selectedNeckline,
-    }]);
+    setQuotationItems([
+      ...quotationItems,
+      {
+        id: newId,
+        size_id: sizes[0]?.id || 1,
+        quantity: 50,
+        tshirt_type_id: selectedTshirtType ? parseInt(selectedTshirtType) : 1,
+        print_type_id: selectedPrintType ? parseInt(selectedPrintType) : 1,
+        print_pattern_id: selectedPrintPattern ? parseInt(selectedPrintPattern) : 1,
+        neckline_id: selectedNeckline ? parseInt(selectedNeckline) : 1,
+      },
+    ]);
   };
 
   const removeQuotationItem = (id: number) => {
@@ -233,18 +232,43 @@ export default function QuotationScreen() {
     setSelectedAddons(prev => prev.includes(addonId) ? prev.filter(id => id !== addonId) : [...prev, addonId]);
   };
 
-  const handleSave = () => {
-    if (!orderInfo.client_name.trim()) {
-      Alert.alert('Validation Error', 'Client name is required');
-      return;
-    }
-    const invalidItems = quotationItems.filter(item => item.quantity > 0 && item.quantity < 50);
-    if (invalidItems.length > 0) {
-      Alert.alert('Validation Error', 'All items must have a minimum quantity of 50 pieces');
-      return;
-    }
+  const handleSave = async () => {
+  if (!orderInfo.client_name.trim()) {
+    Alert.alert('Validation Error', 'Client name is required');
+    return;
+  }
+
+  if (!orderInfo.client_email.trim()) {
+    Alert.alert('Validation Error', 'Client email is required');
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    console.log('quotationApi:', quotationApi);
+
+    await quotationApi.store({
+      client_name: orderInfo.client_name,
+      client_email: orderInfo.client_email,
+      brand: orderInfo.brand,
+      shirt_color: orderInfo.shirt_color,
+      free_items: orderInfo.free_items,
+      tshirt_type_id: selectedTshirtType ? parseInt(selectedTshirtType) : null,
+      neckline_id: selectedNeckline ? parseInt(selectedNeckline) : null,
+      print_type_id: selectedPrintType ? parseInt(selectedPrintType) : null,
+      print_color_count: selectedColorCount ? parseInt(selectedColorCount) : null,
+      print_pattern_id: selectedPrintPattern ? parseInt(selectedPrintPattern) : null,
+    });
+
     Alert.alert('Success', 'Quotation saved successfully!');
-  };
+    router.push('/quotation/all' as any);
+  } catch (error: any) {
+    Alert.alert('Error', error?.message || 'Failed to save quotation');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleClearAll = () => {
     setQuotationItems([
@@ -254,7 +278,12 @@ export default function QuotationScreen() {
     ]);
     setSelectedAddons([]);
     setDiscount({ type: 'percentage', value: 0 });
-    setOrderInfo({ client_name: '', brand: '', shirt_color: '', free_items: '', notes: '' });
+    setSelectedTshirtType('');
+    setSelectedNeckline('');
+    setSelectedPrintType('');
+    setSelectedColorCount('');
+    setSelectedPrintPattern('');
+    setOrderInfo({ client_name: '', client_email: '', brand: '', shirt_color: '', free_items: '' });
   };
 
   return (
@@ -266,372 +295,169 @@ export default function QuotationScreen() {
         <View style={styles.card}>
           
           {/* Section: Order Information */}
-          <Text style={styles.sectionTitle}>Order Information</Text>
-          <View style={styles.divider} />
-          
-          <View style={styles.row}>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Client Name</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="Enter client name"
-                placeholderTextColor="#9CA3AF"
-                value={orderInfo.client_name}
-                onChangeText={(text) => setOrderInfo({ ...orderInfo, client_name: text })}
-              />
-            </View>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Brand</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="Enter brand name"
-                placeholderTextColor="#9CA3AF"
-                value={orderInfo.brand}
-                onChangeText={(text) => setOrderInfo({ ...orderInfo, brand: text })}
-              />
-            </View>
-          </View>
+      <Text style={styles.sectionTitle}>Order Information</Text>
+<View style={styles.divider} />
 
-          <View style={styles.row}>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Shirt Color</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="Enter shirt color"
-                placeholderTextColor="#9CA3AF"
-                value={orderInfo.shirt_color}
-                onChangeText={(text) => setOrderInfo({ ...orderInfo, shirt_color: text })}
-              />
-            </View>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Free Items</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="Enter free items"
-                placeholderTextColor="#9CA3AF"
-                value={orderInfo.free_items}
-                onChangeText={(text) => setOrderInfo({ ...orderInfo, free_items: text })}
-              />
-            </View>
-          </View>
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Client Name</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Enter client name"
+    placeholderTextColor="#9CA3AF"
+    value={orderInfo.client_name}
+    onChangeText={(text) => setOrderInfo({ ...orderInfo, client_name: text })}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Client Email</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Enter client email"
+    placeholderTextColor="#9CA3AF"
+    value={orderInfo.client_email}
+    onChangeText={(text) => setOrderInfo({ ...orderInfo, client_email: text })}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Brand</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Enter brand name"
+    placeholderTextColor="#9CA3AF"
+    value={orderInfo.brand}
+    onChangeText={(text) => setOrderInfo({ ...orderInfo, brand: text })}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Shirt Color</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Enter shirt color"
+    placeholderTextColor="#9CA3AF"
+    value={orderInfo.shirt_color}
+    onChangeText={(text) => setOrderInfo({ ...orderInfo, shirt_color: text })}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Free Items</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Enter free items"
+    placeholderTextColor="#9CA3AF"
+    value={orderInfo.free_items}
+    onChangeText={(text) => setOrderInfo({ ...orderInfo, free_items: text })}
+  />
+</View>
 
           {/* Section: Global Configuration */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Global Configuration</Text>
-          <View style={styles.divider} />
+<Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Global Configuration</Text>
+<View style={styles.divider} />
 
-          <View style={styles.row}>
-            <View style={styles.halfInputContainer}>
-              <UnifiedDropdown
-                variant="searchable"
-                label="T-shirt Type"
-                options={tshirtTypes.map(t => ({ label: `${t.name} (₱${t.base_price})`, value: t.id.toString() }))}
-                selectedValue={selectedTshirtType.toString()}
-                onSelect={(value) => {
-                  const id = parseInt(value);
-                  setSelectedTshirtType(id);
-                  applyToAll('tshirt_type_id', id);
-                }}
-                placeholder="Select T-shirt Type"
-                showSearch={false}
-              />
-            </View>
-            <View style={styles.halfInputContainer}>
-              <UnifiedDropdown
-                variant="searchable"
-                label="Neckline"
-                options={necklines.map(n => ({ label: `${n.name} (₱${n.base_price})`, value: n.id.toString() }))}
-                selectedValue={selectedNeckline.toString()}
-                onSelect={(value) => {
-                  const id = parseInt(value);
-                  setSelectedNeckline(id);
-                  applyToAll('neckline_id', id);
-                }}
-                placeholder="Select Neckline"
-                showSearch={false}
-              />
-            </View>
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Tshirt Type *</Text>
+  <FormDropdown
+    options={tshirtTypes.map(t => ({
+      label: `${t.name} (₱${t.base_price})`,
+      value: t.id.toString(),
+    }))}
+    selectedValue={selectedTshirtType}
+    onSelect={(value) => {
+      setSelectedTshirtType(value);
+    }}
+    placeholder="Select Tshirt Type"
+    showSearch={false}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Neckline *</Text>
+  <FormDropdown
+    options={necklines.map(n => ({
+      label: `${n.name} (₱${n.base_price})`,
+      value: n.id.toString(),
+    }))}
+    selectedValue={selectedNeckline}
+    onSelect={(value) => {
+      setSelectedNeckline(value);
+    }}
+    placeholder="Select Neckline"
+    showSearch={false}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Print Type *</Text>
+  <FormDropdown
+    options={printTypes.map(t => ({
+      label: `${t.name} (₱${t.base_price})`,
+      value: t.id.toString(),
+    }))}
+    selectedValue={selectedPrintType}
+    onSelect={(value) => {
+      setSelectedPrintType(value);
+      setSelectedColorCount('');
+    }}
+    placeholder="Select Print Type"
+    showSearch={false}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Print Colors *</Text>
+  <FormDropdown
+    options={
+      selectedPrintType
+        ? printColors
+            .filter(pc => pc.print_type_id === parseInt(selectedPrintType))
+            .map(pc => ({
+              label: `${pc.color_count} color${pc.color_count > 1 ? 's' : ''} (₱${pc.price})`,
+              value: pc.color_count.toString(),
+            }))
+        : []
+    }
+    selectedValue={selectedColorCount}
+    onSelect={(value) => setSelectedColorCount(value)}
+    placeholder="Select Color Count"
+    showSearch={false}
+  />
+</View>
+
+<View style={{ height: hp(1.5) }} />
+
+<View style={styles.fullInputContainer}>
+  <Text style={styles.label}>Print Pattern *</Text>
+  <FormDropdown
+    options={printPatterns.map(p => ({
+      label: `${p.name} (+₱${p.additional_price})`,
+      value: p.id.toString(),
+    }))}
+    selectedValue={selectedPrintPattern}
+    onSelect={(value) => {
+      setSelectedPrintPattern(value);
+    }}
+    placeholder="Select Print Pattern"
+    showSearch={false}
+  />
+</View>
           </View>
-
-          <View style={styles.row}>
-            <View style={styles.halfInputContainer}>
-              <UnifiedDropdown
-                variant="searchable"
-                label="Print Type"
-                options={printTypes.map(t => ({ label: `${t.name} (₱${t.base_price})`, value: t.id.toString() }))}
-                selectedValue={selectedPrintType.toString()}
-                onSelect={(value) => {
-                  const id = parseInt(value);
-                  setSelectedPrintType(id);
-                  applyToAll('print_type_id', id);
-                }}
-                placeholder="Select Print Type"
-                showSearch={false}
-              />
-            </View>
-            <View style={styles.halfInputContainer}>
-              <UnifiedDropdown
-                variant="searchable"
-                label="Print Colors"
-                options={printColors
-                  .filter(pc => pc.print_type_id === selectedPrintType)
-                  .map(pc => ({ label: `${pc.color_count} color${pc.color_count > 1 ? 's' : ''} (₱${pc.price})`, value: pc.color_count.toString() }))}
-                selectedValue={selectedColorCount.toString()}
-                onSelect={(value) => setSelectedColorCount(parseInt(value))}
-                placeholder="Select Print Colors"
-                showSearch={false}
-              />
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <View style={styles.fullInputContainer}>
-              <UnifiedDropdown
-                variant="searchable"
-                label="Print Pattern"
-                options={printPatterns.map(p => ({ label: `${p.name} (₱${p.additional_price})`, value: p.id.toString() }))}
-                selectedValue={selectedPrintPattern.toString()}
-                onSelect={(value) => {
-                  const id = parseInt(value);
-                  setSelectedPrintPattern(id);
-                  applyToAll('print_pattern_id', id);
-                }}
-                placeholder="Select Print Pattern"
-                showSearch={false}
-              />
-            </View>
-          </View>
-
-          {/* Section: Quotation Items */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Quotation Items</Text>
-          <View style={styles.divider} />
-
-          {quotationItems.map((item, index) => {
-            const { pricePerPiece, total } = calculateItemAmount(item);
-            const sizeName = sizes.find(s => s.id === item.size_id)?.name || '';
-            
-            return (
-              <View key={item.id} style={[styles.itemContainer, index > 0 && { marginTop: hp(1.5) }]}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>Item {index + 1}: {sizeName}</Text>
-                  {quotationItems.length > 1 && (
-                    <TouchableOpacity onPress={() => removeQuotationItem(item.id)}>
-                      <Ionicons name="trash-outline" size={18} color="#EF4444" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-                
-                <View style={styles.row}>
-                  <View style={styles.halfInputContainer}>
-                    <UnifiedDropdown
-                      variant="searchable"
-                      label="Size"
-                      options={sizes.map(s => ({ label: s.name, value: s.id.toString() }))}
-                      selectedValue={item.size_id.toString()}
-                      onSelect={(value) => updateItemField(item.id, 'size_id', parseInt(value))}
-                      placeholder="Size"
-                      showSearch={false}
-                    />
-                  </View>
-                  <View style={styles.halfInputContainer}>
-                    <Text style={styles.label}>Quantity</Text>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      placeholder="0"
-                      placeholderTextColor="#9CA3AF"
-                      value={item.quantity.toString()}
-                      onChangeText={(text) => updateItemField(item.id, 'quantity', parseInt(text) || 0)}
-                    />
-                  </View>
-                </View>
-
-                <View style={styles.pricingInfo}>
-                  <View style={styles.pricingRow}>
-                    <Text style={styles.pricingLabel}>Price/Piece:</Text>
-                    <Text style={styles.pricingValue}>₱{pricePerPiece.toLocaleString()}</Text>
-                  </View>
-                  <View style={styles.pricingRow}>
-                    <Text style={styles.pricingLabelBold}>Total:</Text>
-                    <Text style={styles.pricingValueBold}>₱{total.toLocaleString()}</Text>
-                  </View>
-                </View>
-              </View>
-            );
-          })}
-
-          <TouchableOpacity style={styles.addItemButton} onPress={addQuotationItem}>
-            <Ionicons name="add-circle-outline" size={20} color="#001C34" />
-            <Text style={styles.addItemText}>Add Size</Text>
-          </TouchableOpacity>
-
-          {/* Section: Size Cost Breakdown */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Size Cost Breakdown</Text>
-          <View style={styles.divider} />
-          
-          <View style={styles.breakdownContainer}>
-            <View style={styles.breakdownHeader}>
-              <Text style={styles.breakdownHeaderText}>Size</Text>
-              <Text style={styles.breakdownHeaderText}>Qty</Text>
-              <Text style={styles.breakdownHeaderText}>T-shirt</Text>
-              <Text style={styles.breakdownHeaderText}>Neckline</Text>
-              <Text style={styles.breakdownHeaderText}>Color</Text>
-              <Text style={styles.breakdownHeaderText}>Pattern</Text>
-              <Text style={styles.breakdownHeaderText}>Print</Text>
-              <Text style={styles.breakdownHeaderText}>Price/Pc</Text>
-              <Text style={styles.breakdownHeaderText}>Total</Text>
-            </View>
-            
-            {quotationItems.map((item) => {
-              const sizeName = sizes.find(s => s.id === item.size_id)?.name || '';
-              const { pricePerPiece, total } = calculateItemAmount(item);
-              const combinedSizePrice = getCombinedSizePrice(item.tshirt_type_id, item.size_id);
-              const printColorPrice = getPrintColorPrice(item.print_type_id, selectedColorCount);
-              const printPatternPrice = printPatterns.find(p => p.id === item.print_pattern_id)?.additional_price || 0;
-              const printTypeBasePrice = printTypes.find(t => t.id === item.print_type_id)?.base_price || 0;
-              const necklinePrice = necklines.find(n => n.id === item.neckline_id)?.base_price || 0;
-              
-              return (
-                <View key={item.id} style={styles.breakdownRow}>
-                  <Text style={styles.breakdownCell}>{sizeName}</Text>
-                  <Text style={styles.breakdownCell}>{item.quantity}</Text>
-                  <Text style={styles.breakdownCell}>₱{combinedSizePrice}</Text>
-                  <Text style={styles.breakdownCell}>₱{necklinePrice}</Text>
-                  <Text style={styles.breakdownCell}>₱{printColorPrice}</Text>
-                  <Text style={styles.breakdownCell}>₱{printPatternPrice}</Text>
-                  <Text style={styles.breakdownCell}>₱{printTypeBasePrice}</Text>
-                  <Text style={[styles.breakdownCell, styles.breakdownCellBold]}>₱{pricePerPiece.toLocaleString()}</Text>
-                  <Text style={[styles.breakdownCell, styles.breakdownCellBold]}>₱{total.toLocaleString()}</Text>
-                </View>
-              );
-            })}
-            
-            <View style={styles.breakdownFooter}>
-              <Text style={styles.breakdownFooterLabel}>Subtotal (Sizes)</Text>
-              <Text style={styles.breakdownFooterValue}>₱{totals.totalAmount.toLocaleString()}</Text>
-            </View>
-          </View>
-
-          {/* Section: Addons */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Addons</Text>
-          <View style={styles.divider} />
-
-          {addonCategories.map(category => (
-            <View key={category.id} style={styles.addonCategory}>
-              <Text style={styles.addonCategoryTitle}>{category.name}</Text>
-              <View style={styles.addonGrid}>
-                {addons.filter(a => a.category_id === category.id && a.is_active).map(addon => (
-                  <TouchableOpacity
-                    key={addon.id}
-                    style={[styles.addonChip, selectedAddons.includes(addon.id) && styles.addonChipSelected]}
-                    onPress={() => toggleAddon(addon.id)}
-                  >
-                    <Text style={[styles.addonChipText, selectedAddons.includes(addon.id) && styles.addonChipTextSelected]}>
-                      {addon.name}
-                    </Text>
-                    <Text style={[styles.addonChipPrice, selectedAddons.includes(addon.id) && styles.addonChipPriceSelected]}>
-                      {addon.price_type === 'free' ? 'Free' : `₱${addon.price}/pc`}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ))}
-
-          {/* Section: Discount */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Discount</Text>
-          <View style={styles.divider} />
-
-          <View style={styles.row}>
-            <View style={styles.halfInputContainer}>
-              <UnifiedDropdown
-                variant="searchable"
-                label="Discount Type"
-                options={[
-                  { label: 'Percentage (%)', value: 'percentage' },
-                  { label: 'Fixed Amount (₱)', value: 'fixed' },
-                ]}
-                selectedValue={discount.type}
-                onSelect={(value) => setDiscount({ ...discount, type: value })}
-                placeholder="Discount Type"
-                showSearch={false}
-              />
-            </View>
-            <View style={styles.halfInputContainer}>
-              <Text style={styles.label}>Discount Value</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
-                placeholder={discount.type === 'percentage' ? 'e.g., 10' : 'e.g., 500'}
-                placeholderTextColor="#9CA3AF"
-                value={discount.value.toString()}
-                onChangeText={(text) => setDiscount({ ...discount, value: parseFloat(text) || 0 })}
-              />
-            </View>
-          </View>
-
-          {discount.value > 0 && (
-            <View style={styles.discountApplied}>
-              <Text style={styles.discountText}>Discount Applied:</Text>
-              <Text style={styles.discountAmount}>- ₱{totals.discountAmount.toLocaleString()}</Text>
-            </View>
-          )}
-
-          {/* Section: Payment Summary */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Payment Summary</Text>
-          <View style={styles.divider} />
-
-          <View style={styles.summaryContainer}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Subtotal (Sizes)</Text>
-              <Text style={styles.summaryValue}>₱{totals.totalAmount.toLocaleString()}</Text>
-            </View>
-            {totals.totalAddons > 0 && (
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Addons</Text>
-                <Text style={styles.summaryValue}>₱{totals.totalAddons.toLocaleString()}</Text>
-              </View>
-            )}
-            {totals.discountAmount > 0 && (
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>
-                  Discount ({discount.type === 'percentage' ? `${discount.value}%` : 'Fixed'})
-                </Text>
-                <Text style={[styles.summaryValue, { color: '#EF4444' }]}>
-                  - ₱{totals.discountAmount.toLocaleString()}
-                </Text>
-              </View>
-            )}
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabelTotal}>TOTAL</Text>
-              <Text style={styles.summaryValueTotal}>₱{totals.grandTotal.toLocaleString()}</Text>
-            </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Downpayment (60%)</Text>
-              <Text style={styles.summaryValue}>₱{totals.downPayment.toLocaleString()}</Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Balance (40%)</Text>
-              <Text style={styles.summaryValue}>₱{totals.balance.toLocaleString()}</Text>
-            </View>
-          </View>
-
-          {/* Section: Notes */}
-          <Text style={[styles.sectionTitle, { marginTop: hp(2.5) }]}>Notes</Text>
-          <View style={styles.divider} />
-          <TextInput 
-            style={[styles.input, styles.textArea]} 
-            placeholder="Additional notes or special instructions..." 
-            placeholderTextColor="#9CA3AF"
-            multiline={true}
-            numberOfLines={4}
-            textAlignVertical="top"
-            value={orderInfo.notes}
-            onChangeText={(text) => setOrderInfo({ ...orderInfo, notes: text })}
-          />
-
-        </View>
 
         {/* Footer */}
         <View style={styles.footer}>

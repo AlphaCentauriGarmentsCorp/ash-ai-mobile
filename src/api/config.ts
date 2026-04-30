@@ -72,6 +72,10 @@ const API_CONFIG = {
     ORDERS: '/orders',
     ORDER_BY_ID: (id: number) => `/orders/${id}`,
 
+    // Quotation endpoints
+    QUOTATIONS: '/quotations',
+    QUOTATION_BY_ID: (id: number) => `/quotations/${id}`,
+
     // Dropdown settings endpoints
     DROPDOWN_SETTINGS: '/dropdown-settings',
     DROPDOWN_SETTING_BY_ID: (id: number) => `/dropdown-settings/${id}`,
