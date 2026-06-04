@@ -7,76 +7,32 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@components": [
-        "./src/components"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@screens": [
-        "./src/screens"
-      ],
-      "@screens/*": [
-        "./src/screens/*"
-      ],
-      "@layouts": [
-        "./src/layouts"
-      ],
-      "@layouts/*": [
-        "./src/layouts/*"
-      ],
-      "@utils": [
-        "./src/utils"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ],
-      "@styles": [
-        "./src/styles"
-      ],
-      "@styles/*": [
-        "./src/styles/*"
-      ],
-      "@hooks": [
-        "./src/hooks"
-      ],
-      "@hooks/*": [
-        "./src/hooks/*"
-      ],
-      "@api": [
-        "./src/api"
-      ],
-      "@api/*": [
-        "./src/api/*"
-      ],
-      "@services": [
-        "./src/services"
-      ],
-      "@services/*": [
-        "./src/services/*"
-      ],
-      "@assets": [
-        "./src/assets"
-      ],
-      "@assets/*": [
-        "./src/assets/*"
-      ],
-      "@context": [
-        "./src/context"
-      ],
-      "@context/*": [
-        "./src/context/*"
-      ],
-      "@constants": [
-        "./src/constants"
-      ],
-      "@constants/*": [
-        "./src/constants/*"
-      ]
+      "@/*": ["./src/*"],
+      "@components": ["./src/components"],
+      "@components/*": ["./src/components/*"],
+      "@screens": ["./src/screens"],
+      "@screens/*": ["./src/screens/*"],
+      "@layouts": ["./src/layouts"],
+      "@layouts/*": ["./src/layouts/*"],
+      "@utils": ["./src/utils"],
+      "@utils/*": ["./src/utils/*"],
+      "@styles": ["./src/styles"],
+      "@styles/*": ["./src/styles/*"],
+      "@hooks": ["./src/hooks"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@api": ["./src/api"],
+      "@api/*": ["./src/api/*"],
+      "@services": ["./src/services"],
+      "@services/*": ["./src/services/*"],
+      "@assets": ["./src/assets"],
+      "@assets/*": ["./src/assets/*"],
+      "@context": ["./src/context"],
+      "@context/*": ["./src/context/*"],
+      "@constants": ["./src/constants"],
+      "@constants/*": ["./src/constants/*"]
     }
   },
   "include": [
@@ -84,6 +40,7 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "src/**/*"
-, "src/services", "app/quotation/index.tsx"  ]
+    "src/**/*",
+    "app/**/*"
+  ]
 }
