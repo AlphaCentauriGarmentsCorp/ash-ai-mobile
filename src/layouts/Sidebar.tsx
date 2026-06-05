@@ -2,7 +2,16 @@ import { useAuth } from '@/context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Animated,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface SidebarProps {
@@ -31,50 +40,33 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
+
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-  // Log user data for debugging
   useEffect(() => {
     console.log('Sidebar - Current user:', JSON.stringify(user, null, 2));
   }, [user]);
 
   useEffect(() => {
-    if (visible) {
-      // Slide in animation
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      // Slide out animation
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: -SIDEBAR_WIDTH,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: visible ? 0 : -SIDEBAR_WIDTH,
+        duration: visible ? 300 : 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: visible ? 1 : 0,
+        duration: visible ? 300 : 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, [visible, slideAnim, opacityAnim]);
 
   const handleClose = () => {
-    // Start close animation first, then call onClose
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: -SIDEBAR_WIDTH,
@@ -92,21 +84,43 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
   };
 
   const homeItems: MenuItem[] = [
-    { id: 'dashboard', title: 'Dashboard', icon: 'home-outline', route: '/dashboard' },
-    { id: 'clients', title: 'Clients', icon: 'people-outline', route: '/client' },
+    {
+      id: 'dashboard',
+      title: 'Dashboard',
+      icon: 'home-outline',
+      route: '/dashboard',
+    },
+    {
+      id: 'clients',
+      title: 'Clients',
+      icon: 'people-outline',
+      route: '/client',
+    },
     {
       id: 'quotation',
       title: 'Quotation',
       icon: 'document-text-outline',
       subItems: [
-        { id: 'all-quotation', title: 'All Quotation', route: '/quotation/all' },
-        { id: 'add-quotation', title: 'Add Quotation', route: '/quotation' },
-        { id: 'client-quotation', title: 'Client Quotation', route: '/quotation/quotation-client' },
-      ]
+        {
+          id: 'all-quotation',
+          title: 'All Quotation',
+          route: '/quotation/all',
+        },
+        {
+          id: 'add-quotation',
+          title: 'Add Quotation',
+          route: '/quotation',
+        },
+        {
+          id: 'client-quotation',
+          title: 'Client Quotation',
+          route: '/quotation/quotation-client',
+        },
+      ],
     },
-    { 
-      id: 'dropdown-settings', 
-      title: 'Dropdown Settings', 
+    {
+      id: 'dropdown-settings',
+      title: 'Dropdown Settings',
       icon: 'settings-outline',
       subItems: [
         { id: 'pattern-type', title: 'Pattern Type', route: '/dropdown-settings/pattern-type' },
@@ -118,11 +132,24 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
         { id: 'print-label-placements', title: 'Print Label Placements', route: '/dropdown-settings/print-label-placements' },
         { id: 'print-method', title: 'Print Methods', route: '/dropdown-settings/print-method' },
         { id: 'size-label', title: 'Size Labels', route: '/dropdown-settings/size-label' },
-      ]
+      ],
     },
-    { id: 'accounts', title: 'Accounts', icon: 'person-circle-outline', route: '/Account' },
-    { id: 'reefer', title: 'Reefer', icon: 'shirt-outline' },
-    { id: 'sorbetes', title: 'Sorbetes', icon: 'ice-cream-outline' },
+    {
+      id: 'accounts',
+      title: 'Accounts',
+      icon: 'person-circle-outline',
+      route: '/Account',
+    },
+    {
+      id: 'reefer',
+      title: 'Reefer',
+      icon: 'shirt-outline',
+    },
+    {
+      id: 'sorbetes',
+      title: 'Sorbetes',
+      icon: 'ice-cream-outline',
+    },
   ];
 
   const dailyOperations: MenuItem[] = [
@@ -131,45 +158,49 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     { id: 'cutting', title: 'Cutting Operations', icon: 'cut-outline' },
     { id: 'printing', title: 'Printing Operations', icon: 'print-outline' },
     { id: 'material', title: 'Material Preparation', icon: 'cube-outline' },
-    { 
-      id: 'material-suppliers', 
-      title: 'Material Suppliers', 
+    {
+      id: 'material-suppliers',
+      title: 'Material Suppliers',
       icon: 'person-circle-outline',
       subItems: [
         { id: 'all-suppliers', title: 'All Suppliers', route: '/material-suppliers/all' },
         { id: 'all-materials', title: 'All Materials', route: '/material-suppliers/materials' },
-      ]
+      ],
     },
   ];
 
   const inventory: MenuItem[] = [
-    { 
-      id: 'equipment', 
-      title: 'Equipment', 
+    {
+      id: 'equipment',
+      title: 'Equipment',
       icon: 'construct-outline',
       subItems: [
         { id: 'all-equipment-locations', title: 'All Equipment', route: '/inventory/equipment' },
         { id: 'add-equipment', title: 'Add Equipment', route: '/inventory/equipment/add' },
-      ]
+      ],
     },
-    { id: 'screen-inventory', title: 'Screen Inventory', icon: 'grid-outline', route: '/inventory/screen' },
+    {
+      id: 'screen-inventory',
+      title: 'Screen Inventory',
+      icon: 'grid-outline',
+      route: '/inventory/screen',
+    },
   ];
 
-  const toggleExpand = (itemId: string, parentId?: string) => {
-    setExpandedItems((prev: Record<string, boolean>) => {
-      const newState = { ...prev };
-      
-      // Toggle the clicked item
-      newState[itemId] = !prev[itemId];
-      
-      return newState;
-    });
+  const toggleExpand = (itemId: string) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
   };
 
-  const handleItemPress = (item: MenuItem | SubMenuItem, parentId?: string) => {
+  const handleItemPress = (item: MenuItem | SubMenuItem) => {
     if (item.subItems && item.subItems.length > 0) {
-      toggleExpand(item.id, parentId);
-    } else if (item.route) {
+      toggleExpand(item.id);
+      return;
+    }
+
+    if (item.route) {
       router.push(item.route as any);
       handleClose();
     }
@@ -185,25 +216,27 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     }
   };
 
-  const renderSubMenuItem = (item: SubMenuItem, level: number = 1, parentId?: string) => (
+  const renderSubMenuItem = (item: SubMenuItem, level: number = 1) => (
     <View key={item.id}>
       <TouchableOpacity
-        style={[styles.subMenuItem, { paddingLeft: 20 + (level * 20) }]}
-        onPress={() => handleItemPress(item, parentId)}
+        style={[styles.subMenuItem, { paddingLeft: 20 + level * 20 }]}
+        onPress={() => handleItemPress(item)}
         activeOpacity={0.7}
       >
         <Text style={styles.subMenuText}>{item.title}</Text>
+
         {item.subItems && item.subItems.length > 0 && (
-          <Ionicons 
-            name={expandedItems[item.id] ? "chevron-down" : "chevron-forward"} 
-            size={16} 
-            color="#ffffff" 
+          <Ionicons
+            name={expandedItems[item.id] ? 'chevron-down' : 'chevron-forward'}
+            size={16}
+            color="#ffffff"
           />
         )}
       </TouchableOpacity>
-      {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
-        renderSubMenuItem(subItem, level + 1, item.id)
-      )}
+
+      {expandedItems[item.id] &&
+        item.subItems &&
+        item.subItems.map(subItem => renderSubMenuItem(subItem, level + 1))}
     </View>
   );
 
@@ -218,17 +251,19 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
           <Ionicons name={item.icon as any} size={20} color="#ffffff" />
           <Text style={styles.menuText}>{item.title}</Text>
         </View>
+
         {item.subItems && item.subItems.length > 0 && (
-          <Ionicons 
-            name={expandedItems[item.id] ? "chevron-down" : "chevron-forward"} 
-            size={16} 
-            color="#ffffff" 
+          <Ionicons
+            name={expandedItems[item.id] ? 'chevron-down' : 'chevron-forward'}
+            size={16}
+            color="#ffffff"
           />
         )}
       </TouchableOpacity>
-      {expandedItems[item.id] && item.subItems && item.subItems.map(subItem => 
-        renderSubMenuItem(subItem, 1, item.id)
-      )}
+
+      {expandedItems[item.id] &&
+        item.subItems &&
+        item.subItems.map(subItem => renderSubMenuItem(subItem, 1))}
     </View>
   );
 
@@ -236,43 +271,37 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
     <Modal
       visible={visible}
       animationType="none"
-      transparent={true}
+      transparent
       onRequestClose={handleClose}
     >
       <View style={styles.overlay}>
-        <Animated.View 
-          style={[
-            styles.backdrop,
-            {
-              opacity: opacityAnim,
-            }
-          ]}
-        >
+        <Animated.View style={[styles.backdrop, { opacity: opacityAnim }]}>
           <TouchableWithoutFeedback onPress={handleClose}>
             <View style={styles.backdropTouchable} />
           </TouchableWithoutFeedback>
         </Animated.View>
-        
-        <Animated.View 
+
+        <Animated.View
           style={[
             styles.sidebarContainer,
             {
               transform: [{ translateX: slideAnim }],
               paddingTop: insets.top,
               paddingBottom: insets.bottom,
-            }
+            },
           ]}
         >
           <View style={styles.contentWrapper}>
-            {/* Sidebar Header */}
             <View style={styles.header}>
               <View style={styles.userCard}>
                 <View style={styles.userInfo}>
                   <View style={styles.avatar}>
                     <Ionicons name="person" size={24} color="#1e3a5f" />
                   </View>
+
                   <View style={styles.userDetails}>
                     <Text style={styles.userName}>{user?.name || 'User'}</Text>
+
                     <View style={styles.adminBadge}>
                       <View style={styles.statusDot} />
                       <Text style={styles.adminText}>
@@ -281,22 +310,22 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
                     </View>
                   </View>
                 </View>
-                <TouchableOpacity 
+
+                <TouchableOpacity
                   style={styles.dropdownButton}
-                  onPress={() => setShowUserDropdown(!showUserDropdown)}
+                  onPress={() => setShowUserDropdown(prev => !prev)}
                 >
-                  <Ionicons 
-                    name={showUserDropdown ? "chevron-up" : "chevron-down"} 
-                    size={16} 
-                    color="#666" 
+                  <Ionicons
+                    name={showUserDropdown ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    color="#666"
                   />
                 </TouchableOpacity>
               </View>
-              
-              {/* User Dropdown Menu */}
+
               {showUserDropdown && (
                 <View style={styles.userDropdown}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.dropdownItem}
                     onPress={handleLogout}
                     activeOpacity={0.7}
@@ -308,21 +337,17 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               )}
             </View>
 
-            {/* Sidebar Menu */}
             <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
-              {/* Home Section */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Home</Text>
                 {homeItems.map(renderMenuItem)}
               </View>
 
-              {/* Daily Operations Section */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Daily Operations</Text>
                 {dailyOperations.map(renderMenuItem)}
               </View>
 
-              {/* Inventory Section */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Inventory</Text>
                 {inventory.map(renderMenuItem)}
